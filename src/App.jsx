@@ -1,4 +1,4 @@
-// src/App.jsx
+
 import MainLayout from './layouts/MainLayout'
 
 const App = () => {
