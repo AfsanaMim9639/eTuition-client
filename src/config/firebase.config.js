@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
@@ -18,6 +18,9 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication
 export const auth = getAuth(app);
+
+// Initialize Google Provider for Social Login
+export const googleProvider = new GoogleAuthProvider();
 
 // Initialize Analytics (optional)
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
