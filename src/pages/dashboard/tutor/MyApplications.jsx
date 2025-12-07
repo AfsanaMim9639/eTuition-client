@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../../utils/api';
 
-export const MyApplications = () => {
+const MyApplications = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,3 +60,5 @@ export const MyApplications = () => {
     </div>
   );
 };
+
+export default MyApplications;

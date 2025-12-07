@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaUsers, FaBook, FaDollarSign } from 'react-icons/fa';
 import api from '../../../utils/api';
 
-export const AdminDashboard = () => {
+const AdminDashboard = () => {
   const [stats, setStats] = useState({});
 
   useEffect(() => {
@@ -45,3 +45,5 @@ export const AdminDashboard = () => {
     </div>
   );
 };
+
+export default AdminDashboard;

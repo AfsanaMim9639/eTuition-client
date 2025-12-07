@@ -1,6 +1,6 @@
 import { FaRocket, FaUsers, FaHeart } from 'react-icons/fa';
 
-export const About = () => (
+const About = () => (
   <div className="min-h-screen bg-dark-bg pt-24 pb-12">
     <div className="container mx-auto px-4">
       <h1 className="text-5xl font-bold text-center mb-6">
@@ -30,3 +30,5 @@ export const About = () => (
     </div>
   </div>
 );
+
+export default About;
