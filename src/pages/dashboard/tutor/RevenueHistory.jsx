@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../../utils/api';
 
-export const RevenueHistory = () => {
+const RevenueHistory = () => {
   const [payments, setPayments] = useState([]);
   const [total, setTotal] = useState(0);
 
@@ -40,3 +40,4 @@ export const RevenueHistory = () => {
     </div>
   );
 };
+export default RevenueHistory;
