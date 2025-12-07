@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaBook, FaDollarSign, FaClock } from 'react-icons/fa';
 import api from '../../../utils/api';
 
-export const TutorDashboard = () => {
+const TutorDashboard = () => {
   const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, revenue: 0 });
 
   useEffect(() => {
@@ -60,3 +60,4 @@ export const TutorDashboard = () => {
     </div>
   );
 };
+export default TutorDashboard;

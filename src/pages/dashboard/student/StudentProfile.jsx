@@ -1,4 +1,4 @@
-export const StudentProfile = () => {
+const StudentProfile = () => {
   const { user } = useAuth();
   
   return (
@@ -16,3 +16,4 @@ export const StudentProfile = () => {
     </div>
   );
 };
+export default StudentProfile;

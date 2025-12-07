@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../utils/api';
 
-export const TutorProfilePage = () => {
+const TutorProfilePage = () => {
   const { id } = useParams();
   const [tutor, setTutor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,3 +51,5 @@ export const TutorProfilePage = () => {
     </div>
   );
 };
+
+export default TutorProfilePage;

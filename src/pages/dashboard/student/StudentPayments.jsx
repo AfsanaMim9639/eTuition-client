@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../../utils/api';
 
-export const StudentPayments = () => {
+const StudentPayments = () => {
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
@@ -46,3 +46,4 @@ export const StudentPayments = () => {
     </div>
   );
 };
+export default StudentPayments;
