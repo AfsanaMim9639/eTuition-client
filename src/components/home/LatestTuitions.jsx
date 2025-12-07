@@ -1,184 +1,161 @@
-import React from 'react';
-import { BookOpen, MapPin, DollarSign, Clock, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FaStar, FaGraduationCap, FaDollarSign, FaArrowRight } from 'react-icons/fa';
+import api from '../../utils/api';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const LatestTuitions = () => {
-  const tuitions = [
-    {
-      id: 1,
-      title: 'Mathematics Tutor Needed',
-      class: 'Class 10',
-      batch: 'SSC Batch',
-      location: 'Dhanmondi, Dhaka',
-      budget: '5,000 - 7,000 BDT/month',
-      schedule: '3 days per week'
-    },
-    {
-      id: 2,
-      title: 'Physics Teacher Required',
-      class: 'Class 11',
-      batch: 'HSC Batch',
-      location: 'Mirpur, Dhaka',
-      budget: '6,000 - 8,000 BDT/month',
-      schedule: '4 days per week'
-    },
-    {
-      id: 3,
-      title: 'English Language Tutor',
-      class: 'Class 8',
-      batch: 'JSC Batch',
-      location: 'Gulshan, Dhaka',
-      budget: '4,000 - 6,000 BDT/month',
-      schedule: '2 days per week'
-    },
-    {
-      id: 4,
-      title: 'Chemistry Expert Needed',
-      class: 'Class 12',
-      batch: 'HSC Batch',
-      location: 'Uttara, Dhaka',
-      budget: '7,000 - 9,000 BDT/month',
-      schedule: '3 days per week'
-    },
-    {
-      id: 5,
-      title: 'Biology Teacher Required',
-      class: 'Class 10',
-      batch: 'SSC Batch',
-      location: 'Banani, Dhaka',
-      budget: '5,500 - 7,500 BDT/month',
-      schedule: '3 days per week'
-    },
-    {
-      id: 6,
-      title: 'Computer Science Tutor',
-      class: 'Class 11',
-      batch: 'HSC Batch',
-      location: 'Mohakhali, Dhaka',
-      budget: '6,500 - 8,500 BDT/month',
-      schedule: '2 days per week'
+gsap.registerPlugin(ScrollTrigger);
+
+const LatestTutors = () => {
+  const [tutors, setTutors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLatestTutors();
+  }, []);
+
+  useEffect(() => {
+    if (tutors.length > 0) {
+      gsap.fromTo(
+        '.tutor-card-home',
+        { opacity: 0, scale: 0.8 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: '.tutor-grid',
+            start: 'top bottom-=100',
+          }
+        }
+      );
     }
-  ];
+  }, [tutors]);
+
+  const fetchLatestTutors = async () => {
+    try {
+      const response = await api.get('/users/tutors/latest');
+      setTutors(response.data.tutors);
+    } catch (error) {
+      console.error('Error fetching tutors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-dark-card">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="spinner-neon w-12 h-12 mx-auto"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="relative py-20 z-10">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
-              Latest Tuition Posts
-            </span>
-          </h2>
-          <p className="text-gray-400 text-lg">Find the perfect opportunity for your expertise</p>
+    <section className="py-20 bg-dark-card">
+      <div className="container mx-auto px-4">
+        {/* Section Header */}
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Top <span className="gradient-text">Tutors</span>
+            </h2>
+            <p className="text-xl text-gray-400">
+              Meet our experienced and qualified tutors
+            </p>
+          </div>
+          <Link 
+            to="/tutors"
+            className="btn btn-neon-blue px-6 py-3 rounded-lg font-semibold hidden md:flex items-center space-x-2"
+          >
+            <span>View All</span>
+            <FaArrowRight />
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {tuitions.map((tuition, idx) => (
-            <div
-              key={tuition.id}
-              className="group relative bg-gradient-to-br from-[#0a0f0d] to-[#0f1512] backdrop-blur-sm border border-[#00ff88]/20 rounded-2xl overflow-hidden hover:border-[#00ff88] transition-all duration-500 transform hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#00ff88]/30"
-              style={{
-                animation: `fadeInUp 0.6s ease-out ${idx * 0.1}s both`
-              }}
+        {/* Tutors Grid */}
+        <div className="tutor-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tutors.map((tutor) => (
+            <Link
+              key={tutor._id}
+              to={`/tutors/${tutor._id}`}
+              className="tutor-card-home card-neon card-neon-blue p-6 rounded-xl text-center group"
             >
-              {/* Header with Badge */}
-              <div className="relative bg-gradient-to-r from-[#00ff88]/10 to-[#00ffcc]/10 p-8 pb-10 border-b border-[#00ff88]/10">
-                <div className="absolute top-5 right-5 bg-[#00ff88] text-[#0a0f0d] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg shadow-[#00ff88]/50">
-                  New
-                </div>
-
-                <div className="flex items-start space-x-5">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl blur opacity-40"></div>
-                    <div className="relative w-16 h-16 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center">
-                      <BookOpen className="w-8 h-8 text-[#0a0f0d]" />
-                    </div>
-                  </div>
-                  <div className="flex-1 pt-1">
-                    <h3 className="text-xl font-bold text-white mb-3 leading-tight group-hover:text-[#00ff88] transition-colors">
-                      {tuition.title}
-                    </h3>
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-[#00ff88] text-sm font-semibold">{tuition.class}</span>
-                      <span className="text-gray-500">•</span>
-                      <span className="text-gray-400 text-sm">{tuition.batch}</span>
-                    </div>
-                  </div>
+              {/* Avatar */}
+              <div className="relative inline-block mb-4">
+                <img 
+                  src={tutor.profileImage || 'https://i.ibb.co/qpB9ZNp/default-avatar.png'} 
+                  alt={tutor.name}
+                  className="w-24 h-24 rounded-full neon-border-blue mx-auto group-hover:scale-110 transition-transform duration-300"
+                />
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-dark-bg px-3 py-1 rounded-full border-2 border-neon-green flex items-center space-x-1">
+                  <FaStar className="text-neon-green text-xs" />
+                  <span className="text-sm font-bold text-neon-green">
+                    {tutor.rating || 5.0}
+                  </span>
                 </div>
               </div>
 
-              {/* Content Section */}
-              <div className="p-9 space-y-6">
-                {/* Location */}
-                <div className="flex items-start group/item">
-                  <div className="w-12 h-12 rounded-lg bg-[#00ff88]/10 flex items-center justify-center mr-4 flex-shrink-0 group-hover/item:bg-[#00ff88]/20 transition-colors">
-                    <MapPin className="w-5 h-5 text-[#00ff88]" />
-                  </div>
-                  <div className="flex-1 pt-2">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Location</p>
-                    <p className="text-white font-medium text-[15px] leading-relaxed">{tuition.location}</p>
-                  </div>
-                </div>
+              {/* Name */}
+              <h3 className="text-xl font-bold neon-text-blue mb-2 group-hover:text-neon-pink transition-colors">
+                {tutor.name}
+              </h3>
 
-                {/* Budget */}
-                <div className="flex items-start group/item">
-                  <div className="w-12 h-12 rounded-lg bg-[#00ff88]/10 flex items-center justify-center mr-4 flex-shrink-0 group-hover/item:bg-[#00ff88]/20 transition-colors">
-                    <DollarSign className="w-5 h-5 text-[#00ff88]" />
-                  </div>
-                  <div className="flex-1 pt-2">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Budget</p>
-                    <p className="text-white font-medium text-[15px] leading-relaxed">{tuition.budget}</p>
-                  </div>
-                </div>
-
-                {/* Schedule */}
-                <div className="flex items-start group/item">
-                  <div className="w-12 h-12 rounded-lg bg-[#00ff88]/10 flex items-center justify-center mr-4 flex-shrink-0 group-hover/item:bg-[#00ff88]/20 transition-colors">
-                    <Clock className="w-5 h-5 text-[#00ff88]" />
-                  </div>
-                  <div className="flex-1 pt-2">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Schedule</p>
-                    <p className="text-white font-medium text-[15px] leading-relaxed">{tuition.schedule}</p>
-                  </div>
-                </div>
+              {/* Education */}
+              <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm mb-4">
+                <FaGraduationCap className="text-neon-pink" />
+                <span className="truncate">{tutor.education}</span>
               </div>
 
-              {/* Footer Button */}
-              <div className="px-8 pb-8">
-                <button className="w-full py-4 bg-[#00ff88]/10 border-2 border-[#00ff88]/30 text-[#00ff88] rounded-xl group-hover:bg-[#00ff88] group-hover:border-[#00ff88] group-hover:text-[#0a0f0d] transition-all duration-300 font-bold flex items-center justify-center gap-2 relative overflow-hidden text-base">
-                  <span className="relative z-10">View Details</span>
-                  <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </button>
+              {/* Subjects */}
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
+                {tutor.subjects?.slice(0, 3).map((subject, index) => (
+                  <span 
+                    key={index}
+                    className="px-3 py-1 bg-neon-blue/20 border border-neon-blue/30 rounded-full text-xs text-neon-blue"
+                  >
+                    {subject}
+                  </span>
+                ))}
+                {tutor.subjects?.length > 3 && (
+                  <span className="px-3 py-1 bg-neon-pink/20 border border-neon-pink/30 rounded-full text-xs text-neon-pink">
+                    +{tutor.subjects.length - 3} more
+                  </span>
+                )}
               </div>
 
-              {/* Decorative Corner Gradient */}
-              <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-[#00ff88]/20 to-transparent rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-            </div>
+              {/* Rate */}
+              <div className="pt-4 border-t border-neon-blue/30">
+                <div className="flex items-center justify-center space-x-2">
+                  <FaDollarSign className="text-neon-green" />
+                  <span className="font-bold text-neon-green">
+                    {tutor.hourlyRate || 500} BDT/hour
+                  </span>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
 
-        <div className="text-center mt-16">
-          <button className="group px-10 py-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto">
-            View All Tuitions
-            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+        {/* Mobile View All Button */}
+        <div className="text-center mt-8 md:hidden">
+          <Link 
+            to="/tutors"
+            className="btn btn-neon-blue px-8 py-3 rounded-lg font-semibold inline-flex items-center space-x-2"
+          >
+            <span>View All Tutors</span>
+            <FaArrowRight />
+          </Link>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </section>
   );
 };
 
-export default LatestTuitions;
+export default LatestTutors;

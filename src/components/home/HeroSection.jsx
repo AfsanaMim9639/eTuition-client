@@ -1,79 +1,115 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { FaSearch, FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 
 const HeroSection = () => {
-  const [scrollY, setScrollY] = useState(0);
+  const heroRef = useRef(null);
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const buttonsRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const tl = gsap.timeline();
+
+    tl.fromTo(
+      titleRef.current,
+      { opacity: 0, y: -50 },
+      { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+    )
+    .fromTo(
+      subtitleRef.current,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
+      '-=0.5'
+    )
+    .fromTo(
+      buttonsRef.current.children,
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 0.6, stagger: 0.2, ease: 'back.out(1.7)' },
+      '-=0.4'
+    );
+
+    // Floating animation for icons
+    gsap.to('.float-icon', {
+      y: -20,
+      duration: 2,
+      ease: 'power1.inOut',
+      repeat: -1,
+      yoyo: true,
+      stagger: 0.3
+    });
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-        <div className="text-center">
-          <div
-            className="inline-block mb-6"
-            style={{
-              transform: `translateY(${scrollY * 0.3}px)`,
-              opacity: Math.max(0, 1 - scrollY / 500)
-            }}
-          >
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] rounded-lg blur opacity-30 animate-pulse" />
-              <h1 className="relative text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-[#00ff88] via-[#00ffcc] to-[#00ff88] bg-clip-text text-transparent animate-gradient">
-                  Find Your Perfect Tutor
-                </span>
-              </h1>
-            </div>
-          </div>
+    <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      {/* Background gradient */}
+      <div className="absolute inset-0 hero-gradient"></div>
+      
+      {/* Animated background circles */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-neon-pink/10 blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-neon-blue/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-          <p
-            className="text-xl sm:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto"
-            style={{
-              transform: `translateY(${scrollY * 0.2}px)`,
-              opacity: Math.max(0, 1 - scrollY / 500)
-            }}
-          >
-            Connect with verified tutors, manage tuitions seamlessly, and track your academic progress all in one platform
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Title */}
+          <h1 ref={titleRef} className="text-5xl md:text-7xl font-bold mb-6">
+            Find Your Perfect{' '}
+            <span className="gradient-text">Tutor</span>
+            <br />
+            Start Learning{' '}
+            <span className="neon-text-blue">Today</span>
+          </h1>
+
+          {/* Subtitle */}
+          <p ref={subtitleRef} className="text-xl md:text-2xl text-gray-400 mb-12">
+            Connect with qualified tutors and achieve your academic goals.
+            <br />
+            Quality education is just a click away!
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="group px-8 py-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-lg font-bold text-lg hover:shadow-2xl hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105">
-              Get Started
-              <ChevronRight className="inline-block ml-2 group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button className="px-8 py-4 border-2 border-[#00ff88] text-[#00ff88] rounded-lg font-bold text-lg hover:bg-[#00ff88]/10 transition-all duration-300 transform hover:scale-105">
-              Browse Tutors
-            </button>
+          {/* CTA Buttons */}
+          <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <Link 
+              to="/tuitions"
+              className="btn btn-neon-pink px-8 py-4 rounded-lg text-lg font-semibold flex items-center space-x-2 w-full sm:w-auto"
+            >
+              <FaSearch />
+              <span>Find Tuitions</span>
+            </Link>
+            <Link 
+              to="/tutors"
+              className="btn btn-neon-blue px-8 py-4 rounded-lg text-lg font-semibold flex items-center space-x-2 w-full sm:w-auto"
+            >
+              <FaChalkboardTeacher />
+              <span>Browse Tutors</span>
+            </Link>
+            <Link 
+              to="/register"
+              className="btn btn-neon-green px-8 py-4 rounded-lg text-lg font-semibold flex items-center space-x-2 w-full sm:w-auto"
+            >
+              <FaGraduationCap />
+              <span>Register Now</span>
+            </Link>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="card-neon card-neon-pink p-6 rounded-xl float-icon">
+              <div className="text-4xl font-bold neon-text-pink mb-2">500+</div>
+              <div className="text-gray-400">Active Tutors</div>
+            </div>
+            <div className="card-neon card-neon-blue p-6 rounded-xl float-icon" style={{ animationDelay: '0.3s' }}>
+              <div className="text-4xl font-bold neon-text-blue mb-2">1000+</div>
+              <div className="text-gray-400">Students</div>
+            </div>
+            <div className="card-neon card-neon-pink p-6 rounded-xl float-icon" style={{ animationDelay: '0.6s' }}>
+              <div className="text-4xl font-bold neon-text-green mb-2">50+</div>
+              <div className="text-gray-400">Subjects</div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-[#00ff88] rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-[#00ff88] rounded-full mt-2 animate-pulse" />
-        </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes gradient {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-      `}</style>
     </section>
   );
 };
