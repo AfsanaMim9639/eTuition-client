@@ -1,69 +1,256 @@
-@import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* ============================================
-   ROOT VARIABLES
-   ============================================ */
-
-:root {
-  --color-primary: #00ff88;
-  --color-accent: #00ffcc;
-  --color-bg-dark: #0a0f0d;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--color-bg-dark);
-  color: #ffffff;
-  overflow-x: hidden;
-}
-
-/* Scrollbar Styling */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-dark);
+  background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 5px;
+  background: linear-gradient(180deg, #FF10F0, #00F0FF);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+  background: linear-gradient(180deg, #00F0FF, #39FF14);
 }
 
-/* Custom Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Base Styles */
+body {
+  @apply bg-dark-bg text-white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-@keyframes gradient {
+/* Neon Text Effects */
+.neon-text {
+  text-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 30px currentColor;
+}
+
+.neon-text-pink {
+  color: #FF10F0;
+  text-shadow: 
+    0 0 10px #FF10F0,
+    0 0 20px #FF10F0,
+    0 0 40px #FF10F0;
+}
+
+.neon-text-blue {
+  color: #00F0FF;
+  text-shadow: 
+    0 0 10px #00F0FF,
+    0 0 20px #00F0FF,
+    0 0 40px #00F0FF;
+}
+
+.neon-text-green {
+  color: #39FF14;
+  text-shadow: 
+    0 0 10px #39FF14,
+    0 0 20px #39FF14,
+    0 0 40px #39FF14;
+}
+
+/* Neon Borders */
+.neon-border-pink {
+  border: 2px solid #FF10F0;
+  box-shadow: 
+    0 0 10px #FF10F0,
+    inset 0 0 10px rgba(255, 16, 240, 0.2);
+}
+
+.neon-border-blue {
+  border: 2px solid #00F0FF;
+  box-shadow: 
+    0 0 10px #00F0FF,
+    inset 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.neon-border-green {
+  border: 2px solid #39FF14;
+  box-shadow: 
+    0 0 10px #39FF14,
+    inset 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+/* Neon Buttons */
+.btn-neon {
+  @apply relative overflow-hidden transition-all duration-300;
+  border: 2px solid;
+}
+
+.btn-neon-pink {
+  @apply border-neon-pink text-neon-pink;
+  box-shadow: 0 0 20px rgba(255, 16, 240, 0.3);
+}
+
+.btn-neon-pink:hover {
+  @apply bg-neon-pink text-black;
+  box-shadow: 0 0 30px rgba(255, 16, 240, 0.6);
+}
+
+.btn-neon-blue {
+  @apply border-neon-blue text-neon-blue;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.btn-neon-blue:hover {
+  @apply bg-neon-blue text-black;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+}
+
+.btn-neon-green {
+  @apply border-neon-green text-neon-green;
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+}
+
+.btn-neon-green:hover {
+  @apply bg-neon-green text-black;
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.6);
+}
+
+/* Neon Cards */
+.card-neon {
+  @apply bg-dark-card backdrop-blur-lg border-2 transition-all duration-300;
+  background: linear-gradient(135deg, rgba(18, 18, 18, 0.95), rgba(26, 26, 26, 0.95));
+}
+
+.card-neon:hover {
+  transform: translateY(-5px);
+}
+
+.card-neon-pink {
+  @apply border-neon-pink/30;
+  box-shadow: 0 0 20px rgba(255, 16, 240, 0.1);
+}
+
+.card-neon-pink:hover {
+  @apply border-neon-pink/60;
+  box-shadow: 0 0 40px rgba(255, 16, 240, 0.3);
+}
+
+.card-neon-blue {
+  @apply border-neon-blue/30;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+}
+
+.card-neon-blue:hover {
+  @apply border-neon-blue/60;
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(90deg, #FF10F0, #00F0FF, #39FF14);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
   0%, 100% {
-    background-position: 0% 50%;
+    background-position: 0% center;
   }
   50% {
-    background-position: 100% 50%;
+    background-position: 100% center;
   }
 }
 
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient 3s ease infinite;
+/* Loading Spinner */
+.spinner-neon {
+  border: 3px solid rgba(255, 16, 240, 0.1);
+  border-top: 3px solid #FF10F0;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Glitch Effect */
+.glitch {
+  position: relative;
+  animation: glitch-skew 1s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 #FF10F0;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 #00F0FF;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(10px, 9999px, 31px, 0); }
+  20% { clip: rect(70px, 9999px, 71px, 0); }
+  40% { clip: rect(60px, 9999px, 130px, 0); }
+  60% { clip: rect(10px, 9999px, 105px, 0); }
+  80% { clip: rect(40px, 9999px, 20px, 0); }
+  100% { clip: rect(90px, 9999px, 55px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(65px, 9999px, 100px, 0); }
+  20% { clip: rect(90px, 9999px, 20px, 0); }
+  40% { clip: rect(10px, 9999px, 80px, 0); }
+  60% { clip: rect(50px, 9999px, 40px, 0); }
+  80% { clip: rect(30px, 9999px, 95px, 0); }
+  100% { clip: rect(10px, 9999px, 60px, 0); }
+}
+
+@keyframes glitch-skew {
+  0% { transform: skew(0deg); }
+  10% { transform: skew(-2deg); }
+  20% { transform: skew(2deg); }
+  30% { transform: skew(0deg); }
+  100% { transform: skew(0deg); }
+}
+
+/* Input Neon Styles */
+.input-neon {
+  @apply bg-dark-card border-2 border-neon-pink/30 text-white px-4 py-3 rounded-lg;
+  @apply focus:outline-none focus:border-neon-pink transition-all duration-300;
+  box-shadow: 0 0 10px rgba(255, 16, 240, 0.1);
+}
+
+.input-neon:focus {
+  box-shadow: 0 0 20px rgba(255, 16, 240, 0.3);
+}
+
+/* Hero Background */
+.hero-gradient {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 16, 240, 0.1),
+    rgba(0, 240, 255, 0.05),
+    transparent
+  );
 }
