@@ -1,5 +1,5 @@
 // src/layouts/MainLayout.jsx
-import Modern3DSlider from '../components/shared/Modern3DSlider';
+import { Outlet } from 'react-router-dom';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 
@@ -11,7 +11,7 @@ const MainLayout = () => {
       
       {/* Main Content - With proper spacing for fixed navbar */}
       <main className="w-full">
-        <Modern3DSlider />
+        <Outlet /> {/* এখানে সব pages render হবে */}
       </main>
       
       {/* Footer */}
