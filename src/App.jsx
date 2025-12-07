@@ -1,19 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
-import Register from './pages/Register'; // আপনার register component
+import Home from './pages/Home';
 
-const App = () => {
+function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* Main Layout with Home Page */}
-        <Route path="/" element={<MainLayout />} />
-        
-        {/* Register Page - Separate Route (No MainLayout) */}
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} />
+        </Route>
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;

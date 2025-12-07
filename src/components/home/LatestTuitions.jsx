@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, MapPin, DollarSign, Clock } from 'lucide-react';
+import { BookOpen, MapPin, DollarSign, Clock, ChevronRight } from 'lucide-react';
 
 const LatestTuitions = () => {
   const tuitions = [
@@ -61,8 +61,8 @@ const LatestTuitions = () => {
 
   return (
     <section className="relative py-20 z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl font-bold mb-4">
             <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
               Latest Tuition Posts
@@ -71,54 +71,96 @@ const LatestTuitions = () => {
           <p className="text-gray-400 text-lg">Find the perfect opportunity for your expertise</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {tuitions.map((tuition, idx) => (
             <div
               key={tuition.id}
-              className="group relative bg-[#0a0f0d]/40 backdrop-blur-sm border border-[#00ff88]/20 rounded-xl p-6 hover:border-[#00ff88] transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-[#00ff88]/20"
+              className="group relative bg-gradient-to-br from-[#0a0f0d] to-[#0f1512] backdrop-blur-sm border border-[#00ff88]/20 rounded-2xl overflow-hidden hover:border-[#00ff88] transition-all duration-500 transform hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#00ff88]/30"
               style={{
                 animation: `fadeInUp 0.6s ease-out ${idx * 0.1}s both`
               }}
             >
-              <div className="absolute top-4 right-4 bg-[#00ff88]/20 text-[#00ff88] px-3 py-1 rounded-full text-sm font-semibold">
-                New
-              </div>
+              {/* Header with Badge */}
+              <div className="relative bg-gradient-to-r from-[#00ff88]/10 to-[#00ffcc]/10 p-8 pb-10 border-b border-[#00ff88]/10">
+                <div className="absolute top-5 right-5 bg-[#00ff88] text-[#0a0f0d] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg shadow-[#00ff88]/50">
+                  New
+                </div>
 
-              <div className="flex items-start space-x-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-[#0a0f0d]" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-1">{tuition.title}</h3>
-                  <p className="text-gray-400 text-sm">{tuition.class} • {tuition.batch}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-gray-300">
-                  <MapPin className="w-4 h-4 mr-2 text-[#00ff88]" />
-                  <span className="text-sm">{tuition.location}</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <DollarSign className="w-4 h-4 mr-2 text-[#00ff88]" />
-                  <span className="text-sm">{tuition.budget}</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <Clock className="w-4 h-4 mr-2 text-[#00ff88]" />
-                  <span className="text-sm">{tuition.schedule}</span>
+                <div className="flex items-start space-x-5">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl blur opacity-40"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center">
+                      <BookOpen className="w-8 h-8 text-[#0a0f0d]" />
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-xl font-bold text-white mb-3 leading-tight group-hover:text-[#00ff88] transition-colors">
+                      {tuition.title}
+                    </h3>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[#00ff88] text-sm font-semibold">{tuition.class}</span>
+                      <span className="text-gray-500">•</span>
+                      <span className="text-gray-400 text-sm">{tuition.batch}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <button className="w-full py-2 bg-[#00ff88]/10 border border-[#00ff88] text-[#00ff88] rounded-lg group-hover:bg-[#00ff88] group-hover:text-[#0a0f0d] transition-all duration-300 font-semibold">
-                View Details
-              </button>
+              {/* Content Section */}
+              <div className="p-9 space-y-6">
+                {/* Location */}
+                <div className="flex items-start group/item">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ff88]/10 flex items-center justify-center mr-4 flex-shrink-0 group-hover/item:bg-[#00ff88]/20 transition-colors">
+                    <MapPin className="w-5 h-5 text-[#00ff88]" />
+                  </div>
+                  <div className="flex-1 pt-2">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Location</p>
+                    <p className="text-white font-medium text-[15px] leading-relaxed">{tuition.location}</p>
+                  </div>
+                </div>
+
+                {/* Budget */}
+                <div className="flex items-start group/item">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ff88]/10 flex items-center justify-center mr-4 flex-shrink-0 group-hover/item:bg-[#00ff88]/20 transition-colors">
+                    <DollarSign className="w-5 h-5 text-[#00ff88]" />
+                  </div>
+                  <div className="flex-1 pt-2">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Budget</p>
+                    <p className="text-white font-medium text-[15px] leading-relaxed">{tuition.budget}</p>
+                  </div>
+                </div>
+
+                {/* Schedule */}
+                <div className="flex items-start group/item">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ff88]/10 flex items-center justify-center mr-4 flex-shrink-0 group-hover/item:bg-[#00ff88]/20 transition-colors">
+                    <Clock className="w-5 h-5 text-[#00ff88]" />
+                  </div>
+                  <div className="flex-1 pt-2">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Schedule</p>
+                    <p className="text-white font-medium text-[15px] leading-relaxed">{tuition.schedule}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Button */}
+              <div className="px-8 pb-8">
+                <button className="w-full py-4 bg-[#00ff88]/10 border-2 border-[#00ff88]/30 text-[#00ff88] rounded-xl group-hover:bg-[#00ff88] group-hover:border-[#00ff88] group-hover:text-[#0a0f0d] transition-all duration-300 font-bold flex items-center justify-center gap-2 relative overflow-hidden text-base">
+                  <span className="relative z-10">View Details</span>
+                  <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </button>
+              </div>
+
+              {/* Decorative Corner Gradient */}
+              <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-[#00ff88]/20 to-transparent rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             </div>
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <button className="px-8 py-3 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ff88]/50 transition-all duration-300">
+        <div className="text-center mt-16">
+          <button className="group px-10 py-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto">
             View All Tuitions
+            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </div>

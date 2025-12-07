@@ -1,20 +1,17 @@
-// src/layouts/MainLayout.jsx
+import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
+import ParticleBackground from '../components/shared/ParticleBackground';
 
 const MainLayout = () => {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-[#050807] via-[#0a0f0d] to-[#0d1612]">
-      {/* Navbar - Fixed at top with highest z-index */}
+    <div className="relative min-h-screen bg-[#0a0f0d]">
+      <ParticleBackground />
       <Navbar />
-      
-      {/* Main Content - With proper spacing for fixed navbar */}
-      <main className="w-full">
-        <Outlet /> {/* এখানে সব pages render হবে */}
+      <main className="relative z-10">
+        <Outlet />
       </main>
-      
-      {/* Footer */}
       <Footer />
     </div>
   );
