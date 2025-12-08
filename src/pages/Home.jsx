@@ -6,15 +6,13 @@ import WhyChooseUs from '../components/home/WhyChooseUs';
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-dark-bg">
-      {/* All sections will have proper spacing from navbar */}
-      <div className="pt-20"> {/* Padding for fixed navbar */}
-        <HeroSection />
-        <LatestTuitions />
-        <LatestTutors />
-        <HowItWorks />
-        <WhyChooseUs />
-      </div>
+    <div className="w-full">
+      {/* MainLayout already has pt-20 md:pt-24, so NO padding here */}
+      <HeroSection />
+      <LatestTuitions />
+      <LatestTutors />
+      <HowItWorks />
+      <WhyChooseUs />
     </div>
   );
 };

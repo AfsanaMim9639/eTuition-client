@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -22,7 +20,8 @@
 
 /* Base Styles */
 body {
-  @apply bg-dark-bg text-white;
+  background-color: #0a0f0d;
+  color: white;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -82,44 +81,54 @@ body {
 
 /* Neon Buttons */
 .btn-neon {
-  @apply relative overflow-hidden transition-all duration-300;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
   border: 2px solid;
 }
 
 .btn-neon-pink {
-  @apply border-neon-pink text-neon-pink;
+  border-color: #FF10F0;
+  color: #FF10F0;
   box-shadow: 0 0 20px rgba(255, 16, 240, 0.3);
 }
 
 .btn-neon-pink:hover {
-  @apply bg-neon-pink text-black;
+  background-color: #FF10F0;
+  color: black;
   box-shadow: 0 0 30px rgba(255, 16, 240, 0.6);
 }
 
 .btn-neon-blue {
-  @apply border-neon-blue text-neon-blue;
+  border-color: #00F0FF;
+  color: #00F0FF;
   box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
 }
 
 .btn-neon-blue:hover {
-  @apply bg-neon-blue text-black;
+  background-color: #00F0FF;
+  color: black;
   box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
 }
 
 .btn-neon-green {
-  @apply border-neon-green text-neon-green;
+  border-color: #39FF14;
+  color: #39FF14;
   box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
 }
 
 .btn-neon-green:hover {
-  @apply bg-neon-green text-black;
+  background-color: #39FF14;
+  color: black;
   box-shadow: 0 0 30px rgba(57, 255, 20, 0.6);
 }
 
 /* Neon Cards */
 .card-neon {
-  @apply bg-dark-card backdrop-blur-lg border-2 transition-all duration-300;
   background: linear-gradient(135deg, rgba(18, 18, 18, 0.95), rgba(26, 26, 26, 0.95));
+  backdrop-filter: blur(16px);
+  border: 2px solid;
+  transition: all 0.3s ease;
 }
 
 .card-neon:hover {
@@ -127,22 +136,22 @@ body {
 }
 
 .card-neon-pink {
-  @apply border-neon-pink/30;
+  border-color: rgba(255, 16, 240, 0.3);
   box-shadow: 0 0 20px rgba(255, 16, 240, 0.1);
 }
 
 .card-neon-pink:hover {
-  @apply border-neon-pink/60;
+  border-color: rgba(255, 16, 240, 0.6);
   box-shadow: 0 0 40px rgba(255, 16, 240, 0.3);
 }
 
 .card-neon-blue {
-  @apply border-neon-blue/30;
+  border-color: rgba(0, 240, 255, 0.3);
   box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
 }
 
 .card-neon-blue:hover {
-  @apply border-neon-blue/60;
+  border-color: rgba(0, 240, 255, 0.6);
   box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
 }
 
@@ -236,12 +245,18 @@ body {
 
 /* Input Neon Styles */
 .input-neon {
-  @apply bg-dark-card border-2 border-neon-pink/30 text-white px-4 py-3 rounded-lg;
-  @apply focus:outline-none focus:border-neon-pink transition-all duration-300;
+  background-color: rgba(18, 18, 18, 0.95);
+  border: 2px solid rgba(255, 16, 240, 0.3);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
   box-shadow: 0 0 10px rgba(255, 16, 240, 0.1);
 }
 
 .input-neon:focus {
+  outline: none;
+  border-color: #FF10F0;
   box-shadow: 0 0 20px rgba(255, 16, 240, 0.3);
 }
 
@@ -253,4 +268,16 @@ body {
     rgba(0, 240, 255, 0.05),
     transparent
   );
+}
+
+/* Custom Theme Variables (Tailwind v4 style) */
+@theme {
+  --color-dark-bg: #0a0f0d;
+  --color-dark-card: rgba(18, 18, 18, 0.95);
+  --color-dark-secondary: #0f1512;
+  --color-neon-pink: #FF10F0;
+  --color-neon-blue: #00F0FF;
+  --color-neon-green: #39FF14;
+  --color-primary-green: #00ff88;
+  --color-primary-cyan: #00ffcc;
 }

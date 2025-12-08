@@ -64,7 +64,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f0d] flex items-center justify-center px-4 py-32">
+    <div className="mt-20 min-h-screen bg-[#0a0f0d] flex items-center justify-center px-4 py-12">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-48 w-96 h-96 bg-[#00ff88]/10 rounded-full blur-3xl"></div>
@@ -72,46 +72,43 @@ const Register = () => {
       </div>
       
       <div className="relative z-10 w-full max-w-4xl">
-        {/* Header */}
-        <br /><br /><br />
-      <div
-  ref={headerRef}
-  className="flex items-center gap-8 mb-10 p-8 border-2 border-[#00ff88]/30 rounded-2xl bg-[#0a0f0d]/40 shadow-lg shadow-[#00ff88]/20"
->
-  {/* Icon - Left Side */}
-  <div className="flex-shrink-0">
-    <div className="w-24 h-24 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-2xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#00ff88]/30">
-      <User className="w-12 h-12 text-[#0a0f0d]" />
-    </div>
-  </div>
-
-  {/* Text - Right Side */}
-  <div className="flex-1 text-right max-w-[80%] ml-auto">
-    <h1 className="text-5xl font-bold mb-3 leading-tight">
-      Create <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">Account</span>
-    </h1>
-    <p className="text-gray-400 text-lg leading-relaxed">
-      Join us and start your learning journey
-    </p>
-  </div>
-</div>
-
-
+        
 
         {/* Main Card */}
-        <div ref={formRef} className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-3xl p-10 shadow-2xl shadow-[#00ff88]/10">
-          
+        <div ref={formRef} className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/10">
+          {/* Header */}
+        <div
+          ref={headerRef}
+          className="flex items-center gap-6 mb-6 p-6 border-2 border-[#00ff88]/30 rounded-2xl bg-[#0a0f0d]/40 shadow-lg shadow-[#00ff88]/20"
+        >
+          {/* Icon - Left Side */}
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#00ff88]/30">
+              <User className="w-8 h-8 text-[#0a0f0d]" />
+            </div>
+          </div>
+
+          {/* Text - Right Side */}
+          <div className="flex-1 text-left">
+            <h1 className="text-3xl font-bold mb-1 leading-tight">
+              Create <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">Account</span>
+            </h1>
+            <p className="text-gray-400 text-sm">
+              Join us and start your learning journey
+            </p>
+          </div>
+        </div>
           {/* Role Selection */}
-          <div className="mb-8">
-            <label className="block text-base font-semibold text-gray-300 mb-4">
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-300 mb-3">
               Select Your Role
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setRole('student')}
                 className={`
-                  relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
+                  relative p-4 rounded-lg border-2 transition-all duration-300 transform hover:scale-105
                   ${role === 'student' 
                     ? 'border-[#00ff88] bg-[#00ff88]/10 shadow-lg shadow-[#00ff88]/30' 
                     : 'border-[#00ff88]/20 bg-[#0a0f0d] hover:border-[#00ff88]/50'
@@ -119,25 +116,25 @@ const Register = () => {
                 `}
               >
                 <div className={`
-                  w-16 h-16 mx-auto mb-3 rounded-xl flex items-center justify-center
+                  w-12 h-12 mx-auto mb-2 rounded-lg flex items-center justify-center
                   ${role === 'student' 
                     ? 'bg-gradient-to-br from-[#00ff88] to-[#00ffcc]' 
                     : 'bg-[#00ff88]/10'
                   }
                 `}>
-                  <GraduationCap className={`w-8 h-8 ${role === 'student' ? 'text-[#0a0f0d]' : 'text-[#00ff88]'}`} />
+                  <GraduationCap className={`w-6 h-6 ${role === 'student' ? 'text-[#0a0f0d]' : 'text-[#00ff88]'}`} />
                 </div>
-                <p className={`text-lg font-bold text-center ${role === 'student' ? 'text-[#00ff88]' : 'text-gray-400'}`}>
+                <p className={`text-sm font-bold text-center ${role === 'student' ? 'text-[#00ff88]' : 'text-gray-400'}`}>
                   I'm a Student
                 </p>
-                <p className="text-sm text-gray-500 text-center mt-1">Learn from experts</p>
+                <p className="text-xs text-gray-500 text-center mt-0.5">Learn from experts</p>
               </button>
               
               <button
                 type="button"
                 onClick={() => setRole('tutor')}
                 className={`
-                  relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
+                  relative p-4 rounded-lg border-2 transition-all duration-300 transform hover:scale-105
                   ${role === 'tutor' 
                     ? 'border-[#00ff88] bg-[#00ff88]/10 shadow-lg shadow-[#00ff88]/30' 
                     : 'border-[#00ff88]/20 bg-[#0a0f0d] hover:border-[#00ff88]/50'
@@ -145,49 +142,49 @@ const Register = () => {
                 `}
               >
                 <div className={`
-                  w-16 h-16 mx-auto mb-3 rounded-xl flex items-center justify-center
+                  w-12 h-12 mx-auto mb-2 rounded-lg flex items-center justify-center
                   ${role === 'tutor' 
                     ? 'bg-gradient-to-br from-[#00ff88] to-[#00ffcc]' 
                     : 'bg-[#00ff88]/10'
                   }
                 `}>
-                  <Briefcase className={`w-8 h-8 ${role === 'tutor' ? 'text-[#0a0f0d]' : 'text-[#00ff88]'}`} />
+                  <Briefcase className={`w-6 h-6 ${role === 'tutor' ? 'text-[#0a0f0d]' : 'text-[#00ff88]'}`} />
                 </div>
-                <p className={`text-lg font-bold text-center ${role === 'tutor' ? 'text-[#00ff88]' : 'text-gray-400'}`}>
+                <p className={`text-sm font-bold text-center ${role === 'tutor' ? 'text-[#00ff88]' : 'text-gray-400'}`}>
                   I'm a Tutor
                 </p>
-                <p className="text-sm text-gray-500 text-center mt-1">Share your knowledge</p>
+                <p className="text-xs text-gray-500 text-center mt-0.5">Share your knowledge</p>
               </button>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name */}
-              <div className="space-y-3">
-                <label className="block text-base font-semibold text-gray-300">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-300">
                   Full Name
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     {...register('name', { required: 'Name is required' })}
-                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                    className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="John Doe"
                   />
                 </div>
                 {errors.name && (
-                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-red-400 rounded-full"></span>
                     {errors.name.message}
                   </p>
                 )}
               </div>
 
               {/* Email */}
-              <div className="space-y-3">
-                <label className="block text-base font-semibold text-gray-300">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-300">
                   Email Address
                 </label>
                 <div className="relative">
@@ -200,42 +197,42 @@ const Register = () => {
                         message: 'Invalid email address'
                       }
                     })}
-                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                    className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="your@email.com"
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-red-400 rounded-full"></span>
                     {errors.email.message}
                   </p>
                 )}
               </div>
 
               {/* Phone */}
-              <div className="space-y-3">
-                <label className="block text-base font-semibold text-gray-300">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-300">
                   Phone Number
                 </label>
                 <div className="relative">
                   <input
                     type="tel"
                     {...register('phone', { required: 'Phone is required' })}
-                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                    className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="+880 1234567890"
                   />
                 </div>
                 {errors.phone && (
-                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-red-400 rounded-full"></span>
                     {errors.phone.message}
                   </p>
                 )}
               </div>
 
               {/* Password */}
-              <div className="space-y-3">
-                <label className="block text-base font-semibold text-gray-300">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-300">
                   Password
                 </label>
                 <div className="relative">
@@ -248,13 +245,13 @@ const Register = () => {
                         message: 'Password must be at least 6 characters'
                       }
                     })}
-                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                    className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="••••••••"
                   />
                 </div>
                 {errors.password && (
-                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-red-400 rounded-full"></span>
                     {errors.password.message}
                   </p>
                 )}
@@ -263,37 +260,36 @@ const Register = () => {
 
             {/* Tutor specific fields */}
             {role === 'tutor' && (
-              <div className="mt-8 pt-8 border-t-2 border-[#00ff88]/20">
-                <br />
-                <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+              <div className="mt-6 pt-6 border-t-2 border-[#00ff88]/20">
+                <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
                   Professional Information
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Education */}
-                  <div className="space-y-3">
-                    <label className="block text-base font-semibold text-gray-300">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-300">
                       Education
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         {...register('education', { required: role === 'tutor' })}
-                        className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                        className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                         placeholder="B.Sc in Computer Science"
                       />
                     </div>
                   </div>
 
                   {/* Subjects */}
-                  <div className="space-y-3">
-                    <label className="block text-base font-semibold text-gray-300">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-300">
                       Subjects (comma separated)
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         {...register('subjects')}
-                        className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                        className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                         placeholder="Math, Physics, Chemistry"
                       />
                     </div>
@@ -301,25 +297,24 @@ const Register = () => {
                 </div>
               </div>
             )}
-            <br />
 
-            {/* Submit Button - Centered & Smaller Width */}
+            {/* Submit Button */}
             <div className="flex justify-center pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-2/3 h-14 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
+                className="group relative w-full h-12 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-lg font-bold text-base hover:shadow-2xl hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {loading ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-[#0a0f0d]/30 border-t-[#0a0f0d] rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-[#0a0f0d]/30 border-t-[#0a0f0d] rounded-full animate-spin"></div>
                       Creating Account...
                     </>
                   ) : (
                     <>
                       Create Account
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </span>
@@ -328,42 +323,40 @@ const Register = () => {
           </form>
 
           {/* Divider */}
-          <div className="flex items-center my-8">
+          <div className="flex items-center my-5">
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#00ff88]/30 to-transparent"></div>
-            <span className="px-5 text-gray-500 text-sm font-semibold">OR CONTINUE WITH</span>
+            <span className="px-4 text-gray-500 text-xs font-semibold">OR CONTINUE WITH</span>
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#00ff88]/30 to-transparent"></div>
           </div>
 
-          {/* Google Register - Centered & Smaller Width */}
+          {/* Google Register */}
           <div className="flex justify-center">
             <button
               onClick={handleGoogleRegister}
               disabled={loading}
-              className="group relative w-2/3 h-14 bg-[#0a0f0d] border-2 border-[#00ff88]/30 text-white rounded-xl font-semibold text-base hover:bg-[#00ff88]/5 hover:border-[#00ff88] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="group relative w-full h-12 bg-[#0a0f0d] border-2 border-[#00ff88]/30 text-white rounded-lg font-semibold text-sm hover:bg-[#00ff88]/5 hover:border-[#00ff88] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              <span className="flex items-center justify-center gap-3">
-                <Chrome className="w-6 h-6 text-[#00ff88]" />
+              <span className="flex items-center justify-center gap-2">
+                <Chrome className="w-5 h-5 text-[#00ff88]" />
                 Continue with Google
               </span>
             </button>
           </div>
 
           {/* Login Link */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-400 text-base leading-relaxed">
+          <div className="mt-6 text-center">
+            <p className="text-gray-400 text-sm">
               Already have an account?{' '}
               <Link 
                 to="/login" 
                 className="text-[#00ff88] font-bold hover:text-[#00ffcc] transition-colors inline-flex items-center gap-1 group"
               >
                 Login Now
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </Link>
             </p>
           </div>
         </div>
-
-        
       </div>
     </div>
   );
