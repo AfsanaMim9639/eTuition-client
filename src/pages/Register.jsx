@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaLock, FaPhone, FaGoogle, FaGraduationCap } from 'react-icons/fa';
+import { User, Mail, Lock, Phone, Chrome, GraduationCap, BookOpen, ArrowRight, Briefcase } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import useAuth from '../hooks/useAuth';
 import toast from 'react-hot-toast';
@@ -13,6 +13,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
   const formRef = useRef(null);
+  const headerRef = useRef(null);
 
   const password = watch('password');
 
@@ -23,10 +24,18 @@ const Register = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    // Animate header
+    gsap.fromTo(
+      headerRef.current,
+      { opacity: 0, y: -30 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+    );
+
+    // Animate form
     gsap.fromTo(
       formRef.current,
       { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+      { opacity: 1, y: 0, duration: 1, delay: 0.2, ease: 'power3.out' }
     );
   }, []);
 
@@ -55,74 +64,133 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg flex items-center justify-center px-4 py-24">
-      <div className="absolute inset-0 hero-gradient opacity-50"></div>
+    <div className="min-h-screen bg-[#0a0f0d] flex items-center justify-center px-4 py-32">
+      {/* Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-[#00ff88]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-[#00ffcc]/10 rounded-full blur-3xl"></div>
+      </div>
       
-      <div ref={formRef} className="relative z-10 w-full max-w-2xl">
-        <div className="card-neon card-neon-blue p-8 rounded-2xl">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2">
-              Create <span className="gradient-text">Account</span>
-            </h1>
-            <p className="text-gray-400">Join us and start your learning journey</p>
-          </div>
+      <div className="relative z-10 w-full max-w-4xl">
+        {/* Header */}
+        <br /><br /><br />
+      <div
+  ref={headerRef}
+  className="flex items-center gap-8 mb-10 p-8 border-2 border-[#00ff88]/30 rounded-2xl bg-[#0a0f0d]/40 shadow-lg shadow-[#00ff88]/20"
+>
+  {/* Icon - Left Side */}
+  <div className="flex-shrink-0">
+    <div className="w-24 h-24 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-2xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#00ff88]/30">
+      <User className="w-12 h-12 text-[#0a0f0d]" />
+    </div>
+  </div>
 
+  {/* Text - Right Side */}
+  <div className="flex-1 text-right max-w-[80%] ml-auto">
+    <h1 className="text-5xl font-bold mb-3 leading-tight">
+      Create <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">Account</span>
+    </h1>
+    <p className="text-gray-400 text-lg leading-relaxed">
+      Join us and start your learning journey
+    </p>
+  </div>
+</div>
+
+
+
+        {/* Main Card */}
+        <div ref={formRef} className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-3xl p-10 shadow-2xl shadow-[#00ff88]/10">
+          
           {/* Role Selection */}
-          <div className="flex gap-4 mb-8">
-            <button
-              type="button"
-              onClick={() => setRole('student')}
-              className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                role === 'student'
-                  ? 'btn-neon-pink'
-                  : 'border-2 border-gray-600 text-gray-400 hover:border-neon-pink'
-              }`}
-            >
-              Register as Student
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('tutor')}
-              className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                role === 'tutor'
-                  ? 'btn-neon-blue'
-                  : 'border-2 border-gray-600 text-gray-400 hover:border-neon-blue'
-              }`}
-            >
-              Register as Tutor
-            </button>
+          <div className="mb-8">
+            <label className="block text-base font-semibold text-gray-300 mb-4">
+              Select Your Role
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setRole('student')}
+                className={`
+                  relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
+                  ${role === 'student' 
+                    ? 'border-[#00ff88] bg-[#00ff88]/10 shadow-lg shadow-[#00ff88]/30' 
+                    : 'border-[#00ff88]/20 bg-[#0a0f0d] hover:border-[#00ff88]/50'
+                  }
+                `}
+              >
+                <div className={`
+                  w-16 h-16 mx-auto mb-3 rounded-xl flex items-center justify-center
+                  ${role === 'student' 
+                    ? 'bg-gradient-to-br from-[#00ff88] to-[#00ffcc]' 
+                    : 'bg-[#00ff88]/10'
+                  }
+                `}>
+                  <GraduationCap className={`w-8 h-8 ${role === 'student' ? 'text-[#0a0f0d]' : 'text-[#00ff88]'}`} />
+                </div>
+                <p className={`text-lg font-bold text-center ${role === 'student' ? 'text-[#00ff88]' : 'text-gray-400'}`}>
+                  I'm a Student
+                </p>
+                <p className="text-sm text-gray-500 text-center mt-1">Learn from experts</p>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setRole('tutor')}
+                className={`
+                  relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
+                  ${role === 'tutor' 
+                    ? 'border-[#00ff88] bg-[#00ff88]/10 shadow-lg shadow-[#00ff88]/30' 
+                    : 'border-[#00ff88]/20 bg-[#0a0f0d] hover:border-[#00ff88]/50'
+                  }
+                `}
+              >
+                <div className={`
+                  w-16 h-16 mx-auto mb-3 rounded-xl flex items-center justify-center
+                  ${role === 'tutor' 
+                    ? 'bg-gradient-to-br from-[#00ff88] to-[#00ffcc]' 
+                    : 'bg-[#00ff88]/10'
+                  }
+                `}>
+                  <Briefcase className={`w-8 h-8 ${role === 'tutor' ? 'text-[#0a0f0d]' : 'text-[#00ff88]'}`} />
+                </div>
+                <p className={`text-lg font-bold text-center ${role === 'tutor' ? 'text-[#00ff88]' : 'text-gray-400'}`}>
+                  I'm a Tutor
+                </p>
+                <p className="text-sm text-gray-500 text-center mt-1">Share your knowledge</p>
+              </button>
+            </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
-              <div>
-                <label className="block text-sm font-semibold mb-2 neon-text-pink">
+              <div className="space-y-3">
+                <label className="block text-base font-semibold text-gray-300">
                   Full Name
                 </label>
                 <div className="relative">
-                  <FaUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neon-blue" />
                   <input
                     type="text"
                     {...register('name', { required: 'Name is required' })}
-                    className="input-neon w-full pl-12"
+                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="John Doe"
                   />
                 </div>
                 {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
 
               {/* Email */}
-              <div>
-                <label className="block text-sm font-semibold mb-2 neon-text-pink">
+              <div className="space-y-3">
+                <label className="block text-base font-semibold text-gray-300">
                   Email Address
                 </label>
                 <div className="relative">
-                  <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neon-blue" />
                   <input
                     type="email"
                     {...register('email', { 
@@ -132,41 +200,45 @@ const Register = () => {
                         message: 'Invalid email address'
                       }
                     })}
-                    className="input-neon w-full pl-12"
+                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="your@email.com"
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
               {/* Phone */}
-              <div>
-                <label className="block text-sm font-semibold mb-2 neon-text-pink">
+              <div className="space-y-3">
+                <label className="block text-base font-semibold text-gray-300">
                   Phone Number
                 </label>
                 <div className="relative">
-                  <FaPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neon-blue" />
                   <input
                     type="tel"
                     {...register('phone', { required: 'Phone is required' })}
-                    className="input-neon w-full pl-12"
+                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="+880 1234567890"
                   />
                 </div>
                 {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                    {errors.phone.message}
+                  </p>
                 )}
               </div>
 
               {/* Password */}
-              <div>
-                <label className="block text-sm font-semibold mb-2 neon-text-pink">
+              <div className="space-y-3">
+                <label className="block text-base font-semibold text-gray-300">
                   Password
                 </label>
                 <div className="relative">
-                  <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neon-blue" />
                   <input
                     type="password"
                     {...register('password', { 
@@ -176,86 +248,122 @@ const Register = () => {
                         message: 'Password must be at least 6 characters'
                       }
                     })}
-                    className="input-neon w-full pl-12"
+                    className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                     placeholder="••••••••"
                   />
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
             </div>
 
             {/* Tutor specific fields */}
             {role === 'tutor' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-neon-blue/30">
-                <div>
-                  <label className="block text-sm font-semibold mb-2 neon-text-blue">
-                    Education
-                  </label>
-                  <div className="relative">
-                    <FaGraduationCap className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neon-pink" />
-                    <input
-                      type="text"
-                      {...register('education', { required: role === 'tutor' })}
-                      className="input-neon w-full pl-12"
-                      placeholder="B.Sc in CSE"
-                    />
+              <div className="mt-8 pt-8 border-t-2 border-[#00ff88]/20">
+                <br />
+                <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+                  Professional Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Education */}
+                  <div className="space-y-3">
+                    <label className="block text-base font-semibold text-gray-300">
+                      Education
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        {...register('education', { required: role === 'tutor' })}
+                        className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                        placeholder="B.Sc in Computer Science"
+                      />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-2 neon-text-blue">
-                    Subjects (comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    {...register('subjects')}
-                    className="input-neon w-full"
-                    placeholder="Math, Physics, Chemistry"
-                    onChange={(e) => {
-                      const value = e.target.value.split(',').map(s => s.trim());
-                      e.target.value = value.join(', ');
-                    }}
-                  />
+
+                  {/* Subjects */}
+                  <div className="space-y-3">
+                    <label className="block text-base font-semibold text-gray-300">
+                      Subjects (comma separated)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        {...register('subjects')}
+                        className="w-full h-14 px-5 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl text-white text-base placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                        placeholder="Math, Physics, Chemistry"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
+            <br />
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-neon-pink w-full py-3 rounded-lg font-semibold text-lg disabled:opacity-50 mt-6"
-            >
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </button>
+            {/* Submit Button - Centered & Smaller Width */}
+            <div className="flex justify-center pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative w-2/3 h-14 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {loading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-[#0a0f0d]/30 border-t-[#0a0f0d] rounded-full animate-spin"></div>
+                      Creating Account...
+                    </>
+                  ) : (
+                    <>
+                      Create Account
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </span>
+              </button>
+            </div>
           </form>
 
           {/* Divider */}
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-neon-blue/30"></div>
-            <span className="px-4 text-gray-400">OR</span>
-            <div className="flex-1 border-t border-neon-blue/30"></div>
+          <div className="flex items-center my-8">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#00ff88]/30 to-transparent"></div>
+            <span className="px-5 text-gray-500 text-sm font-semibold">OR CONTINUE WITH</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#00ff88]/30 to-transparent"></div>
           </div>
 
-          {/* Google Register */}
-          <button
-            onClick={handleGoogleRegister}
-            disabled={loading}
-            className="btn btn-neon-blue w-full py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
-          >
-            <FaGoogle />
-            <span>Continue with Google</span>
-          </button>
+          {/* Google Register - Centered & Smaller Width */}
+          <div className="flex justify-center">
+            <button
+              onClick={handleGoogleRegister}
+              disabled={loading}
+              className="group relative w-2/3 h-14 bg-[#0a0f0d] border-2 border-[#00ff88]/30 text-white rounded-xl font-semibold text-base hover:bg-[#00ff88]/5 hover:border-[#00ff88] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              <span className="flex items-center justify-center gap-3">
+                <Chrome className="w-6 h-6 text-[#00ff88]" />
+                Continue with Google
+              </span>
+            </button>
+          </div>
 
           {/* Login Link */}
-          <p className="text-center mt-6 text-gray-400">
-            Already have an account?{' '}
-            <Link to="/login" className="neon-text-blue font-semibold hover:text-neon-pink transition-colors">
-              Login Now
-            </Link>
-          </p>
+          <div className="mt-8 text-center">
+            <p className="text-gray-400 text-base leading-relaxed">
+              Already have an account?{' '}
+              <Link 
+                to="/login" 
+                className="text-[#00ff88] font-bold hover:text-[#00ffcc] transition-colors inline-flex items-center gap-1 group"
+              >
+                Login Now
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </p>
+          </div>
         </div>
+
+        
       </div>
     </div>
   );

@@ -7,11 +7,14 @@ import WhyChooseUs from '../components/home/WhyChooseUs';
 const Home = () => {
   return (
     <div className="min-h-screen bg-dark-bg">
-      <HeroSection />
-      <LatestTuitions />
-      <LatestTutors />
-      <HowItWorks />
-      <WhyChooseUs />
+      {/* All sections will have proper spacing from navbar */}
+      <div className="pt-20"> {/* Padding for fixed navbar */}
+        <HeroSection />
+        <LatestTuitions />
+        <LatestTutors />
+        <HowItWorks />
+        <WhyChooseUs />
+      </div>
     </div>
   );
 };

@@ -62,7 +62,7 @@ const AllTuitions = () => {
   return (
     <div className="min-h-screen bg-dark-bg pt-24 pb-12">
       <div className="container mx-auto px-4">
-        {/* Header */}
+        {/* Centered Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4">
             All <span className="gradient-text">Tuitions</span>
@@ -72,35 +72,37 @@ const AllTuitions = () => {
           </p>
         </div>
 
-        {/* Search & Filter */}
-        <SearchFilter 
-          filters={filters} 
-          setFilters={setFilters} 
-          onSearch={handleSearch}
-        />
+        {/* Search & Filter - Centered */}
+        <div className="max-w-6xl mx-auto mb-8">
+          <SearchFilter 
+            filters={filters} 
+            setFilters={setFilters} 
+            onSearch={handleSearch}
+          />
+        </div>
 
         {/* Results Count */}
-        <div className="mb-6">
+        <div className="mb-6 text-center">
           <p className="text-gray-400">
             Showing <span className="neon-text-pink font-semibold">{tuitions.length}</span> of{' '}
             <span className="neon-text-blue font-semibold">{pagination.totalItems}</span> tuitions
           </p>
         </div>
 
-        {/* Tuitions Grid */}
+        {/* Tuitions Grid - Centered */}
         {loading ? (
           <div className="text-center py-20">
             <div className="spinner-neon w-12 h-12 mx-auto"></div>
           </div>
         ) : tuitions.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-w-7xl mx-auto">
               {tuitions.map((tuition) => (
                 <TuitionCard key={tuition._id} tuition={tuition} />
               ))}
             </div>
 
-            {/* Pagination */}
+            {/* Pagination - Centered */}
             {pagination.totalPages > 1 && (
               <div className="flex justify-center items-center space-x-4">
                 <button
@@ -116,7 +118,7 @@ const AllTuitions = () => {
                     <button
                       key={index}
                       onClick={() => handlePageChange(index + 1)}
-                      className={`px-4 py-2 rounded-lg font-semibold ${
+                      className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                         pagination.currentPage === index + 1
                           ? 'btn-neon-pink'
                           : 'border-2 border-gray-600 text-gray-400 hover:border-neon-pink'
