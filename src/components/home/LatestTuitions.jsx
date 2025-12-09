@@ -18,11 +18,21 @@ const LatestTuitions = () => {
     try {
       setLoading(true);
       const response = await tuitionAPI.getLatestTuitions();
-      setTuitions(response.data.tuitions);
+      
+      // Handle multiple possible response structures
+      let tuitionData = [];
+      if (response.data) {
+        tuitionData = response.data.tuitions || 
+                      response.data.data || 
+                      (Array.isArray(response.data) ? response.data : []);
+      }
+      
+      // Ensure we have an array
+      setTuitions(Array.isArray(tuitionData) ? tuitionData : []);
       setError(null);
     } catch (err) {
       console.error('Error fetching tuitions:', err);
-      setError('Failed to load tuitions. Please try again later.');
+      setError(err.response?.data?.message || 'Failed to load tuitions. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -35,18 +45,6 @@ const LatestTuitions = () => {
       transition: {
         staggerChildren: 0.1,
         delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: 'easeOut'
       }
     }
   };
@@ -117,7 +115,10 @@ const LatestTuitions = () => {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 auto-rows-fr"
               >
                 {tuitions.map((tuition) => (
-                  <TuitionCard key={tuition._id} tuition={tuition} />
+                  <TuitionCard 
+                    key={tuition._id || tuition.id} 
+                    tuition={tuition} 
+                  />
                 ))}
               </motion.div>
             ) : (

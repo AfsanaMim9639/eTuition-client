@@ -9,8 +9,9 @@ import {
   FaBook,
   FaBriefcase,
   FaCheckCircle,
-  FaUser,
-  FaArrowLeft
+  FaArrowLeft,
+  FaDollarSign,
+  FaCalendar
 } from 'react-icons/fa';
 import api from '../../utils/api';
 import Loading from '../../components/shared/Loading';
@@ -42,7 +43,7 @@ const TutorProfilePage = () => {
       console.log('✅ Tutor profile loaded:', response.data.user.name);
     } catch (error) {
       console.error('❌ Error fetching tutor:', error);
-      setError(error.response?.data?.message || 'Failed to load tutor profile');
+      setError(error.response?.data?.message || error.message || 'Failed to load tutor profile');
     } finally {
       setLoading(false);
     }
@@ -110,10 +111,22 @@ const TutorProfilePage = () => {
               </h1>
               
               <div className="space-y-3 text-gray-300">
+                {/* Education - Support both string and array */}
                 {tutor.education && (
                   <div className="flex items-center gap-3 justify-center md:justify-start">
                     <FaGraduationCap className="text-[#00ffcc] text-xl flex-shrink-0" />
-                    <span className="text-lg">{tutor.education}</span>
+                    {Array.isArray(tutor.education) && tutor.education.length > 0 ? (
+                      <div>
+                        <span className="text-lg">{tutor.education[0].degree}</span>
+                        {tutor.education[0].institution && (
+                          <span className="text-sm text-gray-400 ml-2">
+                            - {tutor.education[0].institution}
+                          </span>
+                        )}
+                      </div>
+                    ) : typeof tutor.education === 'string' ? (
+                      <span className="text-lg">{tutor.education}</span>
+                    ) : null}
                   </div>
                 )}
                 
@@ -124,10 +137,17 @@ const TutorProfilePage = () => {
                   </div>
                 )}
 
-                {tutor.experience !== undefined && (
+                {tutor.experience !== undefined && tutor.experience !== null && (
                   <div className="flex items-center gap-3 justify-center md:justify-start">
                     <FaBriefcase className="text-[#00ffcc] text-xl flex-shrink-0" />
                     <span>{tutor.experience} {tutor.experience === 1 ? 'year' : 'years'} of experience</span>
+                  </div>
+                )}
+
+                {tutor.hourlyRate && tutor.hourlyRate > 0 && (
+                  <div className="flex items-center gap-3 justify-center md:justify-start">
+                    <FaDollarSign className="text-[#00ff88] text-xl flex-shrink-0" />
+                    <span className="font-semibold">{tutor.hourlyRate} BDT/hour</span>
                   </div>
                 )}
                 
@@ -140,7 +160,7 @@ const TutorProfilePage = () => {
                 
                 <div className="flex items-center gap-3 justify-center md:justify-start">
                   <FaEnvelope className="text-[#00ff88] text-xl flex-shrink-0" />
-                  <span>{tutor.email}</span>
+                  <span className="break-all">{tutor.email}</span>
                 </div>
               </div>
 
@@ -167,6 +187,17 @@ const TutorProfilePage = () => {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="md:col-span-2 space-y-8">
+            {/* Bio Section */}
+            {tutor.bio && (
+              <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10">
+                <h2 className="text-2xl font-bold text-[#00ffcc] mb-4 flex items-center gap-2">
+                  <FaCheckCircle className="text-xl" />
+                  About Me
+                </h2>
+                <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{tutor.bio}</p>
+              </div>
+            )}
+
             {/* Subjects Section */}
             <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10">
               <h2 className="text-2xl font-bold text-[#00ffcc] mb-4 flex items-center gap-2">
@@ -189,28 +220,53 @@ const TutorProfilePage = () => {
               </div>
             </div>
 
-            {/* Education & Experience Section */}
+            {/* Education Section - Full Array Display */}
             {tutor.education && (
               <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10">
                 <h2 className="text-2xl font-bold text-[#00ff88] mb-4 flex items-center gap-2">
                   <FaCheckCircle className="text-xl" />
                   Education & Qualifications
                 </h2>
-                <div className="space-y-4 text-gray-300">
-                  <div className="flex items-start gap-3">
-                    <FaGraduationCap className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold text-[#00ff88] mb-1">Education</h3>
-                      <p className="text-lg">{tutor.education}</p>
+                <div className="space-y-4">
+                  {/* Handle education as array */}
+                  {Array.isArray(tutor.education) && tutor.education.length > 0 ? (
+                    tutor.education.map((edu, index) => (
+                      <div key={index} className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
+                        <FaGraduationCap className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
+                        <div>
+                          <h3 className="font-semibold text-[#00ff88] text-lg mb-1">
+                            {edu.degree || edu}
+                          </h3>
+                          {edu.institution && (
+                            <p className="text-gray-300 mb-1">{edu.institution}</p>
+                          )}
+                          {edu.year && (
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                              <FaCalendar className="text-xs" />
+                              <span>{edu.year}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : typeof tutor.education === 'string' ? (
+                    /* Handle education as string */
+                    <div className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
+                      <FaGraduationCap className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-semibold text-[#00ff88] mb-1">Education</h3>
+                        <p className="text-gray-300 text-lg">{tutor.education}</p>
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                   
-                  {tutor.experience !== undefined && (
-                    <div className="flex items-start gap-3">
+                  {/* Teaching Experience */}
+                  {tutor.experience !== undefined && tutor.experience !== null && (
+                    <div className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
                       <FaBriefcase className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
                       <div>
                         <h3 className="font-semibold text-[#00ff88] mb-1">Teaching Experience</h3>
-                        <p className="text-lg">
+                        <p className="text-gray-300 text-lg">
                           {tutor.experience} {tutor.experience === 1 ? 'year' : 'years'} of professional teaching
                         </p>
                       </div>
@@ -229,10 +285,10 @@ const TutorProfilePage = () => {
               <div className="flex items-center gap-2">
                 <FaCheckCircle className="text-[#00ff88] text-2xl" />
                 <span className="text-lg font-semibold text-[#00ff88]">
-                  {tutor.active ? 'Active & Available' : 'Currently Unavailable'}
+                  {tutor.active !== false && tutor.status === 'active' ? 'Active & Available' : 'Currently Unavailable'}
                 </span>
               </div>
-              {tutor.active && (
+              {tutor.active !== false && tutor.status === 'active' && (
                 <p className="text-sm text-gray-400 mt-3">
                   Available for new students
                 </p>
@@ -250,8 +306,29 @@ const TutorProfilePage = () => {
                   </span>
                 </div>
                 <p className="text-sm text-gray-400">out of 5.0</p>
+                {tutor.totalReviews > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Based on {tutor.totalReviews} {tutor.totalReviews === 1 ? 'review' : 'reviews'}
+                  </p>
+                )}
               </div>
             </div>
+
+            {/* Earnings Card */}
+            {tutor.totalEarnings > 0 && (
+              <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10">
+                <h3 className="text-xl font-bold text-[#00ff88] mb-4">Total Earnings</h3>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <FaDollarSign className="text-[#00ffcc] text-2xl" />
+                    <span className="text-3xl font-bold text-[#00ffcc]">
+                      {tutor.totalEarnings.toLocaleString()} BDT
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-400">Total lifetime earnings</p>
+                </div>
+              </div>
+            )}
 
             {/* Contact Info Card */}
             <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10">
@@ -259,9 +336,9 @@ const TutorProfilePage = () => {
               <div className="space-y-3 text-sm">
                 <a 
                   href={`mailto:${tutor.email}`}
-                  className="flex items-center gap-2 text-gray-300 hover:text-[#00ffcc] transition-colors"
+                  className="flex items-center gap-2 text-gray-300 hover:text-[#00ffcc] transition-colors break-all"
                 >
-                  <FaEnvelope className="text-[#00ff88]" />
+                  <FaEnvelope className="text-[#00ff88] flex-shrink-0" />
                   <span className="truncate">{tutor.email}</span>
                 </a>
                 {tutor.phone && (
@@ -269,14 +346,20 @@ const TutorProfilePage = () => {
                     href={`tel:${tutor.phone}`}
                     className="flex items-center gap-2 text-gray-300 hover:text-[#00ffcc] transition-colors"
                   >
-                    <FaPhone className="text-[#00ff88]" />
+                    <FaPhone className="text-[#00ff88] flex-shrink-0" />
                     <span>{tutor.phone}</span>
                   </a>
                 )}
                 {tutor.location && (
                   <div className="flex items-center gap-2 text-gray-300">
-                    <FaMapMarkerAlt className="text-[#00ff88]" />
+                    <FaMapMarkerAlt className="text-[#00ff88] flex-shrink-0" />
                     <span>{tutor.location}</span>
+                  </div>
+                )}
+                {tutor.address && (
+                  <div className="flex items-start gap-2 text-gray-300">
+                    <FaMapMarkerAlt className="text-[#00ff88] mt-1 flex-shrink-0" />
+                    <span className="text-xs leading-relaxed">{tutor.address}</span>
                   </div>
                 )}
               </div>

@@ -17,11 +17,14 @@ const LatestTutors = () => {
     try {
       setLoading(true);
       const response = await userAPI.getLatestTutors();
-      setTutors(response.data.tutors);
+      
+      // Handle multiple possible response structures
+      const tutorData = response.data.tutors || response.data.data || response.data;
+      setTutors(Array.isArray(tutorData) ? tutorData : []);
       setError(null);
     } catch (err) {
       console.error('Error fetching tutors:', err);
-      setError('Failed to load tutors. Please try again later.');
+      setError(err.response?.data?.message || 'Failed to load tutors. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -105,7 +108,7 @@ const LatestTutors = () => {
               >
                 {tutors.map((tutor) => (
                   <motion.div
-                    key={tutor._id}
+                    key={tutor._id || tutor.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
@@ -115,7 +118,7 @@ const LatestTutors = () => {
                     }}
                   >
                     <Link 
-                      to={`/tutors/${tutor._id}`} 
+                      to={`/tutors/${tutor._id || tutor.id}`} 
                       className="block p-6 rounded-xl bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 hover:border-[#00ffcc] transition-all duration-300 shadow-lg hover:shadow-[#00ffcc]/20 group h-full flex flex-col"
                     >
                       {/* Profile Image & Rating */}
@@ -145,10 +148,10 @@ const LatestTutors = () => {
                           {tutor.location && (
                             <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm">
                               <MapPin className="w-4 h-4 text-[#00ff88] flex-shrink-0" />
-                              <span>{tutor.location}</span>
+                              <span className="truncate">{tutor.location}</span>
                             </div>
                           )}
-                          {tutor.experience && (
+                          {tutor.experience !== undefined && tutor.experience !== null && (
                             <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm">
                               <Briefcase className="w-4 h-4 text-[#00ff88] flex-shrink-0" />
                               <span>

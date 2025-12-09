@@ -33,10 +33,13 @@ function AllTutors() {
       if (filters.minExperience) params.minExperience = filters.minExperience;
       
       const response = await userAPI.getAllTutors(params);
-      setTutors(response.data.tutors);
+      
+      // Handle multiple possible response structures
+      const tutorData = response.data.tutors || response.data.data || response.data;
+      setTutors(Array.isArray(tutorData) ? tutorData : []);
     } catch (error) {
       console.error('Error fetching tutors:', error);
-      setError('Failed to load tutors. Please try again later.');
+      setError(error.response?.data?.message || 'Failed to load tutors. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -219,7 +222,7 @@ function AllTutors() {
                           <span className="truncate">{tutor.location}</span>
                         </div>
                       )}
-                      {tutor.experience && (
+                      {tutor.experience !== undefined && tutor.experience !== null && (
                         <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
                           <FaBriefcase className="text-neon-pink flex-shrink-0" />
                           <span>{tutor.experience} {tutor.experience === 1 ? 'year' : 'years'}</span>
