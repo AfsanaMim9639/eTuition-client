@@ -11,7 +11,7 @@ const MainLayout = () => {
       <Navbar />
       
       {/* Main content wrapper - mt instead of pt to push content down */}
-      <main className="relative z-10">
+      <main className="mt-20 relative z-10">
         <Outlet />
       </main>
       

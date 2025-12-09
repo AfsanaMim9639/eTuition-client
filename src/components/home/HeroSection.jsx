@@ -1,114 +1,241 @@
 import { Link } from 'react-router-dom';
-import { FaSearch, FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
-import { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
+import { Search, GraduationCap, Users, BookOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const HeroSection = () => {
-  const heroRef = useRef(null);
-  const titleRef = useRef(null);
-  const subtitleRef = useRef(null);
-  const buttonsRef = useRef(null);
+  // Framer Motion Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1
+      }
+    }
+  };
 
-  useEffect(() => {
-    const tl = gsap.timeline();
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: 'easeOut'
+      }
+    }
+  };
 
-    tl.fromTo(
-      titleRef.current,
-      { opacity: 0, y: -50 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
-    )
-    .fromTo(
-      subtitleRef.current,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
-      '-=0.5'
-    )
-    .fromTo(
-      buttonsRef.current.children,
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 0.6, stagger: 0.2, ease: 'back.out(1.7)' },
-      '-=0.4'
-    );
+  const buttonVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: 'backOut'
+      }
+    },
+    hover: {
+      scale: 1.05,
+      transition: { duration: 0.2 }
+    },
+    tap: { scale: 0.95 }
+  };
 
-    // Floating animation for icons
-    gsap.to('.float-icon', {
-      y: -20,
-      duration: 2,
-      ease: 'power1.inOut',
-      repeat: -1,
-      yoyo: true,
-      stagger: 0.3
-    });
-  }, []);
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: (custom) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: custom * 0.2,
+        duration: 0.6,
+        ease: 'easeOut'
+      }
+    }),
+    hover: {
+      y: -10,
+      transition: {
+        duration: 0.3,
+        ease: 'easeInOut'
+      }
+    }
+  };
+
+  const floatingVariants = {
+    animate: {
+      y: [-10, 10, -10],
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        ease: 'easeInOut'
+      }
+    }
+  };
 
   return (
-    <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background gradient */}
-      <div className="absolute inset-0 hero-gradient"></div>
-      
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated background circles */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-neon-pink/10 blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-neon-blue/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[#00ff88]/10 blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.6, 0.3]
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: 'easeInOut'
+        }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-[#00ffcc]/10 blur-3xl"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          opacity: [0.6, 0.3, 0.6]
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: 1
+        }}
+      />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <motion.div
+          className="max-w-4xl mx-auto text-center"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {/* Title */}
-          <h1 ref={titleRef} className="text-5xl md:text-7xl font-bold mb-6">
+          <motion.h1
+            variants={itemVariants}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
+          >
             Find Your Perfect{' '}
-            <span className="gradient-text">Tutor</span>
+            <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+              Tutor
+            </span>
             <br />
             Start Learning{' '}
-            <span className="neon-text-blue">Today</span>
-          </h1>
+            <span className="text-[#00ffcc]">Today</span>
+          </motion.h1>
 
           {/* Subtitle */}
-          <p ref={subtitleRef} className="text-xl md:text-2xl text-gray-400 mb-12">
+          <motion.p
+            variants={itemVariants}
+            className="text-lg sm:text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed"
+          >
             Connect with qualified tutors and achieve your academic goals.
-            <br />
+            <br className="hidden sm:block" />
             Quality education is just a click away!
-          </p>
+          </motion.p>
 
           {/* CTA Buttons */}
-          <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <Link 
-              to="/tuitions"
-              className="btn btn-neon-pink px-8 py-4 rounded-lg text-lg font-semibold flex items-center space-x-2 w-full sm:w-auto"
-            >
-              <FaSearch />
-              <span>Find Tuitions</span>
-            </Link>
-            <Link 
-              to="/tutors"
-              className="btn btn-neon-blue px-8 py-4 rounded-lg text-lg font-semibold flex items-center space-x-2 w-full sm:w-auto"
-            >
-              <FaChalkboardTeacher />
-              <span>Browse Tutors</span>
-            </Link>
-            <Link 
-              to="/register"
-              className="btn btn-neon-green px-8 py-4 rounded-lg text-lg font-semibold flex items-center space-x-2 w-full sm:w-auto"
-            >
-              <FaGraduationCap />
-              <span>Register Now</span>
-            </Link>
-          </div>
+          <motion.div
+            variants={containerVariants}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+          >
+            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+              <Link
+                to="/tuitions"
+                className="group relative px-8 py-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-lg text-lg font-bold flex items-center gap-3 w-full sm:w-auto overflow-hidden shadow-lg shadow-[#00ff88]/30"
+              >
+                <Search className="w-5 h-5" />
+                <span>Find Tuitions</span>
+              </Link>
+            </motion.div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="card-neon card-neon-pink p-6 rounded-xl float-icon">
-              <div className="text-4xl font-bold neon-text-pink mb-2">500+</div>
-              <div className="text-gray-400">Active Tutors</div>
-            </div>
-            <div className="card-neon card-neon-blue p-6 rounded-xl float-icon" style={{ animationDelay: '0.3s' }}>
-              <div className="text-4xl font-bold neon-text-blue mb-2">1000+</div>
-              <div className="text-gray-400">Students</div>
-            </div>
-            <div className="card-neon card-neon-pink p-6 rounded-xl float-icon" style={{ animationDelay: '0.6s' }}>
-              <div className="text-4xl font-bold neon-text-green mb-2">50+</div>
-              <div className="text-gray-400">Subjects</div>
-            </div>
-          </div>
-        </div>
+            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+              <Link
+                to="/tutors"
+                className="group px-8 py-4 bg-[#0a0f0d] border-2 border-[#00ff88] text-[#00ff88] rounded-lg text-lg font-bold flex items-center gap-3 w-full sm:w-auto hover:bg-[#00ff88]/10 transition-all shadow-lg shadow-[#00ff88]/20"
+              >
+                <Users className="w-5 h-5" />
+                <span>Browse Tutors</span>
+              </Link>
+            </motion.div>
+
+            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+              <Link
+                to="/register"
+                className="group px-8 py-4 bg-[#0a0f0d] border-2 border-[#00ffcc] text-[#00ffcc] rounded-lg text-lg font-bold flex items-center gap-3 w-full sm:w-auto hover:bg-[#00ffcc]/10 transition-all shadow-lg shadow-[#00ffcc]/20"
+              >
+                <GraduationCap className="w-5 h-5" />
+                <span>Register Now</span>
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* Stats Cards */}
+          <motion.div
+            variants={containerVariants}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+          >
+            <motion.div
+              custom={0}
+              variants={cardVariants}
+              whileHover="hover"
+              className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl p-6 shadow-lg shadow-[#00ff88]/10 backdrop-blur-sm"
+            >
+              <motion.div variants={floatingVariants} animate="animate">
+                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-lg flex items-center justify-center">
+                  <Users className="w-6 h-6 text-[#0a0f0d]" />
+                </div>
+              </motion.div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent mb-2">
+                500+
+              </div>
+              <div className="text-gray-400 text-sm">Active Tutors</div>
+            </motion.div>
+
+            <motion.div
+              custom={1}
+              variants={cardVariants}
+              whileHover="hover"
+              className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 rounded-xl p-6 shadow-lg shadow-[#00ffcc]/10 backdrop-blur-sm"
+            >
+              <motion.div
+                variants={floatingVariants}
+                animate="animate"
+                transition={{ delay: 0.3 }}
+              >
+                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-[#00ffcc] to-[#00ff88] rounded-lg flex items-center justify-center">
+                  <GraduationCap className="w-6 h-6 text-[#0a0f0d]" />
+                </div>
+              </motion.div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-[#00ffcc] to-[#00ff88] bg-clip-text text-transparent mb-2">
+                1000+
+              </div>
+              <div className="text-gray-400 text-sm">Happy Students</div>
+            </motion.div>
+
+            <motion.div
+              custom={2}
+              variants={cardVariants}
+              whileHover="hover"
+              className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-xl p-6 shadow-lg shadow-[#00ff88]/10 backdrop-blur-sm"
+            >
+              <motion.div
+                variants={floatingVariants}
+                animate="animate"
+                transition={{ delay: 0.6 }}
+              >
+                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-lg flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-[#0a0f0d]" />
+                </div>
+              </motion.div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent mb-2">
+                50+
+              </div>
+              <div className="text-gray-400 text-sm">Subjects Available</div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
