@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import api from '../../utils/api';
+import { Link } from 'react-router-dom';
+import { FaMapMarkerAlt, FaDollarSign, FaBook, FaSearch, FaFilter } from 'react-icons/fa';
 import TuitionCard from '../../components/tuition/TuitionCard';
-import SearchFilter from '../../components/tuition/SearchFilter';
-import Loading from '../../components/shared/Loading';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { tuitionAPI } from '../../utils/api';
 
-const AllTuitions = () => {
+function AllTuitions() {
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -27,27 +27,57 @@ const AllTuitions = () => {
   }, [pagination.currentPage]);
 
   const fetchTuitions = async () => {
-    setLoading(true);
     try {
-      const params = new URLSearchParams({
+      setLoading(true);
+      setError(null);
+      
+      // Build query params
+      const params = {
         page: pagination.currentPage,
-        limit: 12,
-        ...filters
-      });
-
-      const response = await api.get(`/tuitions?${params}`);
+        limit: 12
+      };
+      if (filters.search) params.search = filters.search;
+      if (filters.subject) params.subject = filters.subject;
+      if (filters.category) params.category = filters.category;
+      if (filters.medium) params.medium = filters.medium;
+      if (filters.minSalary) params.minSalary = filters.minSalary;
+      if (filters.maxSalary) params.maxSalary = filters.maxSalary;
+      
+      const response = await tuitionAPI.getAllTuitions(params);
       setTuitions(response.data.tuitions);
       setPagination(response.data.pagination);
     } catch (error) {
       console.error('Error fetching tuitions:', error);
+      setError('Failed to load tuitions. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = () => {
+  const handleFilterChange = (e) => {
+    setFilters({
+      ...filters,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
     setPagination({ ...pagination, currentPage: 1 });
     fetchTuitions();
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      subject: '',
+      category: '',
+      medium: '',
+      minSalary: '',
+      maxSalary: ''
+    });
+    setPagination({ ...pagination, currentPage: 1 });
+    setTimeout(() => fetchTuitions(), 100);
   };
 
   const handlePageChange = (newPage) => {
@@ -56,98 +86,209 @@ const AllTuitions = () => {
   };
 
   if (loading && tuitions.length === 0) {
-    return <Loading />;
+    return (
+      <div className="min-h-screen bg-dark-bg pt-24 flex items-center justify-center">
+        <div className="spinner-neon w-12 h-12"></div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-dark-bg pt-24 pb-12">
       <div className="container mx-auto px-4">
-        {/* Centered Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">
-            All <span className="gradient-text">Tuitions</span>
-          </h1>
-          <p className="text-xl text-gray-400">
-            Find the perfect tuition opportunity for you
-          </p>
-        </div>
+        {/* Header */}
+        <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
+          All <span className="gradient-text">Tuitions</span>
+        </h1>
+        <p className="text-center text-gray-400 mb-12">
+          Explore {pagination.totalItems}+ tuition opportunities
+        </p>
 
-        {/* Search & Filter - Centered */}
-        <div className="max-w-6xl mx-auto mb-8">
-          <SearchFilter 
-            filters={filters} 
-            setFilters={setFilters} 
-            onSearch={handleSearch}
-          />
-        </div>
+        {/* Filters */}
+        <div className="card-neon card-neon-pink p-6 rounded-xl mb-8 max-w-6xl mx-auto">
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Search */}
+              <div className="lg:col-span-2">
+                <input
+                  type="text"
+                  name="search"
+                  value={filters.search}
+                  onChange={handleFilterChange}
+                  placeholder="Search by title, subject, or location..."
+                  className="input-neon w-full"
+                />
+              </div>
 
-        {/* Results Count */}
-        <div className="mb-6 text-center">
-          <p className="text-gray-400">
-            Showing <span className="neon-text-pink font-semibold">{tuitions.length}</span> of{' '}
-            <span className="neon-text-blue font-semibold">{pagination.totalItems}</span> tuitions
-          </p>
-        </div>
+              {/* Category */}
+              <select
+                name="category"
+                value={filters.category}
+                onChange={handleFilterChange}
+                className="input-neon"
+              >
+                <option value="">All Categories</option>
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+                <option value="Both">Both</option>
+              </select>
 
-        {/* Tuitions Grid - Centered */}
-        {loading ? (
-          <div className="text-center py-20">
-            <div className="spinner-neon w-12 h-12 mx-auto"></div>
-          </div>
-        ) : tuitions.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-w-7xl mx-auto">
-              {tuitions.map((tuition) => (
-                <TuitionCard key={tuition._id} tuition={tuition} />
-              ))}
+              {/* Subject */}
+              <input
+                type="text"
+                name="subject"
+                value={filters.subject}
+                onChange={handleFilterChange}
+                placeholder="Subject (e.g. Math, Physics)"
+                className="input-neon"
+              />
+
+              {/* Medium */}
+              <select
+                name="medium"
+                value={filters.medium}
+                onChange={handleFilterChange}
+                className="input-neon"
+              >
+                <option value="">All Mediums</option>
+                <option value="Bangla">Bangla</option>
+                <option value="English">English</option>
+                <option value="Both">Both</option>
+              </select>
+
+              {/* Min Salary */}
+              <input
+                type="number"
+                name="minSalary"
+                value={filters.minSalary}
+                onChange={handleFilterChange}
+                placeholder="Min Salary (BDT)"
+                className="input-neon"
+              />
+
+              {/* Max Salary */}
+              <input
+                type="number"
+                name="maxSalary"
+                value={filters.maxSalary}
+                onChange={handleFilterChange}
+                placeholder="Max Salary (BDT)"
+                className="input-neon"
+              />
             </div>
 
-            {/* Pagination - Centered */}
-            {pagination.totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-4">
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                  disabled={pagination.currentPage === 1}
-                  className="btn btn-neon-blue px-4 py-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <FaChevronLeft />
-                </button>
+            {/* Buttons */}
+            <div className="flex gap-3 justify-center">
+              <button
+                type="submit"
+                className="btn-neon btn-neon-primary px-6 flex items-center gap-2"
+              >
+                <FaSearch />
+                Search
+              </button>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="btn-neon btn-neon-secondary px-6"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </form>
+        </div>
 
-                <div className="flex space-x-2">
-                  {[...Array(pagination.totalPages)].map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handlePageChange(index + 1)}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                        pagination.currentPage === index + 1
-                          ? 'btn-neon-pink'
-                          : 'border-2 border-gray-600 text-gray-400 hover:border-neon-pink'
-                      }`}
-                    >
-                      {index + 1}
-                    </button>
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 border-2 border-red-500/30 mb-4">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <p className="text-red-400 mb-4">{error}</p>
+            <button
+              onClick={fetchTuitions}
+              className="btn-neon btn-neon-primary"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Tuitions Grid */}
+        {!error && (
+          <>
+            {tuitions.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 auto-rows-fr">
+                  {tuitions.map(tuition => (
+                    <TuitionCard key={tuition._id} tuition={tuition} />
                   ))}
                 </div>
 
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                  disabled={pagination.currentPage === pagination.totalPages}
-                  className="btn btn-neon-blue px-4 py-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2">
+                    <button
+                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      disabled={pagination.currentPage === 1}
+                      className="btn-neon btn-neon-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    
+                    <div className="flex gap-2">
+                      {[...Array(pagination.totalPages)].map((_, i) => (
+                        <button
+                          key={i + 1}
+                          onClick={() => handlePageChange(i + 1)}
+                          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                            pagination.currentPage === i + 1
+                              ? 'bg-neon-pink text-dark-bg'
+                              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                      disabled={pagination.currentPage === pagination.totalPages}
+                      className="btn-neon btn-neon-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neon-pink/10 border-2 border-neon-pink/30 mb-4">
+                  <FaBook className="text-neon-pink text-3xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-300 mb-2">No tuitions found</h3>
+                <p className="text-gray-400 mb-6">
+                  Try adjusting your search filters or{' '}
+                  <button 
+                    onClick={clearFilters}
+                    className="text-neon-pink hover:underline"
+                  >
+                    clear all filters
+                  </button>
+                </p>
+                <Link
+                  to="/post-tuition"
+                  className="btn-neon btn-neon-primary inline-flex items-center gap-2"
                 >
-                  <FaChevronRight />
-                </button>
+                  Post a Tuition
+                </Link>
               </div>
             )}
           </>
-        ) : (
-          <div className="text-center py-20">
-            <h3 className="text-2xl font-bold neon-text-pink mb-4">No Tuitions Found</h3>
-            <p className="text-gray-400">Try adjusting your search filters</p>
-          </div>
         )}
       </div>
     </div>
   );
-};
+}
 
 export default AllTuitions;

@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+console.log('🔥 API Base URL:', `${API_URL}/api`);
+
 const api = axios.create({
   baseURL: `${API_URL}/api`,
   headers: {
@@ -12,6 +14,7 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    console.log('📤 API Request:', config.method?.toUpperCase(), config.url);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -19,14 +22,19 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('❌ Request Error:', error);
     return Promise.reject(error);
   }
 );
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response:', response.config.url, response.data);
+    return response;
+  },
   (error) => {
+    console.error('❌ API Error:', error.response?.status, error.response?.data || error.message);
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -45,8 +53,14 @@ export const authAPI = {
 
 // Tuition APIs
 export const tuitionAPI = {
-  getAllTuitions: (params) => api.get('/tuitions', { params }),
-  getLatestTuitions: () => api.get('/tuitions/latest'),
+  getAllTuitions: (params) => {
+    console.log('🔍 Fetching tuitions with params:', params);
+    return api.get('/tuitions', { params });
+  },
+  getLatestTuitions: () => {
+    console.log('🔍 Fetching latest tuitions');
+    return api.get('/tuitions/latest');
+  },
   getTuitionById: (id) => api.get(`/tuitions/${id}`),
   createTuition: (data) => api.post('/tuitions', data),
   updateTuition: (id, data) => api.put(`/tuitions/${id}`, data),
@@ -56,8 +70,14 @@ export const tuitionAPI = {
 
 // User/Tutor APIs
 export const userAPI = {
-  getAllTutors: (params) => api.get('/users/tutors', { params }),
-  getLatestTutors: () => api.get('/users/tutors/latest'),
+  getAllTutors: (params) => {
+    console.log('🔍 Fetching tutors with params:', params);
+    return api.get('/users/tutors', { params });
+  },
+  getLatestTutors: () => {
+    console.log('🔍 Fetching latest tutors');
+    return api.get('/users/tutors/latest');
+  },
   getUserProfile: (userId) => api.get(`/users/${userId}`),
   updateProfile: (data) => api.put('/users/profile', data),
 };

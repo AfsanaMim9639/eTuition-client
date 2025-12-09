@@ -5,7 +5,16 @@ import { FaTimes, FaCreditCard } from 'react-icons/fa';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// ✅ FIXED: Check if key exists before loading Stripe
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
+
+// Log stripe status
+if (!stripeKey) {
+  console.warn('⚠️  Stripe public key not found. Payment features will be disabled.');
+} else {
+  console.log('✅ Stripe initialized with key:', stripeKey.substring(0, 10) + '...');
+}
 
 const CheckoutForm = ({ application, amount, onSuccess, onClose }) => {
   const stripe = useStripe();
@@ -16,6 +25,7 @@ const CheckoutForm = ({ application, amount, onSuccess, onClose }) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
+      toast.error('Stripe is not loaded yet. Please try again.');
       return;
     }
 
@@ -132,6 +142,36 @@ const PaymentModal = ({ isOpen, onClose, application, onSuccess }) => {
   if (!isOpen) return null;
 
   const amount = application?.expectedSalary || 0;
+
+  // ✅ FIXED: Show error if Stripe is not configured
+  if (!stripePromise) {
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="card-neon card-neon-pink p-6 rounded-xl max-w-md w-full relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 btn btn-neon-blue p-2 rounded-lg"
+          >
+            <FaTimes />
+          </button>
+
+          <h2 className="text-2xl font-bold neon-text-pink mb-4">Payment Unavailable</h2>
+          <div className="bg-red-500/10 border-2 border-red-500/30 p-4 rounded-lg">
+            <p className="text-red-400 mb-2">⚠️ Stripe is not configured.</p>
+            <p className="text-sm text-gray-400">
+              Please add <code className="bg-black/50 px-2 py-1 rounded">VITE_STRIPE_PUBLIC_KEY</code> to your .env file.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-full mt-4 btn btn-neon-blue py-3 rounded-lg font-semibold"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">

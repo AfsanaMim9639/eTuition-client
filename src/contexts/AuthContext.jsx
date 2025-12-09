@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext, useRef } from 'react';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
@@ -24,19 +24,26 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isFetchingUser = useRef(false); // Prevent multiple API calls
 
   // Register with email/password
   const register = async (userData) => {
     try {
+      console.log('📝 Starting registration...');
+      
       // Create Firebase user
       const { email, password, ...otherData } = userData;
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      console.log('✅ Firebase user created');
       
       // Register in backend
       const response = await api.post('/auth/register', {
         ...userData,
         profileImage: userCredential.user.photoURL || 'https://i.ibb.co/qpB9ZNp/default-avatar.png'
       });
+
+      console.log('✅ Backend registration successful');
 
       // Save token and user
       localStorage.setItem('token', response.data.token);
@@ -46,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Registration successful!');
       return response.data;
     } catch (error) {
-      console.error('Register error:', error);
+      console.error('❌ Register error:', error);
       toast.error(error.response?.data?.message || 'Registration failed');
       throw error;
     }
@@ -55,11 +62,17 @@ export const AuthProvider = ({ children }) => {
   // Login with email/password
   const login = async (email, password) => {
     try {
+      console.log('🔐 Starting login...');
+      
       // Firebase login
       await signInWithEmailAndPassword(auth, email, password);
       
+      console.log('✅ Firebase login successful');
+      
       // Backend login
       const response = await api.post('/auth/login', { email, password });
+
+      console.log('✅ Backend login successful');
 
       // Save token and user
       localStorage.setItem('token', response.data.token);
@@ -69,7 +82,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Login successful!');
       return response.data;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       toast.error(error.response?.data?.message || 'Login failed');
       throw error;
     }
@@ -78,8 +91,12 @@ export const AuthProvider = ({ children }) => {
   // Google login
   const googleLogin = async (role = 'student') => {
     try {
+      console.log('🔐 Starting Google login...');
+      
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
+
+      console.log('✅ Google popup successful');
 
       // Backend social login
       const response = await api.post('/auth/social-login', {
@@ -89,6 +106,8 @@ export const AuthProvider = ({ children }) => {
         role
       });
 
+      console.log('✅ Backend social login successful');
+
       // Save token and user
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -97,7 +116,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Login successful!');
       return response.data;
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error('❌ Google login error:', error);
       toast.error(error.response?.data?.message || 'Google login failed');
       throw error;
     }
@@ -106,13 +125,14 @@ export const AuthProvider = ({ children }) => {
   // Logout
   const logout = async () => {
     try {
+      console.log('👋 Logging out...');
       await signOut(auth);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
       toast.success('Logged out successfully');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('❌ Logout error:', error);
       toast.error('Logout failed');
     }
   };
@@ -120,6 +140,7 @@ export const AuthProvider = ({ children }) => {
   // Update user profile
   const updateUserProfile = async (userData) => {
     try {
+      console.log('🔄 Updating profile...');
       const response = await api.put('/users/profile', userData);
       
       const updatedUser = response.data.user;
@@ -127,42 +148,69 @@ export const AuthProvider = ({ children }) => {
       setUser(updatedUser);
 
       toast.success('Profile updated successfully');
+      console.log('✅ Profile updated');
       return response.data;
     } catch (error) {
-      console.error('Update profile error:', error);
+      console.error('❌ Update profile error:', error);
       toast.error(error.response?.data?.message || 'Failed to update profile');
       throw error;
     }
   };
 
-  // Check authentication on mount
+  // Check authentication on mount - FIXED VERSION
   useEffect(() => {
+    console.log('🔍 Setting up auth listener...');
+    
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('🔥 Firebase auth state changed:', firebaseUser ? 'Logged in' : 'Logged out');
+      
       if (firebaseUser) {
-        // Get user from localStorage
+        // Check if already fetching to prevent multiple calls
+        if (isFetchingUser.current) {
+          console.log('⏸️  Already fetching user, skipping...');
+          return;
+        }
+
+        // Get user from localStorage first (faster)
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const token = localStorage.getItem('token');
+        
+        if (storedUser && token) {
+          console.log('✅ User loaded from localStorage');
           setUser(JSON.parse(storedUser));
+          setLoading(false);
         } else {
-          // Fetch user from backend
+          // Only fetch from backend if not in localStorage
+          isFetchingUser.current = true;
+          
           try {
+            console.log('📡 Fetching user from backend...');
             const response = await api.get('/auth/me');
             localStorage.setItem('user', JSON.stringify(response.data.user));
             setUser(response.data.user);
+            console.log('✅ User fetched from backend');
           } catch (error) {
-            console.error('Fetch user error:', error);
+            console.error('❌ Fetch user error:', error);
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            setUser(null);
+          } finally {
+            isFetchingUser.current = false;
+            setLoading(false);
           }
         }
       } else {
+        console.log('👤 No Firebase user, clearing state');
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      console.log('🧹 Cleaning up auth listener');
+      unsubscribe();
+    };
+  }, []); // Empty dependency array - runs ONLY ONCE
 
   const value = {
     user,

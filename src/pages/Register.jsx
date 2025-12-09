@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Phone, Chrome, GraduationCap, BookOpen, ArrowRight, Briefcase } from 'lucide-react';
+import { User, Mail, Lock, Phone, Chrome, GraduationCap, BookOpen, ArrowRight, Briefcase, MapPin } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import useAuth from '../hooks/useAuth';
 import toast from 'react-hot-toast';
@@ -42,10 +42,31 @@ const Register = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      await registerUser({ ...data, role });
+      // Prepare registration data
+      const registerData = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        role: role
+      };
+
+      // Add tutor-specific fields if role is tutor
+      if (role === 'tutor') {
+        registerData.education = data.education;
+        registerData.subjects = data.subjects ? data.subjects.split(',').map(s => s.trim()) : [];
+        registerData.experience = data.experience ? Number(data.experience) : 0;
+        registerData.location = data.location;
+      }
+
+      console.log('📤 Registration data:', registerData);
+      
+      await registerUser(registerData);
+      toast.success('Registration successful!');
       navigate('/');
     } catch (error) {
-      console.error('Register error:', error);
+      console.error('❌ Register error:', error);
+      toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -58,6 +79,7 @@ const Register = () => {
       navigate('/');
     } catch (error) {
       console.error('Google register error:', error);
+      toast.error('Google registration failed');
     } finally {
       setLoading(false);
     }
@@ -72,32 +94,31 @@ const Register = () => {
       </div>
       
       <div className="relative z-10 w-full max-w-4xl">
-        
-
         {/* Main Card */}
         <div ref={formRef} className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/10">
           {/* Header */}
-        <div
-          ref={headerRef}
-          className="flex items-center gap-6 mb-6 p-6 border-2 border-[#00ff88]/30 rounded-2xl bg-[#0a0f0d]/40 shadow-lg shadow-[#00ff88]/20"
-        >
-          {/* Icon - Left Side */}
-          <div className="flex-shrink-0">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#00ff88]/30">
-              <User className="w-8 h-8 text-[#0a0f0d]" />
+          <div
+            ref={headerRef}
+            className="flex items-center gap-6 mb-6 p-6 border-2 border-[#00ff88]/30 rounded-2xl bg-[#0a0f0d]/40 shadow-lg shadow-[#00ff88]/20"
+          >
+            {/* Icon - Left Side */}
+            <div className="flex-shrink-0">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#00ff88]/30">
+                <User className="w-8 h-8 text-[#0a0f0d]" />
+              </div>
+            </div>
+
+            {/* Text - Right Side */}
+            <div className="flex-1 text-left">
+              <h1 className="text-3xl font-bold mb-1 leading-tight">
+                Create <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">Account</span>
+              </h1>
+              <p className="text-gray-400 text-sm">
+                Join us and start your learning journey
+              </p>
             </div>
           </div>
 
-          {/* Text - Right Side */}
-          <div className="flex-1 text-left">
-            <h1 className="text-3xl font-bold mb-1 leading-tight">
-              Create <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">Account</span>
-            </h1>
-            <p className="text-gray-400 text-sm">
-              Join us and start your learning journey
-            </p>
-          </div>
-        </div>
           {/* Role Selection */}
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-300 mb-3">
@@ -261,36 +282,92 @@ const Register = () => {
             {/* Tutor specific fields */}
             {role === 'tutor' && (
               <div className="mt-6 pt-6 border-t-2 border-[#00ff88]/20">
-                <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+                <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-[#00ff88]" />
                   Professional Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Education */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-300">
-                      Education
+                      Education *
                     </label>
                     <div className="relative">
                       <input
                         type="text"
-                        {...register('education', { required: role === 'tutor' })}
+                        {...register('education', { 
+                          required: role === 'tutor' ? 'Education is required for tutors' : false 
+                        })}
                         className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                         placeholder="B.Sc in Computer Science"
                       />
                     </div>
+                    {errors.education && (
+                      <p className="text-red-400 text-xs mt-1 flex items-center gap-1.5">
+                        <span className="w-1 h-1 bg-red-400 rounded-full"></span>
+                        {errors.education.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* Subjects */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-300">
-                      Subjects (comma separated)
+                      Subjects (comma separated) *
                     </label>
                     <div className="relative">
                       <input
                         type="text"
-                        {...register('subjects')}
+                        {...register('subjects', { 
+                          required: role === 'tutor' ? 'Subjects are required for tutors' : false 
+                        })}
                         className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
                         placeholder="Math, Physics, Chemistry"
+                      />
+                    </div>
+                    {errors.subjects && (
+                      <p className="text-red-400 text-xs mt-1 flex items-center gap-1.5">
+                        <span className="w-1 h-1 bg-red-400 rounded-full"></span>
+                        {errors.subjects.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Location */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-300">
+                      Location *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        {...register('location', { 
+                          required: role === 'tutor' ? 'Location is required for tutors' : false 
+                        })}
+                        className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                        placeholder="Dhaka, Bangladesh"
+                      />
+                    </div>
+                    {errors.location && (
+                      <p className="text-red-400 text-xs mt-1 flex items-center gap-1.5">
+                        <span className="w-1 h-1 bg-red-400 rounded-full"></span>
+                        {errors.location.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Experience */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-300">
+                      Experience (years)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        {...register('experience')}
+                        className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                        placeholder="5"
                       />
                     </div>
                   </div>
