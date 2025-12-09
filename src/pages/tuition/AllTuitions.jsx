@@ -16,8 +16,8 @@ function AllTuitions() {
   const [filters, setFilters] = useState({
     search: '',
     subject: '',
-    category: '',
-    medium: '',
+    tutoring_type: '', // ✅ Changed from category to tutoring_type
+    preferred_medium: '', // ✅ Changed from medium to preferred_medium
     minSalary: '',
     maxSalary: ''
   });
@@ -38,8 +38,8 @@ function AllTuitions() {
       };
       if (filters.search) params.search = filters.search;
       if (filters.subject) params.subject = filters.subject;
-      if (filters.category) params.category = filters.category;
-      if (filters.medium) params.medium = filters.medium;
+      if (filters.tutoring_type) params.tutoring_type = filters.tutoring_type; // ✅ Fixed
+      if (filters.preferred_medium) params.preferred_medium = filters.preferred_medium; // ✅ Fixed
       if (filters.minSalary) params.minSalary = filters.minSalary;
       if (filters.maxSalary) params.maxSalary = filters.maxSalary;
       
@@ -71,8 +71,8 @@ function AllTuitions() {
     setFilters({
       search: '',
       subject: '',
-      category: '',
-      medium: '',
+      tutoring_type: '',
+      preferred_medium: '',
       minSalary: '',
       maxSalary: ''
     });
@@ -120,39 +120,47 @@ function AllTuitions() {
                 />
               </div>
 
-              {/* Category */}
+              {/* Tutoring Type */}
               <select
-                name="category"
-                value={filters.category}
+                name="tutoring_type"
+                value={filters.tutoring_type}
                 onChange={handleFilterChange}
                 className="input-neon"
               >
-                <option value="">All Categories</option>
-                <option value="Online">Online</option>
-                <option value="Offline">Offline</option>
+                <option value="">All Types</option>
+                <option value="Home Tutoring">Home Tutoring</option>
+                <option value="Online Tutoring">Online Tutoring</option>
                 <option value="Both">Both</option>
               </select>
 
               {/* Subject */}
-              <input
-                type="text"
+              <select
                 name="subject"
                 value={filters.subject}
                 onChange={handleFilterChange}
-                placeholder="Subject (e.g. Math, Physics)"
                 className="input-neon"
-              />
+              >
+                <option value="">All Subjects</option>
+                <option value="Mathematics">Mathematics</option>
+                <option value="Physics">Physics</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Biology">Biology</option>
+                <option value="English">English</option>
+                <option value="Bangla">Bangla</option>
+                <option value="ICT">ICT</option>
+              </select>
 
               {/* Medium */}
               <select
-                name="medium"
-                value={filters.medium}
+                name="preferred_medium"
+                value={filters.preferred_medium}
                 onChange={handleFilterChange}
                 className="input-neon"
               >
                 <option value="">All Mediums</option>
-                <option value="Bangla">Bangla</option>
-                <option value="English">English</option>
+                <option value="Bangla Medium">Bangla Medium</option>
+                <option value="English Medium">English Medium</option>
+                <option value="English Version">English Version</option>
                 <option value="Both">Both</option>
               </select>
 
@@ -164,6 +172,7 @@ function AllTuitions() {
                 onChange={handleFilterChange}
                 placeholder="Min Salary (BDT)"
                 className="input-neon"
+                min="0"
               />
 
               {/* Max Salary */}
@@ -174,6 +183,7 @@ function AllTuitions() {
                 onChange={handleFilterChange}
                 placeholder="Max Salary (BDT)"
                 className="input-neon"
+                min="0"
               />
             </div>
 
@@ -277,7 +287,7 @@ function AllTuitions() {
                   </button>
                 </p>
                 <Link
-                  to="/post-tuition"
+                  to="/dashboard/student/post-tuition"
                   className="btn-neon btn-neon-primary inline-flex items-center gap-2"
                 >
                   Post a Tuition

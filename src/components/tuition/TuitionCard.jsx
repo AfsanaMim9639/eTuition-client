@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaMapMarkerAlt, FaDollarSign, FaBook, FaClock, FaCalendarAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaDollarSign, FaBook, FaClock, FaCalendarAlt, FaEye } from 'react-icons/fa';
 
 const TuitionCard = ({ tuition }) => {
   // Helper function to get category badge color
@@ -18,9 +18,32 @@ const TuitionCard = ({ tuition }) => {
   // Helper function to display category text
   const getCategoryText = () => {
     const type = tuition.tutoring_type || tuition.category;
-    if (type === 'Home Tutoring') return 'Offline';
+    if (type === 'Home Tutoring') return 'Home';
     if (type === 'Online Tutoring') return 'Online';
-    return type || 'Both';
+    if (type === 'Both') return 'Both';
+    return type || 'Home';
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Recently';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
+  // Get student name from populated data or posted_by string
+  const getPostedBy = () => {
+    if (tuition.studentId?.name) return tuition.studentId.name;
+    if (tuition.posted_by) return tuition.posted_by;
+    return 'Student';
   };
 
   return (
@@ -48,7 +71,7 @@ const TuitionCard = ({ tuition }) => {
               <FaBook className="text-neon-blue flex-shrink-0" />
               <span className="truncate">{tuition.subject}</span>
               <span>•</span>
-              <span className="truncate">{tuition.level || tuition.class}</span>
+              <span className="truncate">{tuition.grade || tuition.level || tuition.class}</span>
             </div>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 border ${getCategoryStyle()} flex-shrink-0`}>
@@ -62,18 +85,23 @@ const TuitionCard = ({ tuition }) => {
           <span className="truncate">{tuition.location}</span>
         </div>
 
-        {/* Medium & Duration - Fixed height */}
+        {/* Medium & Schedule - Fixed height */}
         <div className="flex items-center gap-3 text-sm text-gray-400 mb-4 min-h-[28px] flex-wrap">
           {tuition.preferred_medium && (
             <span className="px-2 py-1 bg-gray-800 rounded text-xs">
               {tuition.preferred_medium}
             </span>
           )}
-          {tuition.class_duration && (
+          {tuition.schedule && (
             <div className="flex items-center gap-1">
               <FaClock className="text-neon-blue" />
-              <span>{tuition.class_duration}</span>
+              <span className="truncate">{tuition.schedule}</span>
             </div>
+          )}
+          {tuition.class_duration && (
+            <span className="px-2 py-1 bg-gray-800 rounded text-xs">
+              {tuition.class_duration}
+            </span>
           )}
         </div>
 
@@ -85,29 +113,52 @@ const TuitionCard = ({ tuition }) => {
           <div className="flex items-center space-x-2">
             <FaDollarSign className="text-neon-green" />
             <span className="font-bold text-neon-green text-lg">
-              {tuition.salary} BDT/mo
+              ৳{tuition.salary}/mo
             </span>
           </div>
-          <div className="flex items-center gap-1 text-sm text-gray-400">
-            <FaCalendarAlt className="text-neon-blue" />
-            <span>{tuition.days_per_week || tuition.daysPerWeek}d/wk</span>
+          {(tuition.days_per_week || tuition.daysPerWeek) && (
+            <div className="flex items-center gap-1 text-sm text-gray-400">
+              <FaCalendarAlt className="text-neon-blue" />
+              <span>{tuition.days_per_week || tuition.daysPerWeek} days/wk</span>
+            </div>
+          )}
+        </div>
+
+        {/* Posted Info & Status - Fixed at bottom */}
+        <div className="flex items-center justify-between pt-4 border-t border-neon-pink/30">
+          <div className="text-xs text-gray-400">
+            <span className="text-gray-500">Posted by: </span>
+            <span className="text-gray-300 font-semibold">
+              {getPostedBy()}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Status Badge */}
+            {tuition.status && tuition.status !== 'open' && (
+              <span className={`text-xs px-2 py-1 rounded ${
+                tuition.status === 'ongoing' ? 'bg-blue-500/20 text-blue-400' :
+                tuition.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                'bg-gray-500/20 text-gray-400'
+              }`}>
+                {tuition.status}
+              </span>
+            )}
+            {/* Views */}
+            {tuition.views > 0 && (
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <FaEye className="text-neon-blue" />
+                <span>{tuition.views}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Posted Info - Fixed at bottom */}
-        <div className="flex items-center justify-between pt-4 border-t border-neon-pink/30">
-          <div className="text-xs text-gray-400">
-            <span>Posted by: </span>
-            <span className="text-gray-300 font-semibold">
-              {tuition.posted_by || 'Parent'}
-            </span>
+        {/* Posted Date - Very bottom */}
+        {tuition.postedAt && (
+          <div className="text-xs text-gray-500 mt-2 text-right">
+            {formatDate(tuition.postedAt)}
           </div>
-          {tuition.views > 0 && (
-            <span className="text-xs text-gray-500">
-              👁️ {tuition.views} views
-            </span>
-          )}
-        </div>
+        )}
       </Link>
     </motion.div>
   );

@@ -47,42 +47,30 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
-    try {
-      const result = await googleLogin();
-      
-      // Use selected role for Google login
-      const userRole = selectedRole;
-      
-      // Save user to backend with selected role
-      await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: result.user.displayName,
-          email: result.user.email,
-          photoURL: result.user.photoURL,
-          role: userRole
-        })
-      });
-      
-      // Navigate based on role
-      if (userRole === 'admin') {
-        navigate('/dashboard/admin');
-      } else if (userRole === 'tutor') {
-        navigate('/dashboard/tutor');
-      } else {
-        navigate('/dashboard/student');
-      }
-      
-      toast.success(`Welcome, ${userRole}!`);
-    } catch (error) {
-      console.error('Google login error:', error);
-      toast.error(error.message || 'Google login failed.');
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const result = await googleLogin(selectedRole); // Pass role to googleLogin
+    
+    // Get user role from result
+    const userRole = result.user?.role || selectedRole;
+    
+    // Navigate based on role
+    if (userRole === 'admin') {
+      navigate('/dashboard/admin');
+    } else if (userRole === 'tutor') {
+      navigate('/dashboard/tutor');
+    } else {
+      navigate('/dashboard/student');
     }
-  };
+    
+    toast.success(`Welcome, ${result.user?.name || 'User'}!`);
+  } catch (error) {
+    console.error('Google login error:', error);
+    toast.error(error.message || 'Google login failed.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const roles = [
     { id: 'student', name: 'Student', icon: User, color: 'from-[#00ff88] to-[#00ffcc]' },

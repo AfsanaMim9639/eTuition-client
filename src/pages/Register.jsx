@@ -51,22 +51,39 @@ const Register = () => {
         role: role
       };
 
-      // Add tutor-specific fields if role is tutor
+      // Add student-specific fields
+      if (role === 'student') {
+        if (data.grade) registerData.grade = data.grade;
+        if (data.institution) registerData.institution = data.institution;
+        if (data.address) registerData.address = data.address;
+      }
+
+      // Add tutor-specific fields
       if (role === 'tutor') {
         registerData.education = data.education;
         registerData.subjects = data.subjects ? data.subjects.split(',').map(s => s.trim()) : [];
         registerData.experience = data.experience ? Number(data.experience) : 0;
         registerData.location = data.location;
+        if (data.bio) registerData.bio = data.bio;
+        if (data.hourlyRate) registerData.hourlyRate = Number(data.hourlyRate);
       }
 
       console.log('📤 Registration data:', registerData);
       
       await registerUser(registerData);
       toast.success('Registration successful!');
-      navigate('/');
+      
+      // Role-based navigation
+      if (role === 'tutor') {
+        navigate('/dashboard/tutor');
+      } else if (role === 'admin') {
+        navigate('/dashboard/admin');
+      } else {
+        navigate('/dashboard/student');
+      }
     } catch (error) {
       console.error('❌ Register error:', error);
-      toast.error(error.response?.data?.message || 'Registration failed');
+      toast.error(error.response?.data?.message || error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -76,10 +93,20 @@ const Register = () => {
     setLoading(true);
     try {
       await googleLogin(role);
-      navigate('/');
+      
+      // Role-based navigation after Google signup
+      if (role === 'tutor') {
+        navigate('/dashboard/tutor');
+      } else if (role === 'admin') {
+        navigate('/dashboard/admin');
+      } else {
+        navigate('/dashboard/student');
+      }
+      
+      toast.success('Registration successful!');
     } catch (error) {
       console.error('Google register error:', error);
-      toast.error('Google registration failed');
+      toast.error(error.message || 'Google registration failed');
     } finally {
       setLoading(false);
     }
@@ -185,7 +212,7 @@ const Register = () => {
               {/* Name */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-300">
-                  Full Name
+                  Full Name *
                 </label>
                 <div className="relative">
                   <input
@@ -206,7 +233,7 @@ const Register = () => {
               {/* Email */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-300">
-                  Email Address
+                  Email Address *
                 </label>
                 <div className="relative">
                   <input
@@ -233,7 +260,7 @@ const Register = () => {
               {/* Phone */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-300">
-                  Phone Number
+                  Phone Number *
                 </label>
                 <div className="relative">
                   <input
@@ -254,7 +281,7 @@ const Register = () => {
               {/* Password */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-300">
-                  Password
+                  Password *
                 </label>
                 <div className="relative">
                   <input
@@ -278,6 +305,56 @@ const Register = () => {
                 )}
               </div>
             </div>
+
+            {/* Student specific fields */}
+            {role === 'student' && (
+              <div className="mt-6 pt-6 border-t-2 border-[#00ff88]/20">
+                <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-[#00ff88]" />
+                  Student Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Grade/Class */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-300">
+                      Grade/Class
+                    </label>
+                    <input
+                      type="text"
+                      {...register('grade')}
+                      className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                      placeholder="Class 10"
+                    />
+                  </div>
+
+                  {/* Institution */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-300">
+                      Institution
+                    </label>
+                    <input
+                      type="text"
+                      {...register('institution')}
+                      className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                      placeholder="Dhaka College"
+                    />
+                  </div>
+
+                  {/* Address */}
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-300">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      {...register('address')}
+                      className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                      placeholder="Dhanmondi, Dhaka"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Tutor specific fields */}
             {role === 'tutor' && (
@@ -370,6 +447,33 @@ const Register = () => {
                         placeholder="5"
                       />
                     </div>
+                  </div>
+
+                  {/* Hourly Rate */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-300">
+                      Hourly Rate (BDT)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      {...register('hourlyRate')}
+                      className="w-full h-11 px-4 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300"
+                      placeholder="500"
+                    />
+                  </div>
+
+                  {/* Bio */}
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-300">
+                      Bio / About Yourself
+                    </label>
+                    <textarea
+                      {...register('bio')}
+                      rows="3"
+                      className="w-full px-4 py-3 bg-[#0a0f0d] border-2 border-[#00ff88]/30 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#00ff88] focus:shadow-lg focus:shadow-[#00ff88]/20 transition-all duration-300 resize-none"
+                      placeholder="Tell students about yourself and your teaching style..."
+                    />
                   </div>
                 </div>
               </div>
