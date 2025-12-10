@@ -21,6 +21,7 @@ import TutorProfilePage from '../pages/tutor/TutorProfilePage';
 
 // Student Dashboard Pages
 import StudentDashboard from '../pages/dashboard/student/StudentDashboard';
+import StudentDashboardHome from '../pages/dashboard/student/StudentDashboardHome'; 
 import MyTuitions from '../pages/dashboard/student/MyTuitions';
 import PostNewTuition from '../pages/dashboard/student/PostNewTuition';
 import AppliedTutors from '../pages/dashboard/student/AppliedTutors';
@@ -94,54 +95,40 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      // Student Routes
+      // Student Routes - UPDATED WITH NESTED STRUCTURE
       {
         path: 'student',
         element: (
           <RoleBasedRoute allowedRoles={['student']}>
             <StudentDashboard />
           </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'student/tuitions',
-        element: (
-          <RoleBasedRoute allowedRoles={['student']}>
-            <MyTuitions />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'student/post-tuition',
-        element: (
-          <RoleBasedRoute allowedRoles={['student']}>
-            <PostNewTuition />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'student/tuition/:id/applications',
-        element: (
-          <RoleBasedRoute allowedRoles={['student']}>
-            <AppliedTutors />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'student/payments',
-        element: (
-          <RoleBasedRoute allowedRoles={['student']}>
-            <StudentPayments />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'student/profile',
-        element: (
-          <RoleBasedRoute allowedRoles={['student']}>
-            <StudentProfile />
-          </RoleBasedRoute>
-        )
+        ),
+        children: [
+          {
+            index: true, // Renders at /dashboard/student
+            element: <StudentDashboardHome />
+          },
+          {
+            path: 'tuitions',
+            element: <MyTuitions />
+          },
+          {
+            path: 'post-tuition',
+            element: <PostNewTuition />
+          },
+          {
+            path: 'tuition/:id/applications',
+            element: <AppliedTutors />
+          },
+          {
+            path: 'payments',
+            element: <StudentPayments />
+          },
+          {
+            path: 'profile',
+            element: <StudentProfile />
+          }
+        ]
       },
 
       // Tutor Routes

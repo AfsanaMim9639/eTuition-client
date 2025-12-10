@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown, BookOpen, GraduationCap, Info, Phone, Home, LayoutDashboard } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext'; // আপনার AuthContext import করুন
 
 const Navbar = () => {
-  // Mock user - replace with actual auth hook: const { user, logout } = useAuth();
-  const [user, setUser] = useState(null); // Set to { name: 'John Doe', role: 'student' } for testing
+  // Real auth hook ব্যবহার করুন
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -30,10 +31,14 @@ const Navbar = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    // logout(); // Call your actual logout function
-    setUser(null);
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const getDashboardLink = () => {
@@ -46,7 +51,7 @@ const Navbar = () => {
       case 'student':
         return '/dashboard/student';
       default:
-        return '/';
+        return '/dashboard';
     }
   };
 
@@ -67,7 +72,7 @@ const Navbar = () => {
             : 'bg-[#0a0f0d]/50 backdrop-blur-sm'
         }`}
       >
-        <div className="mx-auto ">
+        <div className="mx-auto">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="ml-20 flex-shrink-0">
@@ -98,7 +103,7 @@ const Navbar = () => {
                     key={link.to}
                     to={link.to}
                     className={({ isActive }) =>
-                      `flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                      `flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                         isActive
                           ? 'bg-[#00ff88]/10 text-[#00ff88] shadow-md shadow-[#00ff88]/20'
                           : 'text-gray-300 hover:text-[#00ff88] hover:bg-[#00ff88]/5'
@@ -113,7 +118,7 @@ const Navbar = () => {
             </div>
 
             {/* Auth Buttons / Profile */}
-            <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
+            <div className="hidden lg:flex items-center gap-4 flex-shrink-0 mr-10">
               {user ? (
                 <>
                   {/* Dashboard Button */}
@@ -134,7 +139,7 @@ const Navbar = () => {
                       <div className="w-8 h-8 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-full flex items-center justify-center">
                         <User className="w-5 h-5 text-[#0a0f0d]" />
                       </div>
-                      <span className="text-gray-200 font-medium">{user.name}</span>
+                      <span className="text-gray-200 font-medium">{user.name || user.email}</span>
                       <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
                     </button>
 
@@ -143,13 +148,14 @@ const Navbar = () => {
                       <div className="absolute right-0 mt-3 w-56 bg-[#0f1512] border-2 border-[#00ff88]/30 rounded-xl shadow-2xl shadow-[#00ff88]/20 overflow-hidden animate-fadeIn">
                         <div className="p-4 border-b border-[#00ff88]/20">
                           <p className="text-sm text-gray-400">Signed in as</p>
-                          <p className="text-white font-semibold truncate">{user.name}</p>
+                          <p className="text-white font-semibold truncate">{user.name || user.email}</p>
                           <p className="text-xs text-[#00ff88] capitalize mt-1">{user.role}</p>
                         </div>
                         <div className="p-2">
                           <Link
                             to="/profile"
                             className="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-[#00ff88] hover:bg-[#00ff88]/10 rounded-lg transition-all duration-200"
+                            onClick={() => setIsProfileOpen(false)}
                           >
                             <User className="w-4 h-4" />
                             My Profile
@@ -176,7 +182,7 @@ const Navbar = () => {
                   </Link>
                   <Link
                     to="/register"
-                    className="mr-10 px-6 py-2.5 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] font-bold rounded-lg hover:shadow-lg hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105"
+                    className="px-6 py-2.5 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] font-bold rounded-lg hover:shadow-lg hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105"
                   >
                     Register
                   </Link>
@@ -187,7 +193,7 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 text-[#00ff88] hover:bg-[#00ff88]/10 rounded-lg transition-all duration-300"
+              className="lg:hidden mr-4 p-2 text-[#00ff88] hover:bg-[#00ff88]/10 rounded-lg transition-all duration-300"
             >
               {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -195,7 +201,7 @@ const Navbar = () => {
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-[#00ff88]/20 animate-slideDown">
+            <div className="lg:hidden py-4 px-4 border-t border-[#00ff88]/20 animate-slideDown">
               {/* Nav Links */}
               <div className="flex flex-col gap-2 mb-4">
                 {navLinks.map((link) => {
@@ -226,7 +232,7 @@ const Navbar = () => {
                   <>
                     <div className="px-4 py-3 bg-[#00ff88]/5 rounded-lg border border-[#00ff88]/20">
                       <p className="text-sm text-gray-400">Signed in as</p>
-                      <p className="text-white font-semibold">{user.name}</p>
+                      <p className="text-white font-semibold">{user.name || user.email}</p>
                       <p className="text-xs text-[#00ff88] capitalize mt-1">{user.role}</p>
                     </div>
                     <Link
@@ -246,10 +252,7 @@ const Navbar = () => {
                       My Profile
                     </Link>
                     <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMenuOpen(false);
-                      }}
+                      onClick={handleLogout}
                       className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500/10 text-red-400 rounded-lg font-semibold border border-red-500/30"
                     >
                       <LogOut className="w-5 h-5" />

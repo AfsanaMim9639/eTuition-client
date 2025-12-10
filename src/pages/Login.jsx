@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Chrome, Eye, EyeOff, ArrowRight, User, GraduationCap, Shield } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import useAuth from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 const Login = () => {
@@ -16,61 +16,91 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/');
+      console.log('👤 User already logged in, redirecting...');
+      redirectToDashboard(user.role);
     }
   }, [user, navigate]);
+
+  // Helper function to redirect based on role
+  const redirectToDashboard = (role) => {
+    console.log('🔀 Redirecting to dashboard for role:', role);
+    
+    switch(role) {
+      case 'admin':
+        navigate('/dashboard/admin', { replace: true });
+        break;
+      case 'tutor':
+        navigate('/dashboard/tutor', { replace: true });
+        break;
+      case 'student':
+        navigate('/dashboard/student', { replace: true });
+        break;
+      default:
+        navigate('/', { replace: true });
+    }
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
+      console.log('📝 Logging in with:', data.email);
+      
       const result = await login(data.email, data.password);
       
-      // Get user role from your backend or use selected role
-      const userRole = result.user?.role || selectedRole;
+      console.log('✅ Login successful:', result);
+      console.log('👤 User data:', result.user);
+      console.log('🎭 User role:', result.user?.role);
       
-      // Role-based routing
-      if (userRole === 'admin') {
-        navigate('/dashboard/admin');
-      } else if (userRole === 'tutor') {
-        navigate('/dashboard/tutor');
-      } else {
-        navigate('/dashboard/student');
+      // Get role from response
+      const userRole = result.user?.role;
+      
+      if (!userRole) {
+        throw new Error('User role not found in response');
       }
       
-      toast.success(`Welcome back, ${userRole}!`);
+      toast.success(`Welcome back!`);
+      
+      // Redirect based on role
+      redirectToDashboard(userRole);
+      
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error(error.message || 'Login failed. Please check your credentials.');
+      console.error('❌ Login error:', error);
+      toast.error(error.response?.data?.message || error.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-  setLoading(true);
-  try {
-    const result = await googleLogin(selectedRole); // Pass role to googleLogin
-    
-    // Get user role from result
-    const userRole = result.user?.role || selectedRole;
-    
-    // Navigate based on role
-    if (userRole === 'admin') {
-      navigate('/dashboard/admin');
-    } else if (userRole === 'tutor') {
-      navigate('/dashboard/tutor');
-    } else {
-      navigate('/dashboard/student');
+    setLoading(true);
+    try {
+      console.log('🔐 Google login with role:', selectedRole);
+      
+      const result = await googleLogin(selectedRole);
+      
+      console.log('✅ Google login successful:', result);
+      console.log('👤 User data:', result.user);
+      console.log('🎭 User role:', result.user?.role);
+      
+      // Get role from response
+      const userRole = result.user?.role;
+      
+      if (!userRole) {
+        throw new Error('User role not found in response');
+      }
+      
+      toast.success(`Welcome!`);
+      
+      // Redirect based on role
+      redirectToDashboard(userRole);
+      
+    } catch (error) {
+      console.error('❌ Google login error:', error);
+      toast.error(error.response?.data?.message || error.message || 'Google login failed');
+    } finally {
+      setLoading(false);
     }
-    
-    toast.success(`Welcome, ${result.user?.name || 'User'}!`);
-  } catch (error) {
-    console.error('Google login error:', error);
-    toast.error(error.message || 'Google login failed.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const roles = [
     { id: 'student', name: 'Student', icon: User, color: 'from-[#00ff88] to-[#00ffcc]' },
@@ -92,14 +122,12 @@ const Login = () => {
           
           {/* Header */}
           <div className="flex items-center gap-6 mb-6 pb-6 border-b-2 border-[#00ff88]/20">
-            {/* Icon - Left Side */}
             <div className="flex-shrink-0">
               <div className="w-16 h-16 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#00ff88]/30">
                 <Lock className="w-8 h-8 text-[#0a0f0d]" />
               </div>
             </div>
 
-            {/* Text - Right Side */}
             <div className="flex-1 text-left">
               <h1 className="text-3xl font-bold mb-1 leading-tight">
                 Welcome <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">Back</span>
@@ -150,7 +178,7 @@ const Login = () => {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-4">
             
             {/* Email Field */}
             <div className="space-y-2">
@@ -223,7 +251,7 @@ const Login = () => {
             {/* Login Button */}
             <div className="flex justify-center pt-2">
               <button
-                type="submit"
+                onClick={handleSubmit(onSubmit)}
                 disabled={loading}
                 className="group relative w-full h-12 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-[#0a0f0d] rounded-lg font-bold text-base hover:shadow-2xl hover:shadow-[#00ff88]/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
               >
@@ -242,7 +270,7 @@ const Login = () => {
                 </span>
               </button>
             </div>
-          </form>
+          </div>
 
           {/* Divider */}
           <div className="flex items-center my-5">

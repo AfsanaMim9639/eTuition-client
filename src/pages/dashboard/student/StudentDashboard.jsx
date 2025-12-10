@@ -11,25 +11,30 @@ import {
   FaTimes,
   FaChalkboardTeacher
 } from 'react-icons/fa';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const StudentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
+  // Updated routes to match your Routes.jsx structure
   const menuItems = [
-    { path: '/student/dashboard', icon: FaHome, label: 'Dashboard', end: true },
-    { path: '/student/my-tuitions', icon: FaBriefcase, label: 'My Tuitions' },
-    { path: '/student/post-tuition', icon: FaPlus, label: 'Post New Tuition' },
-    { path: '/student/applied-tutors', icon: FaChalkboardTeacher, label: 'Applied Tutors' },
-    { path: '/student/payments', icon: FaMoneyBillWave, label: 'Payments' },
-    { path: '/student/profile', icon: FaUser, label: 'Profile Settings' },
+    { path: '/dashboard/student', icon: FaHome, label: 'Dashboard', end: true },
+    { path: '/dashboard/student/tuitions', icon: FaBriefcase, label: 'My Tuitions' },
+    { path: '/dashboard/student/post-tuition', icon: FaPlus, label: 'Post New Tuition' },
+    { path: '/dashboard/student/payments', icon: FaMoneyBillWave, label: 'Payments' },
+    { path: '/dashboard/student/profile', icon: FaUser, label: 'Profile Settings' },
   ];
 
   const isActive = (path, end = false) => {
@@ -40,12 +45,12 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f0d] pt-16">
+    <div className="min-h-screen bg-[#0a0f0d]">
       <div className="flex">
         {/* Mobile Menu Button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-20 left-4 z-50 p-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d]"
+          className="lg:hidden fixed top-24 left-4 z-50 p-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d] shadow-lg"
         >
           {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
         </button>
@@ -53,10 +58,10 @@ const StudentDashboard = () => {
         {/* Sidebar */}
         <aside
           className={`
-            fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 
+            fixed top-20 left-0 h-[calc(100vh-5rem)] w-64 
             bg-gradient-to-b from-[#0f1512] to-[#0a0f0d] 
             border-r-2 border-[#00ffcc]/30
-            transition-transform duration-300 z-40
+            transition-transform duration-300 z-40 overflow-y-auto
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             lg:translate-x-0
           `}
@@ -66,11 +71,11 @@ const StudentDashboard = () => {
             <div className="p-6 border-b border-[#00ffcc]/30">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#00ffcc] to-[#00ff88] flex items-center justify-center text-[#0a0f0d] font-bold text-xl">
-                  {JSON.parse(localStorage.getItem('user') || '{}').name?.charAt(0) || 'S'}
+                  {user?.name?.charAt(0)?.toUpperCase() || 'S'}
                 </div>
                 <div>
                   <h3 className="font-semibold text-[#00ffcc]">
-                    {JSON.parse(localStorage.getItem('user') || '{}').name || 'Student'}
+                    {user?.name || 'Student'}
                   </h3>
                   <p className="text-xs text-gray-400">Student Dashboard</p>
                 </div>
@@ -115,7 +120,7 @@ const StudentDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 lg:ml-64 p-4 md:p-8">
+        <main className="flex-1 lg:ml-34 pt-14 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
           <Outlet />
         </main>
       </div>
@@ -123,7 +128,7 @@ const StudentDashboard = () => {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          className="lg:hidden fixed inset-0 bg-black/50 z-30 top-20"
           onClick={() => setSidebarOpen(false)}
         />
       )}
