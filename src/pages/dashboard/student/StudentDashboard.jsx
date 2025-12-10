@@ -1,137 +1,132 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaBook, FaUsers, FaDollarSign, FaPlus } from 'react-icons/fa';
-import api from '../../../utils/api';
-import useAuth from '../../../hooks/useAuth';
+import { useState } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { 
+  FaHome, 
+  FaPlus, 
+  FaBriefcase, 
+  FaMoneyBillWave, 
+  FaUser, 
+  FaSignOutAlt,
+  FaBars,
+  FaTimes,
+  FaChalkboardTeacher
+} from 'react-icons/fa';
 
 const StudentDashboard = () => {
-  const { user } = useAuth();
-  const [stats, setStats] = useState({
-    totalTuitions: 0,
-    activeTuitions: 0,
-    completedTuitions: 0,
-    totalApplications: 0
-  });
-  const [recentTuitions, setRecentTuitions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      const tuitionsResponse = await api.get('/tuitions/my/tuitions');
-      const tuitions = tuitionsResponse.data.tuitions;
-
-      setStats({
-        totalTuitions: tuitions.length,
-        activeTuitions: tuitions.filter(t => t.status === 'ongoing').length,
-        completedTuitions: tuitions.filter(t => t.status === 'completed').length,
-        totalApplications: tuitions.reduce((sum, t) => sum + (t.applicationCount || 0), 0)
-      });
-
-      setRecentTuitions(tuitions.slice(0, 5));
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
-  const statCards = [
-    { label: 'Total Tuitions', value: stats.totalTuitions, icon: <FaBook />, color: 'pink' },
-    { label: 'Active Tuitions', value: stats.activeTuitions, icon: <FaUsers />, color: 'blue' },
-    { label: 'Completed', value: stats.completedTuitions, icon: <FaDollarSign />, color: 'green' },
-    { label: 'Total Applications', value: stats.totalApplications, icon: <FaUsers />, color: 'purple' }
+  const menuItems = [
+    { path: '/student/dashboard', icon: FaHome, label: 'Dashboard', end: true },
+    { path: '/student/my-tuitions', icon: FaBriefcase, label: 'My Tuitions' },
+    { path: '/student/post-tuition', icon: FaPlus, label: 'Post New Tuition' },
+    { path: '/student/applied-tutors', icon: FaChalkboardTeacher, label: 'Applied Tutors' },
+    { path: '/student/payments', icon: FaMoneyBillWave, label: 'Payments' },
+    { path: '/student/profile', icon: FaUser, label: 'Profile Settings' },
   ];
 
+  const isActive = (path, end = false) => {
+    if (end) {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="card-neon card-neon-pink p-6 rounded-xl">
-        <h1 className="text-3xl font-bold mb-2">Student Dashboard</h1>
-        <p className="text-gray-400">Manage your tuitions and find the perfect tutor</p>
-      </div>
+    <div className="min-h-screen bg-[#0a0f0d] pt-16">
+      <div className="flex">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="lg:hidden fixed top-20 left-4 z-50 p-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d]"
+        >
+          {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+        </button>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
-          <div key={index} className={`card-neon card-neon-${stat.color} p-6 rounded-xl`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-full bg-dark-bg neon-border-${stat.color} flex items-center justify-center text-neon-${stat.color} text-xl`}>
-                {stat.icon}
+        {/* Sidebar */}
+        <aside
+          className={`
+            fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 
+            bg-gradient-to-b from-[#0f1512] to-[#0a0f0d] 
+            border-r-2 border-[#00ffcc]/30
+            transition-transform duration-300 z-40
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            lg:translate-x-0
+          `}
+        >
+          <div className="flex flex-col h-full">
+            {/* User Info */}
+            <div className="p-6 border-b border-[#00ffcc]/30">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#00ffcc] to-[#00ff88] flex items-center justify-center text-[#0a0f0d] font-bold text-xl">
+                  {JSON.parse(localStorage.getItem('user') || '{}').name?.charAt(0) || 'S'}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#00ffcc]">
+                    {JSON.parse(localStorage.getItem('user') || '{}').name || 'Student'}
+                  </h3>
+                  <p className="text-xs text-gray-400">Student Dashboard</p>
+                </div>
               </div>
-              <span className={`text-4xl font-bold neon-text-${stat.color}`}>{stat.value}</span>
             </div>
-            <h3 className="text-gray-400 font-semibold">{stat.label}</h3>
+
+            {/* Navigation */}
+            <nav className="flex-1 p-4 overflow-y-auto">
+              <ul className="space-y-2">
+                {menuItems.map((item) => (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`
+                        flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+                        ${isActive(item.path, item.end)
+                          ? 'bg-gradient-to-r from-[#00ffcc]/20 to-[#00ff88]/20 border-2 border-[#00ffcc] text-[#00ffcc] shadow-lg shadow-[#00ffcc]/20'
+                          : 'text-gray-400 hover:bg-[#00ffcc]/10 hover:text-[#00ffcc] border-2 border-transparent'
+                        }
+                      `}
+                    >
+                      <item.icon className="text-xl" />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Logout Button */}
+            <div className="p-4 border-t border-[#00ffcc]/30">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-500/20 border-2 border-red-500/50 text-red-400 hover:bg-red-500/30 transition-all"
+              >
+                <FaSignOutAlt className="text-xl" />
+                <span className="font-medium">Logout</span>
+              </button>
+            </div>
           </div>
-        ))}
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 lg:ml-64 p-4 md:p-8">
+          <Outlet />
+        </main>
       </div>
 
-      {/* Quick Actions */}
-      <div className="card-neon card-neon-blue p-6 rounded-xl">
-        <h2 className="text-2xl font-bold mb-4 neon-text-blue">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link to="/dashboard/student/post-tuition" className="btn btn-neon-pink p-4 rounded-lg text-center">
-            <FaPlus className="mx-auto mb-2 text-2xl" />
-            <span className="font-semibold">Post New Tuition</span>
-          </Link>
-          <Link to="/dashboard/student/tuitions" className="btn btn-neon-blue p-4 rounded-lg text-center">
-            <FaBook className="mx-auto mb-2 text-2xl" />
-            <span className="font-semibold">View My Tuitions</span>
-          </Link>
-          <Link to="/dashboard/student/payments" className="btn btn-neon-green p-4 rounded-lg text-center">
-            <FaDollarSign className="mx-auto mb-2 text-2xl" />
-            <span className="font-semibold">Payment History</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Recent Tuitions */}
-      <div className="card-neon card-neon-pink p-6 rounded-xl">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold neon-text-pink">Recent Tuitions</h2>
-          <Link to="/dashboard/student/tuitions" className="text-neon-blue hover:text-neon-green transition-colors">
-            View All
-          </Link>
-        </div>
-
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="spinner-neon w-12 h-12 mx-auto"></div>
-          </div>
-        ) : recentTuitions.length > 0 ? (
-          <div className="space-y-3">
-            {recentTuitions.map((tuition) => (
-              <div key={tuition._id} className="bg-dark-bg p-4 rounded-lg border-2 border-neon-pink/30 hover:border-neon-pink/60 transition-colors">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white mb-1">{tuition.title}</h3>
-                    <p className="text-sm text-gray-400">{tuition.subject} • {tuition.class}</p>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    tuition.status === 'approved' ? 'bg-neon-green/20 text-neon-green' :
-                    tuition.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' :
-                    'bg-neon-blue/20 text-neon-blue'
-                  }`}>
-                    {tuition.status}
-                  </span>
-                </div>
-                <div className="mt-2 flex items-center space-x-4 text-sm text-gray-400">
-                  <span>{tuition.applicationCount || 0} applications</span>
-                  <span>•</span>
-                  <span className="text-neon-green font-semibold">{tuition.salary} BDT/month</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-gray-400">
-            <p>No tuitions yet. Post your first tuition!</p>
-          </div>
-        )}
-      </div>
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 };

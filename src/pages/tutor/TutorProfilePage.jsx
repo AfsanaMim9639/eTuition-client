@@ -32,15 +32,16 @@ const TutorProfilePage = () => {
       setError(null);
       console.log('🔍 Fetching tutor profile:', id);
       
-      // Use the correct route that exists in your backend
       const response = await api.get(`/users/${id}`);
+      console.log('📦 API Response:', response.data);
       
-      if (response.data.user.role !== 'tutor') {
+      // ✅ FIXED: Both lines now use response.data.data
+      if (response.data.data.role !== 'tutor') {
         throw new Error('This user is not a tutor');
       }
       
-      setTutor(response.data.user);
-      console.log('✅ Tutor profile loaded:', response.data.user.name);
+      setTutor(response.data.data);
+      console.log('✅ Tutor profile loaded:', response.data.data.name);
     } catch (error) {
       console.error('❌ Error fetching tutor:', error);
       setError(error.response?.data?.message || error.message || 'Failed to load tutor profile');
@@ -99,7 +100,7 @@ const TutorProfilePage = () => {
               <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#0a0f0d] px-4 py-2 rounded-full border-2 border-[#00ff88] flex items-center gap-2">
                 <FaStar className="text-[#00ff88]" />
                 <span className="text-lg font-bold text-[#00ff88]">
-                  {tutor.rating?.toFixed(1) || '5.0'}
+                  {tutor.rating?.toFixed(1) || '0.0'}
                 </span>
               </div>
             </div>
@@ -111,22 +112,18 @@ const TutorProfilePage = () => {
               </h1>
               
               <div className="space-y-3 text-gray-300">
-                {/* Education - Support both string and array */}
-                {tutor.education && (
+                {/* Education - First entry from array */}
+                {tutor.education && Array.isArray(tutor.education) && tutor.education.length > 0 && (
                   <div className="flex items-center gap-3 justify-center md:justify-start">
                     <FaGraduationCap className="text-[#00ffcc] text-xl flex-shrink-0" />
-                    {Array.isArray(tutor.education) && tutor.education.length > 0 ? (
-                      <div>
-                        <span className="text-lg">{tutor.education[0].degree}</span>
-                        {tutor.education[0].institution && (
-                          <span className="text-sm text-gray-400 ml-2">
-                            - {tutor.education[0].institution}
-                          </span>
-                        )}
-                      </div>
-                    ) : typeof tutor.education === 'string' ? (
-                      <span className="text-lg">{tutor.education}</span>
-                    ) : null}
+                    <div>
+                      <span className="text-lg">{tutor.education[0].degree}</span>
+                      {tutor.education[0].institution && (
+                        <span className="text-sm text-gray-400 ml-2">
+                          - {tutor.education[0].institution}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
                 
@@ -137,7 +134,7 @@ const TutorProfilePage = () => {
                   </div>
                 )}
 
-                {tutor.experience !== undefined && tutor.experience !== null && (
+                {tutor.experience !== undefined && tutor.experience !== null && tutor.experience > 0 && (
                   <div className="flex items-center gap-3 justify-center md:justify-start">
                     <FaBriefcase className="text-[#00ffcc] text-xl flex-shrink-0" />
                     <span>{tutor.experience} {tutor.experience === 1 ? 'year' : 'years'} of experience</span>
@@ -205,7 +202,7 @@ const TutorProfilePage = () => {
                 Subjects I Teach
               </h2>
               <div className="flex flex-wrap gap-3">
-                {tutor.subjects && tutor.subjects.length > 0 ? (
+                {tutor.subjects && Array.isArray(tutor.subjects) && tutor.subjects.length > 0 ? (
                   tutor.subjects.map((subject, index) => (
                     <span
                       key={index}
@@ -221,48 +218,36 @@ const TutorProfilePage = () => {
             </div>
 
             {/* Education Section - Full Array Display */}
-            {tutor.education && (
+            {tutor.education && Array.isArray(tutor.education) && tutor.education.length > 0 && (
               <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10">
                 <h2 className="text-2xl font-bold text-[#00ff88] mb-4 flex items-center gap-2">
                   <FaCheckCircle className="text-xl" />
                   Education & Qualifications
                 </h2>
                 <div className="space-y-4">
-                  {/* Handle education as array */}
-                  {Array.isArray(tutor.education) && tutor.education.length > 0 ? (
-                    tutor.education.map((edu, index) => (
-                      <div key={index} className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
-                        <FaGraduationCap className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
-                        <div>
-                          <h3 className="font-semibold text-[#00ff88] text-lg mb-1">
-                            {edu.degree || edu}
-                          </h3>
-                          {edu.institution && (
-                            <p className="text-gray-300 mb-1">{edu.institution}</p>
-                          )}
-                          {edu.year && (
-                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                              <FaCalendar className="text-xs" />
-                              <span>{edu.year}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  ) : typeof tutor.education === 'string' ? (
-                    /* Handle education as string */
-                    <div className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
+                  {tutor.education.map((edu, index) => (
+                    <div key={index} className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
                       <FaGraduationCap className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
-                      <div>
-                        <h3 className="font-semibold text-[#00ff88] mb-1">Education</h3>
-                        <p className="text-gray-300 text-lg">{tutor.education}</p>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-[#00ff88] text-lg mb-1">
+                          {edu.degree || 'Degree'}
+                        </h3>
+                        {edu.institution && (
+                          <p className="text-gray-300 mb-1">{edu.institution}</p>
+                        )}
+                        {edu.year && (
+                          <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <FaCalendar className="text-xs" />
+                            <span>{edu.year}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  ) : null}
+                  ))}
                   
                   {/* Teaching Experience */}
-                  {tutor.experience !== undefined && tutor.experience !== null && (
-                    <div className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
+                  {tutor.experience !== undefined && tutor.experience !== null && tutor.experience > 0 && (
+                    <div className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20 mt-4">
                       <FaBriefcase className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
                       <div>
                         <h3 className="font-semibold text-[#00ff88] mb-1">Teaching Experience</h3>
@@ -285,10 +270,10 @@ const TutorProfilePage = () => {
               <div className="flex items-center gap-2">
                 <FaCheckCircle className="text-[#00ff88] text-2xl" />
                 <span className="text-lg font-semibold text-[#00ff88]">
-                  {tutor.active !== false && tutor.status === 'active' ? 'Active & Available' : 'Currently Unavailable'}
+                  {tutor.active && tutor.status === 'active' ? 'Active & Available' : 'Currently Unavailable'}
                 </span>
               </div>
-              {tutor.active !== false && tutor.status === 'active' && (
+              {tutor.active && tutor.status === 'active' && (
                 <p className="text-sm text-gray-400 mt-3">
                   Available for new students
                 </p>
@@ -302,7 +287,7 @@ const TutorProfilePage = () => {
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <FaStar className="text-[#00ff88] text-3xl" />
                   <span className="text-4xl font-bold text-[#00ff88]">
-                    {tutor.rating?.toFixed(1) || '5.0'}
+                    {tutor.rating?.toFixed(1) || '0.0'}
                   </span>
                 </div>
                 <p className="text-sm text-gray-400">out of 5.0</p>

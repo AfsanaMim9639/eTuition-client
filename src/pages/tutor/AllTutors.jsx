@@ -216,10 +216,11 @@ function AllTutors() {
 
                     {/* Location & Experience */}
                     <div className="space-y-2 mb-4">
-                      {tutor.location && (
+                     
+                      {(tutor.address || tutor.location) && (
                         <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
                           <FaMapMarkerAlt className="text-neon-pink flex-shrink-0" />
-                          <span className="truncate">{tutor.location}</span>
+                          <span className="truncate">{tutor.address || tutor.location}</span>
                         </div>
                       )}
                       {tutor.experience !== undefined && tutor.experience !== null && (

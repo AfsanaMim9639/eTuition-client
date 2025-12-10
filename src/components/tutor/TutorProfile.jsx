@@ -1,42 +1,84 @@
-import { FaStar, FaGraduationCap, FaDollarSign } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
+import api from '../../utils/api';
+import Loading from '../../components/shared/Loading';
+import TutorProfile from '../../components/tutor/TutorProfile'; // Import the component
 
-const TutorProfile = ({ tutor }) => (
-  <div className="card-neon card-neon-pink p-8 rounded-xl">
-    <div className="flex flex-col md:flex-row gap-6 items-start">
-      <img 
-        src={tutor.profileImage || 'https://i.ibb.co/qpB9ZNp/default-avatar.png'} 
-        alt={tutor.name}
-        className="w-32 h-32 rounded-full neon-border-pink"
-      />
-      <div className="flex-1">
-        <h1 className="text-4xl font-bold neon-text-pink mb-2">{tutor.name}</h1>
-        <p className="text-xl text-gray-400 mb-4">{tutor.education}</p>
-        
-        <div className="flex flex-wrap gap-2 mb-4">
-          {tutor.subjects?.map((subject, i) => (
-            <span key={i} className="px-3 py-1 bg-neon-blue/20 border border-neon-blue/30 rounded text-neon-blue">
-              {subject}
-            </span>
-          ))}
-        </div>
+const TutorProfilePage = () => {
+  const { id } = useParams();
+  const [tutor, setTutor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-gray-400">Experience:</span>
-            <span className="text-white font-semibold ml-2">{tutor.experience || 'N/A'}</span>
+  useEffect(() => {
+    fetchTutorProfile();
+  }, [id]);
+
+  const fetchTutorProfile = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔍 Fetching tutor profile:', id);
+      
+      const response = await api.get(`/users/${id}`);
+      
+      // ✅ FIXED: Access response.data.data instead of response.data.user
+      if (response.data.data.role !== 'tutor') {
+        throw new Error('This user is not a tutor');
+      }
+      
+      setTutor(response.data.data);
+      console.log('✅ Tutor profile loaded:', response.data.data.name);
+    } catch (error) {
+      console.error('❌ Error fetching tutor:', error);
+      setError(error.response?.data?.message || error.message || 'Failed to load tutor profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <Loading />;
+  
+  if (error || !tutor) {
+    return (
+      <div className="min-h-screen bg-dark-bg pt-24 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500/30 mb-6">
+            <span className="text-4xl">⚠️</span>
           </div>
-          <div>
-            <span className="text-gray-400">Rating:</span>
-            <span className="text-neon-green font-semibold ml-2">{tutor.rating || 5.0} ⭐</span>
-          </div>
-          <div>
-            <span className="text-gray-400">Hourly Rate:</span>
-            <span className="text-neon-green font-semibold ml-2">{tutor.hourlyRate || 500} BDT</span>
-          </div>
+          <h2 className="text-3xl font-bold text-red-400 mb-4">
+            {error || 'Tutor Not Found'}
+          </h2>
+          <Link 
+            to="/tutors" 
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-semibold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all"
+          >
+            <FaArrowLeft />
+            Back to Tutors
+          </Link>
         </div>
       </div>
-    </div>
-  </div>
-);
+    );
+  }
 
-export default TutorProfile;
+  return (
+    <div className="min-h-screen bg-[#0a0f0d] pt-24 pb-12">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Back Button */}
+        <Link 
+          to="/tutors"
+          className="inline-flex items-center gap-2 text-[#00ffcc] hover:text-[#00ff88] mb-6 transition-colors"
+        >
+          <FaArrowLeft />
+          <span>Back to Tutors</span>
+        </Link>
+
+        {/* Use the TutorProfile component */}
+        <TutorProfile tutor={tutor} />
+      </div>
+    </div>
+  );
+};
+
+export default TutorProfilePage;

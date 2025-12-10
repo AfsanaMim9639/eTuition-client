@@ -7,7 +7,7 @@ const TutorCard = ({ tutor }) => {
   const tutorId = tutor._id || tutor.id;
   const tutorName = tutor.name || 'Unknown Tutor';
   const tutorImage = tutor.profileImage || 'https://i.ibb.co/qpB9ZNp/default-avatar.png';
-  const tutorRating = tutor.rating?.toFixed(1) || '5.0';
+  const tutorRating = tutor.rating !== undefined && tutor.rating !== null ? tutor.rating.toFixed(1) : '0.0';
   const tutorLocation = tutor.location;
   const tutorExperience = tutor.experience;
   const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects : [];
@@ -60,7 +60,7 @@ const TutorCard = ({ tutor }) => {
                 <span className="truncate">{tutorLocation}</span>
               </div>
             )}
-            {tutorExperience !== undefined && tutorExperience !== null && (
+            {tutorExperience !== undefined && tutorExperience !== null && tutorExperience > 0 && (
               <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm">
                 <FaBriefcase className="text-[#00ff88] flex-shrink-0" />
                 <span>

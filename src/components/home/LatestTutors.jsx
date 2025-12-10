@@ -133,7 +133,7 @@ const LatestTutors = () => {
                           <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-[#0a0f0d] px-3 py-1 rounded-full border-2 border-[#00ff88] flex items-center space-x-1">
                             <Star className="w-3 h-3 text-[#00ff88] fill-[#00ff88]" />
                             <span className="text-sm font-bold text-[#00ff88]">
-                              {tutor.rating?.toFixed(1) || '5.0'}
+                              {tutor.rating !== undefined && tutor.rating !== null ? tutor.rating.toFixed(1) : '0.0'}
                             </span>
                           </div>
                         </div>
@@ -151,7 +151,7 @@ const LatestTutors = () => {
                               <span className="truncate">{tutor.location}</span>
                             </div>
                           )}
-                          {tutor.experience !== undefined && tutor.experience !== null && (
+                          {tutor.experience !== undefined && tutor.experience !== null && tutor.experience > 0 && (
                             <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm">
                               <Briefcase className="w-4 h-4 text-[#00ff88] flex-shrink-0" />
                               <span>
@@ -164,18 +164,24 @@ const LatestTutors = () => {
 
                       {/* Subjects */}
                       <div className="flex flex-wrap gap-2 justify-center mb-4 min-h-[64px]">
-                        {tutor.subjects?.slice(0, 3).map((subject, index) => (
-                          <span 
-                            key={index} 
-                            className="px-3 py-1 bg-[#00ffcc]/20 border border-[#00ffcc]/30 rounded-full text-xs text-[#00ffcc]"
-                          >
-                            {subject}
-                          </span>
-                        ))}
-                        {tutor.subjects?.length > 3 && (
-                          <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 rounded-full text-xs text-gray-400">
-                            +{tutor.subjects.length - 3} more
-                          </span>
+                        {tutor.subjects && Array.isArray(tutor.subjects) && tutor.subjects.length > 0 ? (
+                          <>
+                            {tutor.subjects.slice(0, 3).map((subject, index) => (
+                              <span 
+                                key={index} 
+                                className="px-3 py-1 bg-[#00ffcc]/20 border border-[#00ffcc]/30 rounded-full text-xs text-[#00ffcc]"
+                              >
+                                {subject}
+                              </span>
+                            ))}
+                            {tutor.subjects.length > 3 && (
+                              <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 rounded-full text-xs text-gray-400">
+                                +{tutor.subjects.length - 3} more
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-500">No subjects listed</span>
                         )}
                       </div>
 
