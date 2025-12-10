@@ -9,9 +9,11 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
-  FaChalkboardTeacher
+  FaGlobe,
+  FaArrowLeft
 } from 'react-icons/fa';
 import { useAuth } from '../../../contexts/AuthContext';
+import { GraduationCap } from 'lucide-react';
 
 const StudentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -58,7 +60,7 @@ const StudentDashboard = () => {
         {/* Sidebar */}
         <aside
           className={`
-            fixed top-20 left-0 h-[calc(100vh-5rem)] w-64 
+            fixed top-0 left-0 h-full w-64 
             bg-gradient-to-b from-[#0f1512] to-[#0a0f0d] 
             border-r-2 border-[#00ffcc]/30
             transition-transform duration-300 z-40 overflow-y-auto
@@ -67,6 +69,34 @@ const StudentDashboard = () => {
           `}
         >
           <div className="flex flex-col h-full">
+            {/* Logo & Back to Home */}
+            <div className="p-6 border-b border-[#00ffcc]/30">
+              <Link 
+                to="/" 
+                className="flex items-center gap-3 group mb-4"
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                    <GraduationCap className="w-6 h-6 text-[#0a0f0d]" />
+                  </div>
+                </div>
+                <span className="text-xl font-bold">
+                  <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+                    eTuitionBD
+                  </span>
+                </span>
+              </Link>
+
+              {/* Back to Website Button */}
+              <Link
+                to="/"
+                className="flex items-center gap-2 px-3 py-2 bg-[#00ff88]/10 border border-[#00ff88]/30 rounded-lg text-[#00ff88] hover:bg-[#00ff88]/20 hover:border-[#00ff88] transition-all text-sm group"
+              >
+                <FaArrowLeft className="text-sm group-hover:-translate-x-1 transition-transform" />
+                <span>Back to Website</span>
+              </Link>
+            </div>
+
             {/* User Info */}
             <div className="p-6 border-b border-[#00ffcc]/30">
               <div className="flex items-center gap-3">
@@ -120,7 +150,7 @@ const StudentDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 lg:ml-34 pt-14 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
+        <main className="flex-1 lg:ml-64 pt-8 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
           <Outlet />
         </main>
       </div>
@@ -128,7 +158,7 @@ const StudentDashboard = () => {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30 top-20"
+          className="lg:hidden fixed inset-0 bg-black/50 z-30"
           onClick={() => setSidebarOpen(false)}
         />
       )}

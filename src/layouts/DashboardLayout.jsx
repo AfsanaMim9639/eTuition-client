@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { GraduationCap,} from 'lucide-react';
+
 import { 
   FaHome, 
   FaBook, 
@@ -12,6 +14,7 @@ import {
   FaChartBar,
   FaDollarSign
 } from 'react-icons/fa';
+import Navbar from '../components/shared/Navbar';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -59,6 +62,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg">
+        
       {/* Mobile Sidebar Toggle */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -69,15 +73,30 @@ const DashboardLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-900/50 backdrop-blur-lg border-r border-gray-800 z-40 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0f1512] to-[#0a0f0d] 
+            border-r-2 border-[#00ffcc]/30 backdrop-blur-lg z-40 transform transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
         <div className="p-6">
-          {/* Logo */}
-          <Link to="/" className="block mb-8">
-            <h2 className="text-2xl font-bold gradient-text">TuitionHub</h2>
-          </Link>
+          {/* Logo - Border and Shadow Removed */}
+          <div className="mb-6">
+            <Link 
+              to="/" 
+              className="flex items-center gap-3 group"
+            >
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                  <GraduationCap className="w-7 h-7 text-[#0a0f0d]" />
+                </div>
+              </div>
+              <span className="text-2xl font-bold">
+                <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+                  eTuitionBD
+                </span>
+              </span>
+            </Link>
+          </div>
 
           {/* User Info */}
           <div className="mb-8 p-4 rounded-lg bg-neon-blue/10 border border-neon-blue/30">

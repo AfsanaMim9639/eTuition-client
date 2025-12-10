@@ -94,7 +94,7 @@ const MyTuitions = () => {
           <p className="text-gray-400 mt-1">Manage your posted tuitions</p>
         </div>
         <Link
-          to="/student/post-tuition"
+          to="/dashboard/student/post-tuition"
           className="px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all flex items-center gap-2"
         >
           <FaPlus />
@@ -126,14 +126,14 @@ const MyTuitions = () => {
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
                   <Link
-                    to={`/student/applied-tutors?tuition=${tuition._id}`}
+                    to={`/dashboard/student/tuition/${tuition._id}/applications`}
                     className="p-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all"
                     title="View Applications"
                   >
                     <FaUsers />
                   </Link>
                   <button
-                    onClick={() => navigate(`/student/edit-tuition/${tuition._id}`, { state: { tuition } })}
+                    onClick={() => navigate(`/dashboard/student/edit-tuition/${tuition._id}`, { state: { tuition } })}
                     className="p-2 bg-[#00ffcc]/20 border border-[#00ffcc]/50 text-[#00ffcc] rounded-lg hover:bg-[#00ffcc]/30 transition-all"
                     title="Edit"
                   >
@@ -183,7 +183,7 @@ const MyTuitions = () => {
                 </span>
                 {tuition.applicationsCount > 0 && (
                   <Link
-                    to={`/student/applied-tutors?tuition=${tuition._id}`}
+                    to={`/dashboard/student/tuition/${tuition._id}/applications`}
                     className="text-[#00ffcc] hover:text-[#00ff88] text-sm font-semibold flex items-center gap-2"
                   >
                     View {tuition.applicationsCount} Applications →
@@ -201,7 +201,7 @@ const MyTuitions = () => {
             Start by posting your first tuition to find the perfect tutor
           </p>
           <Link
-            to="/student/post-tuition"
+            to="/dashboard/student/post-tuition"
             className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all"
           >
             <FaPlus />

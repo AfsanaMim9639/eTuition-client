@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown, BookOpen, GraduationCap, Info, Phone, Home, LayoutDashboard } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext'; // আপনার AuthContext import করুন
+import { useAuth } from '../../contexts/AuthContext'; 
 
 const Navbar = () => {
   // Real auth hook ব্যবহার করুন
