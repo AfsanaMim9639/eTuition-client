@@ -124,7 +124,7 @@ const Navbar = () => {
                   {/* Dashboard Button */}
                   <Link
                     to={getDashboardLink()}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-[#00ff88]/10 text-[#00ff88] rounded-lg font-semibold border border-[#00ff88]/30 hover:bg-[#00ff88]/20 hover:shadow-lg hover:shadow-[#00ff88]/30 transition-all duration-300"
+                    className="flex items-center gap-2 px-5 py-3.5 bg-[#00ff88]/10 text-[#00ff88] rounded-lg font-semibold border border-[#00ff88]/30 hover:bg-[#00ff88]/20 hover:shadow-lg hover:shadow-[#00ff88]/30 transition-all duration-300"
                   >
                     <LayoutDashboard className="w-4 h-4" />
                     Dashboard

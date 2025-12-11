@@ -30,10 +30,11 @@ import StudentProfile from '../pages/dashboard/student/StudentProfile';
 
 // Tutor Dashboard Pages
 import TutorDashboard from '../pages/dashboard/tutor/TutorDashboard';
+import TutorDashboardHome from '../pages/dashboard/tutor/TutorDashboardHome'; // Create this file
 import MyApplications from '../pages/dashboard/tutor/MyApplications';
 import OngoingTuitions from '../pages/dashboard/tutor/OngoingTuitions';
 import RevenueHistory from '../pages/dashboard/tutor/RevenueHistory';
-
+import TutorProfile from '../pages/dashboard/tutor/TutorProfile';
 // Admin Dashboard Pages
 import AdminDashboard from '../pages/dashboard/admin/AdminDashboard';
 import UserManagement from '../pages/dashboard/admin/UserManagement';
@@ -95,7 +96,7 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      // Student Routes - UPDATED WITH NESTED STRUCTURE
+      // Student Routes - NESTED STRUCTURE
       {
         path: 'student',
         element: (
@@ -131,38 +132,37 @@ const router = createBrowserRouter([
         ]
       },
 
-      // Tutor Routes
+      // Tutor Routes - FIXED WITH NESTED STRUCTURE
       {
         path: 'tutor',
         element: (
           <RoleBasedRoute allowedRoles={['tutor']}>
             <TutorDashboard />
           </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'tutor/applications',
-        element: (
-          <RoleBasedRoute allowedRoles={['tutor']}>
-            <MyApplications />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'tutor/ongoing',
-        element: (
-          <RoleBasedRoute allowedRoles={['tutor']}>
-            <OngoingTuitions />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'tutor/revenue',
-        element: (
-          <RoleBasedRoute allowedRoles={['tutor']}>
-            <RevenueHistory />
-          </RoleBasedRoute>
-        )
+        ),
+        children: [
+          {
+            index: true, // Renders at /dashboard/tutor
+            element: <TutorDashboardHome />
+          },
+          {
+            path: 'applications',
+            element: <MyApplications />
+          },
+          {
+            path: 'ongoing',
+            element: <OngoingTuitions />
+          },
+          {
+            path: 'revenue',
+            element: <RevenueHistory />
+          }
+          ,
+            {
+            path: 'profile',
+            element: <TutorProfile />
+            }
+        ]
       },
 
       // Admin Routes

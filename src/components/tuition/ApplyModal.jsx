@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaUser, FaEnvelope, FaGraduationCap, FaBriefcase, FaDollarSign } from 'react-icons/fa';
 import { useForm } from 'react-hook-form';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ApplyModal = ({ isOpen, onClose, tuition }) => {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const navigate = useNavigate();
 
@@ -17,7 +19,10 @@ const ApplyModal = ({ isOpen, onClose, tuition }) => {
     try {
       await api.post('/applications/apply', {
         tuitionId: tuition._id,
-        ...data
+        qualifications: data.qualifications,
+        experience: data.experience,
+        proposedRate: data.expectedSalary,
+        message: data.coverLetter
       });
       
       toast.success('Application submitted successfully!');
@@ -38,13 +43,13 @@ const ApplyModal = ({ isOpen, onClose, tuition }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 btn btn-neon-blue p-2 rounded-lg"
+          className="absolute top-4 right-4 btn btn-neon-blue p-2 rounded-lg hover:rotate-90 transition-transform"
         >
           <FaTimes />
         </button>
 
         {/* Header */}
-        <h2 className="text-2xl font-bold neon-text-pink mb-6">Apply for Tuition</h2>
+        <h2 className="text-3xl font-bold neon-text-pink mb-6">Apply for Tuition</h2>
 
         {/* Tuition Info */}
         <div className="bg-dark-bg p-4 rounded-lg border-2 border-neon-blue/30 mb-6">
@@ -55,28 +60,72 @@ const ApplyModal = ({ isOpen, onClose, tuition }) => {
 
         {/* Application Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Cover Letter */}
+          {/* Name (Read-only) */}
           <div>
-            <label className="block text-sm font-semibold mb-2 neon-text-blue">
-              Cover Letter *
+            <label className="block text-sm font-semibold mb-2 neon-text-blue flex items-center gap-2">
+              <FaUser /> Name
+            </label>
+            <input
+              type="text"
+              value={user?.name || ''}
+              readOnly
+              className="input-neon w-full bg-gray-800/50 cursor-not-allowed"
+            />
+          </div>
+
+          {/* Email (Read-only) */}
+          <div>
+            <label className="block text-sm font-semibold mb-2 neon-text-green flex items-center gap-2">
+              <FaEnvelope /> Email
+            </label>
+            <input
+              type="email"
+              value={user?.email || ''}
+              readOnly
+              className="input-neon w-full bg-gray-800/50 cursor-not-allowed"
+            />
+          </div>
+
+          {/* Qualifications */}
+          <div>
+            <label className="block text-sm font-semibold mb-2 neon-text-pink flex items-center gap-2">
+              <FaGraduationCap /> Qualifications *
             </label>
             <textarea
-              {...register('coverLetter', { 
-                required: 'Cover letter is required',
-                minLength: { value: 50, message: 'Cover letter must be at least 50 characters' }
+              {...register('qualifications', { 
+                required: 'Qualifications are required',
+                minLength: { value: 20, message: 'Please provide detailed qualifications (at least 20 characters)' }
               })}
-              className="input-neon w-full h-32 resize-none"
-              placeholder="Explain why you're a good fit for this tuition..."
+              className="input-neon w-full h-24 resize-none"
+              placeholder="e.g., B.Sc in Mathematics from Dhaka University, SSC & HSC with GPA 5.00..."
             />
-            {errors.coverLetter && (
-              <p className="text-red-500 text-sm mt-1">{errors.coverLetter.message}</p>
+            {errors.qualifications && (
+              <p className="text-red-500 text-sm mt-1">{errors.qualifications.message}</p>
+            )}
+          </div>
+
+          {/* Experience */}
+          <div>
+            <label className="block text-sm font-semibold mb-2 neon-text-blue flex items-center gap-2">
+              <FaBriefcase /> Experience *
+            </label>
+            <textarea
+              {...register('experience', { 
+                required: 'Experience is required',
+                minLength: { value: 20, message: 'Please describe your experience (at least 20 characters)' }
+              })}
+              className="input-neon w-full h-24 resize-none"
+              placeholder="e.g., 3 years of teaching experience in Mathematics for O-Level and A-Level students..."
+            />
+            {errors.experience && (
+              <p className="text-red-500 text-sm mt-1">{errors.experience.message}</p>
             )}
           </div>
 
           {/* Expected Salary */}
           <div>
-            <label className="block text-sm font-semibold mb-2 neon-text-pink">
-              Expected Salary (BDT/month) *
+            <label className="block text-sm font-semibold mb-2 neon-text-green flex items-center gap-2">
+              <FaDollarSign /> Expected Salary (BDT/month) *
             </label>
             <input
               type="number"
@@ -93,19 +142,21 @@ const ApplyModal = ({ isOpen, onClose, tuition }) => {
             )}
           </div>
 
-          {/* Availability */}
+          {/* Cover Letter */}
           <div>
-            <label className="block text-sm font-semibold mb-2 neon-text-green">
-              Availability *
+            <label className="block text-sm font-semibold mb-2 neon-text-pink">
+              Cover Letter / Message *
             </label>
-            <input
-              type="text"
-              {...register('availability', { required: 'Availability is required' })}
-              className="input-neon w-full"
-              placeholder="e.g., Mon-Fri 3PM-6PM"
+            <textarea
+              {...register('coverLetter', { 
+                required: 'Cover letter is required',
+                minLength: { value: 50, message: 'Cover letter must be at least 50 characters' }
+              })}
+              className="input-neon w-full h-32 resize-none"
+              placeholder="Explain why you're a good fit for this tuition, your teaching style, and what makes you stand out..."
             />
-            {errors.availability && (
-              <p className="text-red-500 text-sm mt-1">{errors.availability.message}</p>
+            {errors.coverLetter && (
+              <p className="text-red-500 text-sm mt-1">{errors.coverLetter.message}</p>
             )}
           </div>
 
@@ -121,7 +172,7 @@ const ApplyModal = ({ isOpen, onClose, tuition }) => {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 btn btn-neon-pink py-3 rounded-lg font-semibold disabled:opacity-50"
+              className="flex-1 btn btn-neon-pink py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Submitting...' : 'Submit Application'}
             </button>
