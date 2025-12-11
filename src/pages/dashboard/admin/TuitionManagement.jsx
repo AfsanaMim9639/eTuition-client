@@ -1,7 +1,22 @@
-const TuitionManagement = () => (
-  <div className="card-neon card-neon-blue p-12 rounded-xl text-center">
-    <h1 className="text-3xl font-bold neon-text-blue mb-4">Tuition Management</h1>
-    <p className="text-gray-400">Approve or reject tuitions</p>
-  </div>
-);
+// src/pages/dashboard/admin/TuitionManagement.jsx
+import React from 'react';
+import { motion } from 'framer-motion';
+import TuitionsTab from '../../../components/dashboard/admin/tabs/TuitionsTab';
+import { useAdminTuitions } from '../../../components/dashboard/admin/hooks/useAdminTuitions';
+
+const TuitionManagement = () => {
+  const tuitionsHook = useAdminTuitions();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      <TuitionsTab tuitionsHook={tuitionsHook} />
+    </motion.div>
+  );
+};
+
 export default TuitionManagement;

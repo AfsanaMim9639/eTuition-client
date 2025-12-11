@@ -61,6 +61,10 @@ export const tuitionAPI = {
     console.log('🔍 Fetching latest tuitions');
     return api.get('/tuitions/latest');
   },
+  getFilterOptions: () => { // ✅ NEW: Get filter options
+    console.log('🔍 Fetching filter options');
+    return api.get('/tuitions/filter-options');
+  },
   getTuitionById: (id) => api.get(`/tuitions/${id}`),
   createTuition: (data) => api.post('/tuitions', data),
   updateTuition: (id, data) => api.put(`/tuitions/${id}`, data),

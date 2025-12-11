@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaMapMarkerAlt, FaDollarSign, FaBook, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaDollarSign, FaBook, FaSearch, FaFilter, FaSortAmountDown } from 'react-icons/fa';
 import TuitionCard from '../../components/tuition/TuitionCard';
 import { tuitionAPI } from '../../utils/api';
 
@@ -16,30 +16,61 @@ function AllTuitions() {
   const [filters, setFilters] = useState({
     search: '',
     subject: '',
-    tutoring_type: '', // ✅ Changed from category to tutoring_type
-    preferred_medium: '', // ✅ Changed from medium to preferred_medium
+    class: '',
+    tutoring_type: '',
+    preferred_medium: '',
     minSalary: '',
     maxSalary: ''
   });
+  
+  // ✅ NEW: Dynamic filter options from backend
+  const [filterOptions, setFilterOptions] = useState({
+    subjects: [],
+    grades: [],
+    tutoringTypes: [],
+    mediums: []
+  });
+  
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
 
+  // ✅ NEW: Fetch filter options on mount
+  useEffect(() => {
+    fetchFilterOptions();
+  }, []);
+
+  // Auto-fetch on filter/sort changes
   useEffect(() => {
     fetchTuitions();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, sortBy, sortOrder, filters]);
+
+  const fetchFilterOptions = async () => {
+    try {
+      const response = await tuitionAPI.getFilterOptions();
+      if (response.data.success) {
+        setFilterOptions(response.data.options);
+      }
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+    }
+  };
 
   const fetchTuitions = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Build query params
       const params = {
         page: pagination.currentPage,
-        limit: 12
+        limit: 12,
+        sortBy: sortBy,
+        sortOrder: sortOrder
       };
       if (filters.search) params.search = filters.search;
       if (filters.subject) params.subject = filters.subject;
-      if (filters.tutoring_type) params.tutoring_type = filters.tutoring_type; // ✅ Fixed
-      if (filters.preferred_medium) params.preferred_medium = filters.preferred_medium; // ✅ Fixed
+      if (filters.class) params.class = filters.class;
+      if (filters.tutoring_type) params.tutoring_type = filters.tutoring_type;
+      if (filters.preferred_medium) params.preferred_medium = filters.preferred_medium;
       if (filters.minSalary) params.minSalary = filters.minSalary;
       if (filters.maxSalary) params.maxSalary = filters.maxSalary;
       
@@ -59,30 +90,55 @@ function AllTuitions() {
       ...filters,
       [e.target.name]: e.target.value
     });
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
     setPagination({ ...pagination, currentPage: 1 });
-    fetchTuitions();
   };
 
   const clearFilters = () => {
     setFilters({
       search: '',
       subject: '',
+      class: '',
       tutoring_type: '',
       preferred_medium: '',
       minSalary: '',
       maxSalary: ''
     });
+    setSortBy('createdAt');
+    setSortOrder('desc');
     setPagination({ ...pagination, currentPage: 1 });
-    setTimeout(() => fetchTuitions(), 100);
   };
 
   const handlePageChange = (newPage) => {
     setPagination({ ...pagination, currentPage: newPage });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSortChange = (e) => {
+    const value = e.target.value;
+    
+    switch(value) {
+      case 'date-newest':
+        setSortBy('createdAt');
+        setSortOrder('desc');
+        break;
+      case 'date-oldest':
+        setSortBy('createdAt');
+        setSortOrder('asc');
+        break;
+      case 'salary-high':
+        setSortBy('salary');
+        setSortOrder('desc');
+        break;
+      case 'salary-low':
+        setSortBy('salary');
+        setSortOrder('asc');
+        break;
+      default:
+        setSortBy('createdAt');
+        setSortOrder('desc');
+    }
+    
+    setPagination({ ...pagination, currentPage: 1 });
   };
 
   if (loading && tuitions.length === 0) {
@@ -94,74 +150,90 @@ function AllTuitions() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg pt-24 pb-12">
+    <div className="min-h-screen bg-dark-bg pt-12 pb-12">
       <div className="container mx-auto px-4">
         {/* Header */}
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
           All <span className="gradient-text">Tuitions</span>
         </h1>
-        <p className="text-center text-gray-400 mb-12">
+        <p className="text-center text-gray-400 mb-8">
           Explore {pagination.totalItems}+ tuition opportunities
         </p>
 
-        {/* Filters */}
-        <div className="card-neon card-neon-pink p-6 rounded-xl mb-8 max-w-6xl mx-auto">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Search */}
-              <div className="lg:col-span-2">
+        {/* Compact Filters - Single Row */}
+        <div className="card-neon card-neon-pink p-3 rounded-xl mb-8 max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-2 items-stretch">
+            {/* Search Bar - Left Side */}
+            <div className="lg:w-2/5">
+              <div className="relative h-full">
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-pink text-sm z-10" />
                 <input
                   type="text"
                   name="search"
                   value={filters.search}
                   onChange={handleFilterChange}
                   placeholder="Search by title, subject, or location..."
-                  className="input-neon w-full"
+                  className="input-neon w-full h-full pl-10 py-2 text-sm"
                 />
               </div>
+            </div>
 
-              {/* Tutoring Type */}
+            {/* All Filters - Right Side in Single Row */}
+            <div className="lg:w-3/5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2">
+              {/* Class - Dynamic */}
               <select
-                name="tutoring_type"
-                value={filters.tutoring_type}
+                name="class"
+                value={filters.class}
                 onChange={handleFilterChange}
-                className="input-neon"
+                className="input-neon text-xs py-2 px-2"
               >
-                <option value="">All Types</option>
-                <option value="Home Tutoring">Home Tutoring</option>
-                <option value="Online Tutoring">Online Tutoring</option>
-                <option value="Both">Both</option>
+                <option value="">Class</option>
+                {filterOptions.grades.map(grade => (
+                  <option key={grade} value={grade}>{grade}</option>
+                ))}
               </select>
 
-              {/* Subject */}
+              {/* Subject - Dynamic */}
               <select
                 name="subject"
                 value={filters.subject}
                 onChange={handleFilterChange}
-                className="input-neon"
+                className="input-neon text-xs py-2 px-2"
               >
-                <option value="">All Subjects</option>
-                <option value="Mathematics">Mathematics</option>
-                <option value="Physics">Physics</option>
-                <option value="Chemistry">Chemistry</option>
-                <option value="Biology">Biology</option>
-                <option value="English">English</option>
-                <option value="Bangla">Bangla</option>
-                <option value="ICT">ICT</option>
+                <option value="">Subject</option>
+                {filterOptions.subjects.map(subject => (
+                  <option key={subject} value={subject}>{subject}</option>
+                ))}
               </select>
 
-              {/* Medium */}
+              {/* Tutoring Type - Dynamic */}
+              <select
+                name="tutoring_type"
+                value={filters.tutoring_type}
+                onChange={handleFilterChange}
+                className="input-neon text-xs py-2 px-2"
+              >
+                <option value="">Type</option>
+                {filterOptions.tutoringTypes.map(type => (
+                  <option key={type} value={type}>
+                    {type === 'Home Tutoring' ? 'Home' : type === 'Online Tutoring' ? 'Online' : 'Both'}
+                  </option>
+                ))}
+              </select>
+
+              {/* Medium - Dynamic */}
               <select
                 name="preferred_medium"
                 value={filters.preferred_medium}
                 onChange={handleFilterChange}
-                className="input-neon"
+                className="input-neon text-xs py-2 px-2"
               >
-                <option value="">All Mediums</option>
-                <option value="Bangla Medium">Bangla Medium</option>
-                <option value="English Medium">English Medium</option>
-                <option value="English Version">English Version</option>
-                <option value="Both">Both</option>
+                <option value="">Medium</option>
+                {filterOptions.mediums.map(medium => (
+                  <option key={medium} value={medium}>
+                    {medium.replace(' Medium', '').replace('English Version', 'Version')}
+                  </option>
+                ))}
               </select>
 
               {/* Min Salary */}
@@ -170,8 +242,8 @@ function AllTuitions() {
                 name="minSalary"
                 value={filters.minSalary}
                 onChange={handleFilterChange}
-                placeholder="Min Salary (BDT)"
-                className="input-neon"
+                placeholder="Min ৳"
+                className="input-neon text-xs py-2 px-2"
                 min="0"
               />
 
@@ -181,30 +253,36 @@ function AllTuitions() {
                 name="maxSalary"
                 value={filters.maxSalary}
                 onChange={handleFilterChange}
-                placeholder="Max Salary (BDT)"
-                className="input-neon"
+                placeholder="Max ৳"
+                className="input-neon text-xs py-2 px-2"
                 min="0"
               />
-            </div>
 
-            {/* Buttons */}
-            <div className="flex gap-3 justify-center">
-              <button
-                type="submit"
-                className="btn-neon btn-neon-primary px-6 flex items-center gap-2"
+              {/* Sort Dropdown */}
+              <select
+                onChange={handleSortChange}
+                className="input-neon text-xs py-2 px-2"
+                defaultValue="date-newest"
               >
-                <FaSearch />
-                Search
-              </button>
-              <button
-                type="button"
-                onClick={clearFilters}
-                className="btn-neon btn-neon-secondary px-6"
-              >
-                Clear Filters
-              </button>
+                <option value="date-newest">Newest</option>
+                <option value="date-oldest">Oldest</option>
+                <option value="salary-high">High ৳</option>
+                <option value="salary-low">Low ৳</option>
+              </select>
             </div>
-          </form>
+          </div>
+
+          {/* Clear Button Below */}
+          <div className="flex justify-end mt-2">
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-neon-pink hover:text-neon-blue text-xs flex items-center gap-1 transition-colors"
+            >
+              <FaFilter className="text-xs" />
+              Clear All
+            </button>
+          </div>
         </div>
 
         {/* Error State */}

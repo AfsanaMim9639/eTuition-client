@@ -59,14 +59,15 @@ const TuitionCard = ({ tuition }) => {
     >
       <Link 
         to={`/tuitions/${tuition._id}`} 
-        className="card-neon card-neon-pink p-6 rounded-xl group block h-full flex flex-col"
+        className="card-neon card-neon-blue p-6 rounded-xl group block h-full flex flex-col"
       >
         {/* Header - Fixed height */}
         <div className="flex items-start justify-between mb-4 min-h-[80px]">
           <div className="flex-1 pr-2">
-            <h3 className="text-xl font-bold neon-text-pink mb-2 group-hover:text-neon-blue transition-colors line-clamp-2">
-              {tuition.title}
+            <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent mb-2 group-hover:from-[#00ffcc] group-hover:to-[#00ff88] transition-colors line-clamp-2">
+            {tuition.title}
             </h3>
+
             <div className="flex items-center space-x-2 text-gray-400 text-sm">
               <FaBook className="text-neon-blue flex-shrink-0" />
               <span className="truncate">{tuition.subject}</span>
@@ -109,7 +110,7 @@ const TuitionCard = ({ tuition }) => {
         <div className="flex-grow"></div>
 
         {/* Salary & Days - Fixed at bottom */}
-        <div className="flex items-center justify-between pt-4 border-t border-neon-pink/30 mb-4">
+        <div className="flex items-center justify-between pt-4 border-t border-neon-blue/30 mb-4">
           <div className="flex items-center space-x-2">
             <FaDollarSign className="text-neon-green" />
             <span className="font-bold text-neon-green text-lg">
@@ -125,7 +126,7 @@ const TuitionCard = ({ tuition }) => {
         </div>
 
         {/* Posted Info & Status - Fixed at bottom */}
-        <div className="flex items-center justify-between pt-4 border-t border-neon-pink/30">
+        <div className="flex items-center justify-between pt-4 border-t border-neon-blue/30">
           <div className="text-xs text-gray-400">
             <span className="text-gray-500">Posted by: </span>
             <span className="text-gray-300 font-semibold">

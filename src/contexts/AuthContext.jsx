@@ -59,34 +59,61 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login with email/password
-  const login = async (email, password) => {
-    try {
-      console.log('🔐 Starting login...');
-      
-      // Firebase login
-      await signInWithEmailAndPassword(auth, email, password);
-      
-      console.log('✅ Firebase login successful');
-      
-      // Backend login
-      const response = await api.post('/auth/login', { email, password });
+  // Login with email/password - UPDATED VERSION
+const login = async (email, password) => {
+  try {
+    console.log('🔐 Starting login for:', email);
+    
+    // Firebase login
+    await signInWithEmailAndPassword(auth, email, password);
+    
+    console.log('✅ Firebase login successful');
+    
+    // Backend login
+    const response = await api.post('/auth/login', { email, password });
 
-      console.log('✅ Backend login successful');
+    console.log('✅ Backend login response:', response.data);
+    console.log('👤 User from backend:', response.data.user);
+    console.log('🎭 User role:', response.data.user?.role);
 
-      // Save token and user
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      setUser(response.data.user);
-
-      toast.success('Login successful!');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Login error:', error);
-      toast.error(error.response?.data?.message || 'Login failed');
-      throw error;
+    // Validate response
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Login failed');
     }
-  };
+
+    if (!response.data.user) {
+      throw new Error('User data not received from server');
+    }
+
+    if (!response.data.token) {
+      throw new Error('Token not received from server');
+    }
+
+    // Save token and user
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    
+    // Update state
+    setUser(response.data.user);
+
+    console.log('✅ Login complete - User state updated:', response.data.user.role);
+
+    toast.success('Login successful!');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    console.error('❌ Error response:', error.response?.data);
+    
+    // Clear any partial data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    
+    const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+    toast.error(errorMessage);
+    throw error;
+  }
+};
 
   // Google login
   const googleLogin = async (role = 'student') => {
@@ -162,49 +189,59 @@ export const AuthProvider = ({ children }) => {
     console.log('🔍 Setting up auth listener...');
     
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('🔥 Firebase auth state changed:', firebaseUser ? 'Logged in' : 'Logged out');
-      
-      if (firebaseUser) {
-        // Check if already fetching to prevent multiple calls
-        if (isFetchingUser.current) {
-          console.log('⏸️  Already fetching user, skipping...');
-          return;
-        }
+  console.log('🔥 Firebase auth state changed:', firebaseUser ? 'Logged in' : 'Logged out');
 
-        // Get user from localStorage first (faster)
-        const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-        
-        if (storedUser && token) {
-          console.log('✅ User loaded from localStorage');
-          setUser(JSON.parse(storedUser));
-          setLoading(false);
-        } else {
-          // Only fetch from backend if not in localStorage
-          isFetchingUser.current = true;
-          
-          try {
-            console.log('📡 Fetching user from backend...');
-            const response = await api.get('/auth/me');
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            setUser(response.data.user);
-            console.log('✅ User fetched from backend');
-          } catch (error) {
-            console.error('❌ Fetch user error:', error);
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setUser(null);
-          } finally {
-            isFetchingUser.current = false;
-            setLoading(false);
-          }
-        }
-      } else {
-        console.log('👤 No Firebase user, clearing state');
-        setUser(null);
-        setLoading(false);
-      }
-    });
+  const token = localStorage.getItem("token");
+  const storedUser = localStorage.getItem("user");
+
+  // 🔥 If NO Firebase user → clear everything
+  if (!firebaseUser) {
+    console.log('👤 No Firebase user, clearing');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setLoading(false);
+    return;
+  }
+
+  // 🔥 If Firebase user exists but NO token → do NOT call /me
+  if (!token) {
+    console.log("⛔ Token missing → skip /auth/me call");
+    setUser(null);
+    setLoading(false);
+    return;
+  }
+
+  // 🔥 If token + user stored → use that (FAST)
+  if (storedUser) {
+    console.log('⚡ Using stored user');
+    setUser(JSON.parse(storedUser));
+    setLoading(false);
+    return;
+  }
+
+  // 🔥 Otherwise fetch from backend (with token)
+  if (!isFetchingUser.current) {
+    isFetchingUser.current = true;
+    try {
+      console.log('📡 Fetching user from /auth/me ...');
+      const res = await api.get("/auth/me");
+
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      setUser(res.data.user);
+
+    } catch (err) {
+      console.error("❌ /auth/me failed:", err);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+    } finally {
+      isFetchingUser.current = false;
+      setLoading(false);
+    }
+  }
+});
+
 
     return () => {
       console.log('🧹 Cleaning up auth listener');

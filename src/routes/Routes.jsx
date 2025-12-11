@@ -30,13 +30,15 @@ import StudentProfile from '../pages/dashboard/student/StudentProfile';
 
 // Tutor Dashboard Pages
 import TutorDashboard from '../pages/dashboard/tutor/TutorDashboard';
-import TutorDashboardHome from '../pages/dashboard/tutor/TutorDashboardHome'; // Create this file
+import TutorDashboardHome from '../pages/dashboard/tutor/TutorDashboardHome';
 import MyApplications from '../pages/dashboard/tutor/MyApplications';
 import OngoingTuitions from '../pages/dashboard/tutor/OngoingTuitions';
 import RevenueHistory from '../pages/dashboard/tutor/RevenueHistory';
 import TutorProfile from '../pages/dashboard/tutor/TutorProfile';
+
 // Admin Dashboard Pages
 import AdminDashboard from '../pages/dashboard/admin/AdminDashboard';
+import AdminDashboardHome from '../pages/dashboard/admin/AdminDashboardHome';
 import UserManagement from '../pages/dashboard/admin/UserManagement';
 import TuitionManagement from '../pages/dashboard/admin/TuitionManagement';
 import ReportsAnalytics from '../pages/dashboard/admin/ReportsAnalytics';
@@ -132,7 +134,7 @@ const router = createBrowserRouter([
         ]
       },
 
-      // Tutor Routes - FIXED WITH NESTED STRUCTURE
+      // Tutor Routes - NESTED STRUCTURE
       {
         path: 'tutor',
         element: (
@@ -156,47 +158,40 @@ const router = createBrowserRouter([
           {
             path: 'revenue',
             element: <RevenueHistory />
-          }
-          ,
-            {
+          },
+          {
             path: 'profile',
             element: <TutorProfile />
-            }
+          }
         ]
       },
 
-      // Admin Routes
+      // Admin Routes - FIXED WITH NESTED STRUCTURE
       {
         path: 'admin',
         element: (
           <RoleBasedRoute allowedRoles={['admin']}>
             <AdminDashboard />
           </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'admin/users',
-        element: (
-          <RoleBasedRoute allowedRoles={['admin']}>
-            <UserManagement />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'admin/tuitions',
-        element: (
-          <RoleBasedRoute allowedRoles={['admin']}>
-            <TuitionManagement />
-          </RoleBasedRoute>
-        )
-      },
-      {
-        path: 'admin/reports',
-        element: (
-          <RoleBasedRoute allowedRoles={['admin']}>
-            <ReportsAnalytics />
-          </RoleBasedRoute>
-        )
+        ),
+        children: [
+          {
+            index: true, // Renders at /dashboard/admin
+            element: <AdminDashboardHome />
+          },
+          {
+            path: 'users',
+            element: <UserManagement />
+          },
+          {
+            path: 'tuitions',
+            element: <TuitionManagement />
+          },
+          {
+            path: 'reports',
+            element: <ReportsAnalytics />
+          }
+        ]
       }
     ]
   }
