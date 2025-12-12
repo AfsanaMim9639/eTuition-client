@@ -9,8 +9,8 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
-  FaGlobe,
-  FaArrowLeft
+  FaArrowLeft,
+  FaComments
 } from 'react-icons/fa';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GraduationCap } from 'lucide-react';
@@ -30,11 +30,12 @@ const StudentDashboard = () => {
     }
   };
 
-  // Updated routes to match your Routes.jsx structure
+  // Updated menu items with Messages
   const menuItems = [
     { path: '/dashboard/student', icon: FaHome, label: 'Dashboard', end: true },
     { path: '/dashboard/student/tuitions', icon: FaBriefcase, label: 'My Tuitions' },
     { path: '/dashboard/student/post-tuition', icon: FaPlus, label: 'Post New Tuition' },
+    { path: '/dashboard/student/messages', icon: FaComments, label: 'Messages' },
     { path: '/dashboard/student/payments', icon: FaMoneyBillWave, label: 'Payments' },
     { path: '/dashboard/student/profile', icon: FaUser, label: 'Profile Settings' },
   ];
@@ -150,7 +151,7 @@ const StudentDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 lg:ml-64 pt-8 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
+        <main className="flex-1 lg:ml-24 pt-8 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
           <Outlet />
         </main>
       </div>

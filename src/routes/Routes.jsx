@@ -27,6 +27,8 @@ import PostNewTuition from '../pages/dashboard/student/PostNewTuition';
 import AppliedTutors from '../pages/dashboard/student/AppliedTutors';
 import StudentPayments from '../pages/dashboard/student/StudentPayments';
 import StudentProfile from '../pages/dashboard/student/StudentProfile';
+import StudentMessages from '../pages/dashboard/student/Messages';
+import MyReviews from '../pages/dashboard/student/MyReviews';
 
 // Tutor Dashboard Pages
 import TutorDashboard from '../pages/dashboard/tutor/TutorDashboard';
@@ -35,6 +37,7 @@ import MyApplications from '../pages/dashboard/tutor/MyApplications';
 import OngoingTuitions from '../pages/dashboard/tutor/OngoingTuitions';
 import RevenueHistory from '../pages/dashboard/tutor/RevenueHistory';
 import TutorProfile from '../pages/dashboard/tutor/TutorProfile';
+import TutorMessages from '../pages/dashboard/tutor/Messages';
 
 // Admin Dashboard Pages
 import AdminDashboard from '../pages/dashboard/admin/AdminDashboard';
@@ -42,10 +45,13 @@ import AdminDashboardHome from '../pages/dashboard/admin/AdminDashboardHome';
 import UserManagement from '../pages/dashboard/admin/UserManagement';
 import TuitionManagement from '../pages/dashboard/admin/TuitionManagement';
 import ReportsAnalytics from '../pages/dashboard/admin/ReportsAnalytics';
+import AdminMessages from '../pages/dashboard/admin/Messages';
+
+// ✅ NEW: Notification Page (shared for all roles)
+import Notifications from '../pages/dashboard/Notifications';
 
 // Error Page
 import ErrorPage from '../components/shared/ErrorPage';
-import MyReviews from '../pages/dashboard/student/MyReviews';
 
 const router = createBrowserRouter([
   {
@@ -99,7 +105,7 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      // Student Routes - NESTED STRUCTURE
+      // Student Routes
       {
         path: 'student',
         element: (
@@ -109,7 +115,7 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            index: true, // Renders at /dashboard/student
+            index: true,
             element: <StudentDashboardHome />
           },
           {
@@ -135,11 +141,20 @@ const router = createBrowserRouter([
           {
             path: 'reviews',
             element: <MyReviews />
+          },
+          {
+            path: 'messages',
+            element: <StudentMessages />
+          },
+          // ✅ NEW: Student Notifications
+          {
+            path: 'notifications',
+            element: <Notifications />
           }
         ]
       },
 
-      // Tutor Routes - NESTED STRUCTURE
+      // Tutor Routes
       {
         path: 'tutor',
         element: (
@@ -149,7 +164,7 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            index: true, // Renders at /dashboard/tutor
+            index: true,
             element: <TutorDashboardHome />
           },
           {
@@ -167,11 +182,20 @@ const router = createBrowserRouter([
           {
             path: 'profile',
             element: <TutorProfile />
+          },
+          {
+            path: 'messages',
+            element: <TutorMessages />
+          },
+          // ✅ NEW: Tutor Notifications
+          {
+            path: 'notifications',
+            element: <Notifications />
           }
         ]
       },
 
-      // Admin Routes - FIXED WITH NESTED STRUCTURE
+      // Admin Routes
       {
         path: 'admin',
         element: (
@@ -181,7 +205,7 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            index: true, // Renders at /dashboard/admin
+            index: true,
             element: <AdminDashboardHome />
           },
           {
@@ -195,6 +219,15 @@ const router = createBrowserRouter([
           {
             path: 'reports',
             element: <ReportsAnalytics />
+          },
+          {
+            path: 'messages',
+            element: <AdminMessages />
+          },
+          // ✅ NEW: Admin Notifications
+          {
+            path: 'notifications',
+            element: <Notifications />
           }
         ]
       }

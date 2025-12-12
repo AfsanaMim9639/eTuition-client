@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { GraduationCap,} from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 
 import { 
   FaHome, 
@@ -12,9 +12,12 @@ import {
   FaTimes,
   FaUsers,
   FaChartBar,
-  FaDollarSign
+  FaDollarSign,
+  FaBell // ✅ NEW: Bell icon for menu
 } from 'react-icons/fa';
-import Navbar from '../components/shared/Navbar';
+
+// ✅ NEW: Import NotificationBell component
+import NotificationBell from '../components/notification/NotificationBell';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -28,33 +31,39 @@ const DashboardLayout = () => {
 
   // Role-based menu items
   const getMenuItems = () => {
-    const baseItems = [
-      { path: '/dashboard', icon: FaHome, label: 'Dashboard' },
-      { path: '/dashboard/profile', icon: FaUser, label: 'Profile' },
-    ];
+    const role = user?.role;
+    const basePath = `/dashboard/${role}`;
 
-    if (user?.role === 'admin') {
+    if (role === 'admin') {
       return [
-        ...baseItems,
-        { path: '/dashboard/users', icon: FaUsers, label: 'Manage Users' },
-        { path: '/dashboard/tuitions', icon: FaBook, label: 'Manage Tuitions' },
-        { path: '/dashboard/analytics', icon: FaChartBar, label: 'Analytics' },
+        { path: `${basePath}`, icon: FaHome, label: 'Dashboard' },
+        { path: `${basePath}/users`, icon: FaUsers, label: 'Manage Users' },
+        { path: `${basePath}/tuitions`, icon: FaBook, label: 'Manage Tuitions' },
+        { path: `${basePath}/reports`, icon: FaChartBar, label: 'Reports' },
+        { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' }, // ✅ NEW
+        { path: `${basePath}/profile`, icon: FaUser, label: 'Profile' },
       ];
     }
 
-    if (user?.role === 'tutor') {
+    if (role === 'tutor') {
       return [
-        ...baseItems,
-        { path: '/dashboard/applications', icon: FaBook, label: 'My Applications' },
-        { path: '/dashboard/earnings', icon: FaDollarSign, label: 'Earnings' },
+        { path: `${basePath}`, icon: FaHome, label: 'Dashboard' },
+        { path: `${basePath}/applications`, icon: FaBook, label: 'My Applications' },
+        { path: `${basePath}/ongoing`, icon: FaUsers, label: 'Ongoing Tuitions' },
+        { path: `${basePath}/revenue`, icon: FaDollarSign, label: 'Revenue' },
+        { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' }, // ✅ NEW
+        { path: `${basePath}/profile`, icon: FaUser, label: 'Profile' },
       ];
     }
 
     // Student
     return [
-      ...baseItems,
-      { path: '/dashboard/tuitions', icon: FaBook, label: 'My Tuitions' },
-      { path: '/dashboard/applications', icon: FaUsers, label: 'Applications' },
+      { path: `${basePath}`, icon: FaHome, label: 'Dashboard' },
+      { path: `${basePath}/tuitions`, icon: FaBook, label: 'My Tuitions' },
+      { path: `${basePath}/post-tuition`, icon: FaBook, label: 'Post Tuition' },
+      { path: `${basePath}/payments`, icon: FaDollarSign, label: 'Payments' },
+      { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' }, // ✅ NEW
+      { path: `${basePath}/profile`, icon: FaUser, label: 'Profile' },
     ];
   };
 
@@ -62,14 +71,31 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg">
-        
-      {/* Mobile Sidebar Toggle */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-lg bg-neon-blue/20 border border-neon-blue text-neon-blue hover:bg-neon-blue/30 transition-all"
-      >
-        {sidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-      </button>
+      {/* ✅ NEW: Top Bar with Notification Bell (visible on mobile/tablet) */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0f1512]/95 backdrop-blur-xl border-b-2 border-[#00ffcc]/30">
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-lg bg-[#00ffcc]/20 border border-[#00ffcc] text-[#00ffcc] hover:bg-[#00ffcc]/30 transition-all"
+          >
+            {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+          </button>
+
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-lg flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-[#0a0f0d]" />
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+              eTuitionBD
+            </span>
+          </Link>
+
+          {/* ✅ NEW: Notification Bell (Mobile) */}
+          <NotificationBell />
+        </div>
+      </div>
 
       {/* Sidebar */}
       <aside
@@ -79,8 +105,8 @@ const DashboardLayout = () => {
         } lg:translate-x-0`}
       >
         <div className="p-6">
-          {/* Logo - Border and Shadow Removed */}
-          <div className="mb-6">
+          {/* Logo - Desktop */}
+          <div className="mb-6 hidden lg:block">
             <Link 
               to="/" 
               className="flex items-center gap-3 group"
@@ -99,18 +125,23 @@ const DashboardLayout = () => {
           </div>
 
           {/* User Info */}
-          <div className="mb-8 p-4 rounded-lg bg-neon-blue/10 border border-neon-blue/30">
+          <div className="mb-6 p-4 rounded-lg bg-[#00ffcc]/10 border border-[#00ffcc]/30">
             <div className="flex items-center space-x-3">
               <img
                 src={user?.profileImage || '/default-avatar.png'}
                 alt={user?.name}
-                className="w-12 h-12 rounded-full border-2 border-neon-blue"
+                className="w-12 h-12 rounded-full border-2 border-[#00ffcc] object-cover"
               />
               <div>
                 <p className="font-semibold text-white">{user?.name}</p>
                 <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
               </div>
             </div>
+          </div>
+
+          {/* ✅ NEW: Notification Bell (Desktop - in sidebar) */}
+          <div className="hidden lg:block mb-4">
+            <NotificationBell />
           </div>
 
           {/* Navigation Menu */}
@@ -120,9 +151,9 @@ const DashboardLayout = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-neon-blue/20 hover:text-neon-blue transition-all group"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-[#00ffcc]/20 hover:text-[#00ffcc] transition-all group"
               >
-                <item.icon className="text-xl group-hover:text-neon-blue" />
+                <item.icon className="text-xl group-hover:text-[#00ffcc]" />
                 <span>{item.label}</span>
               </Link>
             ))}
