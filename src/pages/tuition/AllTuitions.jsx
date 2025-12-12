@@ -23,7 +23,6 @@ function AllTuitions() {
     maxSalary: ''
   });
   
-  // ✅ NEW: Dynamic filter options from backend
   const [filterOptions, setFilterOptions] = useState({
     subjects: [],
     grades: [],
@@ -34,12 +33,10 @@ function AllTuitions() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
 
-  // ✅ NEW: Fetch filter options on mount
   useEffect(() => {
     fetchFilterOptions();
   }, []);
 
-  // Auto-fetch on filter/sort changes
   useEffect(() => {
     fetchTuitions();
   }, [pagination.currentPage, sortBy, sortOrder, filters]);
@@ -47,8 +44,14 @@ function AllTuitions() {
   const fetchFilterOptions = async () => {
     try {
       const response = await tuitionAPI.getFilterOptions();
-      if (response.data.success) {
-        setFilterOptions(response.data.options);
+      // ✅ Fixed: Handle both old and new response formats
+      if (response.data.status === 'success') {
+        setFilterOptions(response.data.data || response.data.options || {
+          subjects: [],
+          grades: [],
+          tutoringTypes: [],
+          mediums: []
+        });
       }
     } catch (error) {
       console.error('Error fetching filter options:', error);
@@ -75,11 +78,20 @@ function AllTuitions() {
       if (filters.maxSalary) params.maxSalary = filters.maxSalary;
       
       const response = await tuitionAPI.getAllTuitions(params);
-      setTuitions(response.data.tuitions);
-      setPagination(response.data.pagination);
+      
+      // ✅ Fixed: Handle standardized response format
+      if (response.data.status === 'success') {
+        setTuitions(response.data.data || []);
+        setPagination({
+          currentPage: response.data.page || 1,
+          totalPages: response.data.pages || 1,
+          totalItems: response.data.total || 0
+        });
+      }
     } catch (error) {
       console.error('Error fetching tuitions:', error);
       setError('Failed to load tuitions. Please try again later.');
+      setTuitions([]);
     } finally {
       setLoading(false);
     }
@@ -160,10 +172,10 @@ function AllTuitions() {
           Explore {pagination.totalItems}+ tuition opportunities
         </p>
 
-        {/* Compact Filters - Single Row */}
+        {/* Compact Filters */}
         <div className="card-neon card-neon-pink p-3 rounded-xl mb-8 max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-2 items-stretch">
-            {/* Search Bar - Left Side */}
+            {/* Search Bar */}
             <div className="lg:w-2/5">
               <div className="relative h-full">
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-pink text-sm z-10" />
@@ -178,9 +190,8 @@ function AllTuitions() {
               </div>
             </div>
 
-            {/* All Filters - Right Side in Single Row */}
+            {/* Filters */}
             <div className="lg:w-3/5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2">
-              {/* Class - Dynamic */}
               <select
                 name="class"
                 value={filters.class}
@@ -188,12 +199,11 @@ function AllTuitions() {
                 className="input-neon text-xs py-2 px-2"
               >
                 <option value="">Class</option>
-                {filterOptions.grades.map(grade => (
+                {filterOptions.grades?.map(grade => (
                   <option key={grade} value={grade}>{grade}</option>
                 ))}
               </select>
 
-              {/* Subject - Dynamic */}
               <select
                 name="subject"
                 value={filters.subject}
@@ -201,12 +211,11 @@ function AllTuitions() {
                 className="input-neon text-xs py-2 px-2"
               >
                 <option value="">Subject</option>
-                {filterOptions.subjects.map(subject => (
+                {filterOptions.subjects?.map(subject => (
                   <option key={subject} value={subject}>{subject}</option>
                 ))}
               </select>
 
-              {/* Tutoring Type - Dynamic */}
               <select
                 name="tutoring_type"
                 value={filters.tutoring_type}
@@ -214,14 +223,13 @@ function AllTuitions() {
                 className="input-neon text-xs py-2 px-2"
               >
                 <option value="">Type</option>
-                {filterOptions.tutoringTypes.map(type => (
+                {filterOptions.tutoringTypes?.map(type => (
                   <option key={type} value={type}>
                     {type === 'Home Tutoring' ? 'Home' : type === 'Online Tutoring' ? 'Online' : 'Both'}
                   </option>
                 ))}
               </select>
 
-              {/* Medium - Dynamic */}
               <select
                 name="preferred_medium"
                 value={filters.preferred_medium}
@@ -229,14 +237,13 @@ function AllTuitions() {
                 className="input-neon text-xs py-2 px-2"
               >
                 <option value="">Medium</option>
-                {filterOptions.mediums.map(medium => (
+                {filterOptions.mediums?.map(medium => (
                   <option key={medium} value={medium}>
                     {medium.replace(' Medium', '').replace('English Version', 'Version')}
                   </option>
                 ))}
               </select>
 
-              {/* Min Salary */}
               <input
                 type="number"
                 name="minSalary"
@@ -247,7 +254,6 @@ function AllTuitions() {
                 min="0"
               />
 
-              {/* Max Salary */}
               <input
                 type="number"
                 name="maxSalary"
@@ -258,7 +264,6 @@ function AllTuitions() {
                 min="0"
               />
 
-              {/* Sort Dropdown */}
               <select
                 onChange={handleSortChange}
                 className="input-neon text-xs py-2 px-2"
@@ -272,7 +277,6 @@ function AllTuitions() {
             </div>
           </div>
 
-          {/* Clear Button Below */}
           <div className="flex justify-end mt-2">
             <button
               type="button"
@@ -364,12 +368,6 @@ function AllTuitions() {
                     clear all filters
                   </button>
                 </p>
-                <Link
-                  to="/dashboard/student/post-tuition"
-                  className="btn-neon btn-neon-primary inline-flex items-center gap-2"
-                >
-                  Post a Tuition
-                </Link>
               </div>
             )}
           </>

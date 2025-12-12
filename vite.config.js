@@ -5,8 +5,18 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: './',        
+  base: '/',  // ✅ Changed from './' to '/' for Firebase hosting
   build: {
-    outDir: 'dist',   
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   },
+  server: {
+    port: 5173,
+    strictPort: false
+  }
 })
