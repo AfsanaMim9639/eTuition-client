@@ -62,7 +62,7 @@ export const tuitionAPI = {
     console.log('🔍 Fetching latest tuitions');
     return api.get('/tuitions/latest');
   },
-  getFilterOptions: () => { // ✅ NEW: Get filter options
+  getFilterOptions: () => {
     console.log('🔍 Fetching filter options');
     return api.get('/tuitions/filter-options');
   },
@@ -109,6 +109,34 @@ export const adminAPI = {
   getAllTuitions: (params) => api.get('/admin/tuitions', { params }),
   updateTuitionStatus: (id, status) => api.put(`/admin/tuitions/${id}/status`, { status }),
   updateUserStatus: (id, status) => api.put(`/admin/users/${id}/status`, { status }),
+};
+
+// ✅ NEW - Review APIs
+export const reviewAPI = {
+  createReview: (data) => {
+    console.log('📝 Creating review:', data);
+    return api.post('/reviews', data);
+  },
+  getTutorReviews: (tutorId, params = {}) => {
+    console.log('🔍 Fetching reviews for tutor:', tutorId);
+    return api.get(`/reviews/tutor/${tutorId}`, { params });
+  },
+  getMyReviews: () => {
+    console.log('🔍 Fetching my reviews');
+    return api.get('/reviews/my-reviews');
+  },
+  updateReview: (reviewId, data) => {
+    console.log('✏️ Updating review:', reviewId, data);
+    return api.put(`/reviews/${reviewId}`, data);
+  },
+  deleteReview: (reviewId) => {
+    console.log('🗑️ Deleting review:', reviewId);
+    return api.delete(`/reviews/${reviewId}`);
+  },
+  canReviewTutor: (tutorId) => {
+    console.log('🔍 Checking if can review tutor:', tutorId);
+    return api.get(`/reviews/can-review/${tutorId}`);
+  }
 };
 
 export default api;

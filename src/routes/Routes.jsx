@@ -45,6 +45,7 @@ import ReportsAnalytics from '../pages/dashboard/admin/ReportsAnalytics';
 
 // Error Page
 import ErrorPage from '../components/shared/ErrorPage';
+import MyReviews from '../pages/dashboard/student/MyReviews';
 
 const router = createBrowserRouter([
   {
@@ -130,6 +131,10 @@ const router = createBrowserRouter([
           {
             path: 'profile',
             element: <StudentProfile />
+          },
+          {
+            path: 'reviews',
+            element: <MyReviews />
           }
         ]
       },
