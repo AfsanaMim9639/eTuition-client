@@ -29,9 +29,14 @@ const MyTuitions = () => {
       const response = await tuitionAPI.getMyTuitions();
       const tuitionsData = response.data.tuitions || [];
       
+      // Filter only approved tuitions
+      const approvedTuitions = tuitionsData.filter(
+        tuition => tuition.status === 'approved' || tuition.isApproved === true
+      );
+      
       // Fetch application counts for each tuition
       const tuitionsWithCounts = await Promise.all(
-        tuitionsData.map(async (tuition) => {
+        approvedTuitions.map(async (tuition) => {
           try {
             const appResponse = await applicationAPI.getTuitionApplications(tuition._id);
             return {
@@ -200,13 +205,6 @@ const MyTuitions = () => {
           <p className="text-gray-400 mb-6">
             Start by posting your first tuition to find the perfect tutor
           </p>
-          <Link
-            to="/dashboard/student/post-tuition"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all"
-          >
-            <FaPlus />
-            Post Your First Tuition
-          </Link>
         </div>
       )}
 

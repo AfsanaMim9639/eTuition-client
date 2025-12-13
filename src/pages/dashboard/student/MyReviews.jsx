@@ -68,8 +68,8 @@ const MyReviews = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f0d] pt-24 pb-12">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className="min-h-screen bg-[#0a0f0d] pt-5 pb-5">
+      <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

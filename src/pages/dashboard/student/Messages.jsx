@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaComments, FaInbox } from 'react-icons/fa';
+import { FaComments, FaInbox, FaPlus, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
 import ConversationList from '../../../components/messaging/ConversationList';
@@ -7,6 +7,7 @@ import ChatBox from '../../../components/messaging/ChatBox';
 import { conversationAPI } from '../../../utils/messageService';
 import socketService from '../../../utils/socketService';
 import toast from 'react-hot-toast';
+import api from '../../../utils/api';
 
 const Messages = () => {
   const { user } = useAuth();
@@ -15,30 +16,34 @@ const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [error, setError] = useState(null);
+  
+  // New Chat Modal
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [tutors, setTutors] = useState([]);
+  const [loadingTutors, setLoadingTutors] = useState(false);
+  const [creatingChat, setCreatingChat] = useState(false);
 
   useEffect(() => {
-    loadConversations();
-    
-    // Connect to socket
-    const token = localStorage.getItem('token');
-    if (token) {
-      socketService.connect(token);
-    }
-
-    // Listen for new messages
-    socketService.onNewMessage((data) => {
-      console.log('📨 New message received:', data);
-      loadConversations(); // Refresh conversation list
+    if (user) {
+      loadConversations();
       
-      // If message is for current conversation, it will be handled by ChatBox
-    });
+      const token = localStorage.getItem('token');
+      if (token) {
+        socketService.connect(token);
+      }
+
+      socketService.onNewMessage((data) => {
+        console.log('📨 New message received:', data);
+        loadConversations();
+      });
+    }
 
     return () => {
       socketService.removeListener('new-message');
     };
-  }, []);
+  }, [user]);
 
-  // Handle navigation state (when coming from MessageButton)
   useEffect(() => {
     const state = location.state;
     if (state?.selectedConversation && conversations.length > 0) {
@@ -51,29 +56,86 @@ const Messages = () => {
 
   const loadConversations = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      
       const response = await conversationAPI.getMyConversations();
-      setConversations(response.data);
       
-      // Calculate total unread count
-      const total = response.data.reduce((sum, conv) => sum + (conv.myUnreadCount || 0), 0);
-      setUnreadCount(total);
+      if (response && response.data) {
+        setConversations(response.data);
+        const total = response.data.reduce((sum, conv) => sum + (conv.myUnreadCount || 0), 0);
+        setUnreadCount(total);
+      } else {
+        setConversations([]);
+      }
       
-      setLoading(false);
     } catch (error) {
       console.error('Error loading conversations:', error);
-      toast.error('Failed to load conversations');
+      setConversations([]);
+      
+      if (error.response?.status !== 404) {
+        setError(error.response?.data?.message || 'Failed to load conversations');
+        if (error.response?.status !== 401) {
+          toast.error('Failed to load conversations');
+        }
+      }
+    } finally {
       setLoading(false);
+    }
+  };
+
+  // Load tutors for new chat
+  const loadTutors = async () => {
+    try {
+      setLoadingTutors(true);
+      const response = await api.get('/users/tutors', {
+        params: { limit: 50 }
+      });
+      
+      if (response.data && response.data.data) {
+        setTutors(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error loading tutors:', error);
+      toast.error('Failed to load tutors');
+    } finally {
+      setLoadingTutors(false);
+    }
+  };
+
+  // Create new conversation
+  const handleCreateChat = async (tutorId, tutorName) => {
+    try {
+      setCreatingChat(true);
+      
+      const response = await conversationAPI.createOrGet(tutorId, null, 'student-tutor');
+      
+      if (response.success) {
+        toast.success(`Chat with ${tutorName} started!`);
+        setShowNewChatModal(false);
+        await loadConversations();
+        
+        // Select the new conversation
+        if (response.data) {
+          setSelectedConversation(response.data);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error creating chat:', error);
+      toast.error('Failed to start chat');
+    } finally {
+      setCreatingChat(false);
     }
   };
 
   const handleSelectConversation = (conversation) => {
     setSelectedConversation(conversation);
     
-    // Mark as read
     if (conversation.myUnreadCount > 0) {
       conversationAPI.markAsRead(conversation._id)
         .then(() => {
-          loadConversations(); // Refresh to update unread counts
+          loadConversations();
         })
         .catch((error) => {
           console.error('Error marking as read:', error);
@@ -98,7 +160,10 @@ const Messages = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ffcc]"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ffcc] mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading messages...</p>
+        </div>
       </div>
     );
   }
@@ -115,14 +180,29 @@ const Messages = () => {
             Chat with your tutors
           </p>
         </div>
-        {unreadCount > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-lg">
-            <FaInbox className="text-red-400" />
-            <span className="text-red-400 font-medium">
-              {unreadCount} unread
-            </span>
-          </div>
-        )}
+        
+        <div className="flex items-center gap-3">
+          {unreadCount > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-lg">
+              <FaInbox className="text-red-400" />
+              <span className="text-red-400 font-medium">
+                {unreadCount} unread
+              </span>
+            </div>
+          )}
+          
+          {/* New Chat Button */}
+          <button
+            onClick={() => {
+              setShowNewChatModal(true);
+              loadTutors();
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d] font-medium hover:shadow-lg hover:shadow-[#00ffcc]/50 transition-all"
+          >
+            <FaPlus />
+            <span>New Chat</span>
+          </button>
+        </div>
       </div>
 
       {/* Messages Layout */}
@@ -150,10 +230,88 @@ const Messages = () => {
             <div className="flex flex-col items-center justify-center h-full text-gray-400">
               <FaComments className="text-6xl mb-4 opacity-30" />
               <p className="text-lg">Select a conversation to start chatting</p>
+              {conversations.length === 0 && (
+                <div className="mt-4">
+                  <p className="text-sm mb-3">No conversations yet</p>
+                  <button
+                    onClick={() => {
+                      setShowNewChatModal(true);
+                      loadTutors();
+                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-xl text-[#0a0f0d] font-medium hover:shadow-lg transition-all flex items-center gap-2"
+                  >
+                    <FaPlus />
+                    Start Your First Chat
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {/* New Chat Modal */}
+      {showNewChatModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0f1512] border-2 border-[#00ffcc]/30 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-[#00ffcc]/30 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-[#00ffcc]">Start New Chat</h3>
+              <button
+                onClick={() => setShowNewChatModal(false)}
+                className="p-2 hover:bg-[#00ffcc]/10 rounded-lg text-gray-400 hover:text-[#00ffcc] transition-all"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+              {loadingTutors ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00ffcc] mx-auto mb-2"></div>
+                  <p className="text-gray-400">Loading tutors...</p>
+                </div>
+              ) : tutors.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">No tutors available</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {tutors.map((tutor) => (
+                    <div
+                      key={tutor._id}
+                      className="flex items-center justify-between p-4 bg-[#1a1f1c] border border-[#00ffcc]/20 rounded-lg hover:border-[#00ffcc] transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#00ffcc] to-[#00ff88] flex items-center justify-center text-[#0a0f0d] font-bold">
+                          {tutor.name?.charAt(0)?.toUpperCase() || 'T'}
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-[#00ffcc]">{tutor.name}</h4>
+                          <p className="text-sm text-gray-400">{tutor.email}</p>
+                          {tutor.subjects && tutor.subjects.length > 0 && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {tutor.subjects.slice(0, 3).join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleCreateChat(tutor._id, tutor.name)}
+                        disabled={creatingChat}
+                        className="px-4 py-2 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d] font-medium hover:shadow-lg transition-all disabled:opacity-50"
+                      >
+                        {creatingChat ? 'Starting...' : 'Chat'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

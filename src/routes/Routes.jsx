@@ -139,7 +139,7 @@ const router = createBrowserRouter([
             element: <StudentProfile />
           },
           {
-            path: 'reviews',
+            path: 'my-reviews',
             element: <MyReviews />
           },
           {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { X, Check, Trash2, Eye } from 'lucide-react';
+import { X, Check, Trash2, Eye, Bell } from 'lucide-react'; // ✅ Added Bell
 import { getNotifications, markAllAsRead, deleteAllRead } from '../../utils/notificationService';
 import NotificationItem from './NotificationItem';
 
@@ -74,20 +74,20 @@ const NotificationDropdown = ({ onClose, onCountUpdate }) => {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className="absolute right-0 top-12 w-96 max-h-[600px] bg-[#121212]/95 backdrop-blur-xl border-2 border-[#FF10F0]/30 rounded-xl shadow-2xl overflow-hidden z-50"
+      className="absolute right-0 top-12 w-96 max-h-[600px] bg-[#121212]/95 backdrop-blur-xl border-2 border-[#00ffcc]/30 rounded-xl shadow-2xl overflow-hidden z-50"
       style={{
-        boxShadow: '0 0 40px rgba(255, 16, 240, 0.2)'
+        boxShadow: '0 0 40px rgba(0, 255, 204, 0.2)'
       }}
     >
       {/* Header */}
-      <div className="p-4 border-b border-[#FF10F0]/20">
+      <div className="p-4 border-b border-[#00ffcc]/20">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-bold text-[#FF10F0] neon-text-pink">
+          <h3 className="text-lg font-bold text-[#00ffcc]">
             Notifications
           </h3>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-[#FF10F0]/10 rounded-lg transition-colors"
+            className="p-1 hover:bg-[#00ffcc]/10 rounded-lg transition-colors"
           >
             <X className="w-5 h-5 text-gray-400" />
           </button>
@@ -99,7 +99,7 @@ const NotificationDropdown = ({ onClose, onCountUpdate }) => {
             onClick={() => setTab('all')}
             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
               tab === 'all'
-                ? 'bg-gradient-to-r from-[#FF10F0] to-[#00F0FF] text-black'
+                ? 'bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-black'
                 : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
             }`}
           >
@@ -109,7 +109,7 @@ const NotificationDropdown = ({ onClose, onCountUpdate }) => {
             onClick={() => setTab('unread')}
             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
               tab === 'unread'
-                ? 'bg-gradient-to-r from-[#FF10F0] to-[#00F0FF] text-black'
+                ? 'bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-black'
                 : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
             }`}
           >
@@ -119,10 +119,10 @@ const NotificationDropdown = ({ onClose, onCountUpdate }) => {
       </div>
 
       {/* Actions */}
-      <div className="p-3 border-b border-[#FF10F0]/20 flex gap-2">
+      <div className="p-3 border-b border-[#00ffcc]/20 flex gap-2">
         <button
           onClick={handleMarkAllRead}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs bg-[#1a1a1a] hover:bg-[#00F0FF]/20 text-[#00F0FF] rounded-lg transition-all"
+          className="flex items-center gap-2 px-3 py-1.5 text-xs bg-[#1a1a1a] hover:bg-[#00ffcc]/20 text-[#00ffcc] rounded-lg transition-all"
         >
           <Check className="w-3.5 h-3.5" />
           Mark all read
@@ -137,10 +137,10 @@ const NotificationDropdown = ({ onClose, onCountUpdate }) => {
       </div>
 
       {/* Notification List */}
-      <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#FF10F0] scrollbar-track-transparent">
+      <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffcc] scrollbar-track-transparent">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-3 border-[#FF10F0] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[#00ffcc] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
@@ -148,7 +148,7 @@ const NotificationDropdown = ({ onClose, onCountUpdate }) => {
             <p>No notifications</p>
           </div>
         ) : (
-          <div className="divide-y divide-[#FF10F0]/10">
+          <div className="divide-y divide-[#00ffcc]/10">
             {notifications.map((notification, index) => (
               <NotificationItem
                 key={notification._id}
@@ -164,10 +164,10 @@ const NotificationDropdown = ({ onClose, onCountUpdate }) => {
 
       {/* Footer */}
       {notifications.length > 0 && (
-        <div className="p-3 border-t border-[#FF10F0]/20">
+        <div className="p-3 border-t border-[#00ffcc]/20">
           <button
             onClick={handleViewAll}
-            className="w-full py-2 px-4 bg-gradient-to-r from-[#FF10F0] to-[#00F0FF] hover:opacity-90 text-black font-medium rounded-lg transition-all flex items-center justify-center gap-2"
+            className="w-full py-2 px-4 bg-gradient-to-r from-[#00ff88] to-[#00ffcc] hover:opacity-90 text-black font-medium rounded-lg transition-all flex items-center justify-center gap-2"
           >
             <Eye className="w-4 h-4" />
             View All Notifications

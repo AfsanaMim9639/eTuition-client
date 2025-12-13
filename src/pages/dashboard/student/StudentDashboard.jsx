@@ -10,10 +10,13 @@ import {
   FaBars,
   FaTimes,
   FaArrowLeft,
-  FaComments
+  FaComments,
+  FaBell,
+  FaStar  // ✅ NEW - For Reviews
 } from 'react-icons/fa';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GraduationCap } from 'lucide-react';
+import NotificationBell from '../../../components/notification/NotificationBell';
 
 const StudentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,12 +33,14 @@ const StudentDashboard = () => {
     }
   };
 
-  // Updated menu items with Messages
+  // ✅ Updated menu items with My Reviews
   const menuItems = [
     { path: '/dashboard/student', icon: FaHome, label: 'Dashboard', end: true },
     { path: '/dashboard/student/tuitions', icon: FaBriefcase, label: 'My Tuitions' },
     { path: '/dashboard/student/post-tuition', icon: FaPlus, label: 'Post New Tuition' },
+    { path: '/dashboard/student/my-reviews', icon: FaStar, label: 'My Reviews' }, // ✅ NEW
     { path: '/dashboard/student/messages', icon: FaComments, label: 'Messages' },
+    { path: '/dashboard/student/notifications', icon: FaBell, label: 'Notifications' },
     { path: '/dashboard/student/payments', icon: FaMoneyBillWave, label: 'Payments' },
     { path: '/dashboard/student/profile', icon: FaUser, label: 'Profile Settings' },
   ];
@@ -49,14 +54,61 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0f0d]">
+      {/* Desktop Top Header - Right Side */}
+      <div className="hidden lg:block fixed top-0 right-0 left-64 z-40 bg-[#0f1512]/95 backdrop-blur-xl border-b-2 border-[#00ffcc]/30">
+        <div className="px-6 py-4 flex items-center justify-between">
+          {/* Left: Page Title */}
+          <div>
+            <h2 className="text-xl font-semibold text-[#00ffcc]">
+              Student Dashboard
+            </h2>
+          </div>
+
+          {/* Right: User Profile + Notification */}
+          <div className="flex items-center gap-4">
+            {/* User Profile */}
+            <div className="flex items-center gap-3 px-4 py-2 bg-[#00ffcc]/10 border border-[#00ffcc]/30 rounded-lg hover:bg-[#00ffcc]/20 transition-all cursor-pointer">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#00ffcc] to-[#00ff88] flex items-center justify-center text-[#0a0f0d] font-bold text-sm">
+                {user?.name?.charAt(0)?.toUpperCase() || 'S'}
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-[#00ffcc] text-sm">
+                  {user?.name || 'Student'}
+                </p>
+                <p className="text-xs text-gray-400">Student</p>
+              </div>
+            </div>
+
+            {/* Notification Bell */}
+            <NotificationBell />
+          </div>
+        </div>
+      </div>
+
       <div className="flex">
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-24 left-4 z-50 p-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d] shadow-lg"
-        >
-          {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-        </button>
+        {/* Mobile Top Bar */}
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0f1512]/95 backdrop-blur-xl border-b-2 border-[#00ffcc]/30 px-4 py-3 flex items-center justify-between">
+          {/* Hamburger Menu */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 bg-[#00ffcc]/20 rounded-lg border border-[#00ffcc] text-[#00ffcc]"
+          >
+            {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+          </button>
+
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-lg flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-[#0a0f0d]" />
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
+              eTuitionBD
+            </span>
+          </Link>
+
+          {/* Notification Bell */}
+          <NotificationBell />
+        </div>
 
         {/* Sidebar */}
         <aside
@@ -98,21 +150,6 @@ const StudentDashboard = () => {
               </Link>
             </div>
 
-            {/* User Info */}
-            <div className="p-6 border-b border-[#00ffcc]/30">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#00ffcc] to-[#00ff88] flex items-center justify-center text-[#0a0f0d] font-bold text-xl">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'S'}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-[#00ffcc]">
-                    {user?.name || 'Student'}
-                  </h3>
-                  <p className="text-xs text-gray-400">Student Dashboard</p>
-                </div>
-              </div>
-            </div>
-
             {/* Navigation */}
             <nav className="flex-1 p-4 overflow-y-auto">
               <ul className="space-y-2">
@@ -151,7 +188,7 @@ const StudentDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 lg:ml-24 pt-8 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
+        <main className="flex-1 lg:mt-10 pt-10 lg:pt-10 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
           <Outlet />
         </main>
       </div>

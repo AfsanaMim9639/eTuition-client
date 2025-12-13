@@ -13,10 +13,10 @@ import {
   FaUsers,
   FaChartBar,
   FaDollarSign,
-  FaBell // ✅ NEW: Bell icon for menu
+  FaBell
 } from 'react-icons/fa';
 
-// ✅ NEW: Import NotificationBell component
+// ✅ IMPORT NotificationBell
 import NotificationBell from '../components/notification/NotificationBell';
 
 const DashboardLayout = () => {
@@ -40,7 +40,7 @@ const DashboardLayout = () => {
         { path: `${basePath}/users`, icon: FaUsers, label: 'Manage Users' },
         { path: `${basePath}/tuitions`, icon: FaBook, label: 'Manage Tuitions' },
         { path: `${basePath}/reports`, icon: FaChartBar, label: 'Reports' },
-        { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' }, // ✅ NEW
+        { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' },
         { path: `${basePath}/profile`, icon: FaUser, label: 'Profile' },
       ];
     }
@@ -51,7 +51,7 @@ const DashboardLayout = () => {
         { path: `${basePath}/applications`, icon: FaBook, label: 'My Applications' },
         { path: `${basePath}/ongoing`, icon: FaUsers, label: 'Ongoing Tuitions' },
         { path: `${basePath}/revenue`, icon: FaDollarSign, label: 'Revenue' },
-        { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' }, // ✅ NEW
+        { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' },
         { path: `${basePath}/profile`, icon: FaUser, label: 'Profile' },
       ];
     }
@@ -62,7 +62,7 @@ const DashboardLayout = () => {
       { path: `${basePath}/tuitions`, icon: FaBook, label: 'My Tuitions' },
       { path: `${basePath}/post-tuition`, icon: FaBook, label: 'Post Tuition' },
       { path: `${basePath}/payments`, icon: FaDollarSign, label: 'Payments' },
-      { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' }, // ✅ NEW
+      { path: `${basePath}/notifications`, icon: FaBell, label: 'Notifications' },
       { path: `${basePath}/profile`, icon: FaUser, label: 'Profile' },
     ];
   };
@@ -71,16 +71,10 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg">
-      {/* ✅ NEW: Top Bar with Notification Bell (visible on mobile/tablet) */}
+      {/* ✅ Mobile Top Bar with Notification Bell */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0f1512]/95 backdrop-blur-xl border-b-2 border-[#00ffcc]/30">
         <div className="flex items-center justify-between px-4 py-3">
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg bg-[#00ffcc]/20 border border-[#00ffcc] text-[#00ffcc] hover:bg-[#00ffcc]/30 transition-all"
-          >
-            {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-          </button>
+          
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
@@ -92,7 +86,7 @@ const DashboardLayout = () => {
             </span>
           </Link>
 
-          {/* ✅ NEW: Notification Bell (Mobile) */}
+          {/* ✅ Notification Bell - Mobile */}
           <NotificationBell />
         </div>
       </div>
@@ -122,27 +116,31 @@ const DashboardLayout = () => {
                 </span>
               </span>
             </Link>
+           
           </div>
 
           {/* User Info */}
           <div className="mb-6 p-4 rounded-lg bg-[#00ffcc]/10 border border-[#00ffcc]/30">
             <div className="flex items-center space-x-3">
               <img
-                src={user?.profileImage || '/default-avatar.png'}
+                src={user?.profileImage || 'https://i.ibb.co/qpB9ZNp/default-avatar.png'}
                 alt={user?.name}
                 className="w-12 h-12 rounded-full border-2 border-[#00ffcc] object-cover"
               />
-              <div>
-                <p className="font-semibold text-white">{user?.name}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white truncate">{user?.name}</p>
                 <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
               </div>
             </div>
           </div>
 
-          {/* ✅ NEW: Notification Bell (Desktop - in sidebar) */}
-          <div className="hidden lg:block mb-4">
-            <NotificationBell />
+          {/* ✅ Notification Bell - Desktop (in sidebar) */}
+         {/* <div className="hidden lg:block mb-4">
+            <div className="w-full">
+              <NotificationBell />
+            </div>
           </div>
+          */}
 
           {/* Navigation Menu */}
           <nav className="space-y-2">

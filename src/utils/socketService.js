@@ -1,149 +1,142 @@
-import { io } from 'socket.io-client';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-class SocketService {
+class PollingService {
   constructor() {
-    this.socket = null;
-    this.connected = false;
+    this.pollingInterval = null;
+    this.currentConversationId = null;
+    this.lastMessageTimestamp = null;
+    this.callbacks = {
+      newMessage: [],
+      userTyping: [],
+      userStatus: []
+    };
   }
 
   connect(token) {
-    if (this.socket?.connected) {
-      console.log('🔌 Socket already connected');
-      return;
-    }
-
-    console.log('🔌 Connecting to socket...', API_URL);
-
-    this.socket = io(API_URL, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5
-    });
-
-    this.socket.on('connect', () => {
-      console.log('✅ Socket connected:', this.socket.id);
-      this.connected = true;
-    });
-
-    this.socket.on('disconnect', (reason) => {
-      console.log('❌ Socket disconnected:', reason);
-      this.connected = false;
-    });
-
-    this.socket.on('connect_error', (error) => {
-      console.error('🔴 Socket connection error:', error);
-    });
-
-    this.socket.on('error', (error) => {
-      console.error('🔴 Socket error:', error);
-    });
+    console.log('🔌 Using polling mode (Vercel compatible)');
+    this.token = token;
   }
 
   disconnect() {
-    if (this.socket) {
-      console.log('🔌 Disconnecting socket...');
-      this.socket.disconnect();
-      this.socket = null;
-      this.connected = false;
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
     }
   }
 
-  // Join conversation room
+  // Start polling for a conversation
   joinConversation(conversationId) {
-    if (this.socket?.connected) {
-      console.log('📥 Joining conversation:', conversationId);
-      this.socket.emit('join-conversation', conversationId);
+    console.log('📥 Polling conversation:', conversationId);
+    this.currentConversationId = conversationId;
+    this.lastMessageTimestamp = new Date().toISOString();
+    
+    // Stop previous polling
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
+
+    // Start polling every 2 seconds
+    this.pollingInterval = setInterval(() => {
+      this.checkNewMessages();
+    }, 2000);
+  }
+
+  leaveConversation() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+    this.currentConversationId = null;
+  }
+
+  async checkNewMessages() {
+    if (!this.currentConversationId) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/messages/conversation/${this.currentConversationId}?since=${this.lastMessageTimestamp}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.token}`
+          }
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.data && data.data.length > 0) {
+          // New messages found
+          data.data.forEach(message => {
+            this.callbacks.newMessage.forEach(callback => {
+              callback({
+                conversationId: this.currentConversationId,
+                message
+              });
+            });
+          });
+
+          // Update timestamp
+          const lastMessage = data.data[data.data.length - 1];
+          this.lastMessageTimestamp = lastMessage.createdAt;
+        }
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
     }
   }
 
-  // Leave conversation room
-  leaveConversation(conversationId) {
-    if (this.socket?.connected) {
-      console.log('📤 Leaving conversation:', conversationId);
-      this.socket.emit('leave-conversation', conversationId);
-    }
-  }
-
-  // Send typing indicator
+  // Typing indicator (simulated - won't be real-time)
   sendTyping(conversationId, isTyping) {
-    if (this.socket?.connected) {
-      this.socket.emit('typing', { conversationId, isTyping });
-    }
+    // In polling mode, typing indicators are limited
+    // You can implement this with API calls if needed
   }
 
-  // Mark message as read
-  markAsRead(conversationId, messageId) {
-    if (this.socket?.connected) {
-      this.socket.emit('mark-read', { conversationId, messageId });
-    }
-  }
-
-  // Update online status
-  updateStatus(status) {
-    if (this.socket?.connected) {
-      this.socket.emit('update-status', status);
-    }
-  }
-
-  // Listen for new messages
+  // Event listeners
   onNewMessage(callback) {
-    if (this.socket) {
-      this.socket.on('new-message', callback);
-    }
+    this.callbacks.newMessage.push(callback);
   }
 
-  // Listen for typing indicator
   onUserTyping(callback) {
-    if (this.socket) {
-      this.socket.on('user-typing', callback);
-    }
+    this.callbacks.userTyping.push(callback);
   }
 
-  // Listen for message read
-  onMessageRead(callback) {
-    if (this.socket) {
-      this.socket.on('message-read', callback);
-    }
-  }
-
-  // Listen for user status
   onUserStatus(callback) {
-    if (this.socket) {
-      this.socket.on('user-status', callback);
-    }
+    this.callbacks.userStatus.push(callback);
   }
 
-  // Listen for message deleted
+  onMessageRead(callback) {
+    // Not implemented in polling mode
+  }
+
   onMessageDeleted(callback) {
-    if (this.socket) {
-      this.socket.on('message-deleted', callback);
-    }
+    // Not implemented in polling mode
   }
 
-  // Remove all listeners
   removeAllListeners() {
-    if (this.socket) {
-      this.socket.removeAllListeners();
-    }
+    this.callbacks = {
+      newMessage: [],
+      userTyping: [],
+      userStatus: []
+    };
   }
 
-  // Remove specific listener
   removeListener(event) {
-    if (this.socket) {
-      this.socket.off(event);
+    if (this.callbacks[event]) {
+      this.callbacks[event] = [];
     }
   }
 
   isConnected() {
-    return this.connected && this.socket?.connected;
+    return this.pollingInterval !== null;
   }
+
+  // Compatibility methods
+  markAsRead() {}
+  updateStatus() {}
 }
 
-// Create singleton instance
-const socketService = new SocketService();
+// Create singleton
+const socketService = new PollingService();
 
 export default socketService;
+

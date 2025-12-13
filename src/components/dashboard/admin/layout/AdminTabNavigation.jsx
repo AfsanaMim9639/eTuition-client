@@ -1,4 +1,3 @@
-// src/components/dashboard/admin/layout/AdminTabNavigation.jsx
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';

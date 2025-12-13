@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaStar, 
   FaGraduationCap, 
@@ -14,16 +15,31 @@ import {
   FaCalendar
 } from 'react-icons/fa';
 import api from '../../utils/api';
+import { reviewAPI } from '../../utils/reviewService';
 import Loading from '../../components/shared/Loading';
+import ReviewList from '../../components/review/ReviewList';
+import ReviewForm from '../../components/review/ReviewForm';
+import RatingStars from '../../components/review/RatingStars';
 
 const TutorProfilePage = () => {
   const { id } = useParams();
   const [tutor, setTutor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [canReview, setCanReview] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [existingReview, setExistingReview] = useState(null);
+  const [reviewToEdit, setReviewToEdit] = useState(null);
+
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const isStudent = currentUser?.role === 'student';
 
   useEffect(() => {
     fetchTutorProfile();
+    if (isStudent) {
+      checkCanReview();
+    }
   }, [id]);
 
   const fetchTutorProfile = async () => {
@@ -35,19 +51,46 @@ const TutorProfilePage = () => {
       const response = await api.get(`/users/${id}`);
       console.log('📦 API Response:', response.data);
       
-      // ✅ FIXED: Both lines now use response.data.data
-      if (response.data.data.role !== 'tutor') {
+      // Handle different response structures
+      const tutorData = response.data.data || response.data.user || response.data;
+      
+      if (!tutorData || tutorData.role !== 'tutor') {
         throw new Error('This user is not a tutor');
       }
       
-      setTutor(response.data.data);
-      console.log('✅ Tutor profile loaded:', response.data.data.name);
+      setTutor(tutorData);
+      console.log('✅ Tutor profile loaded:', tutorData.name);
     } catch (error) {
       console.error('❌ Error fetching tutor:', error);
       setError(error.response?.data?.message || error.message || 'Failed to load tutor profile');
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkCanReview = async () => {
+    try {
+      const response = await reviewAPI.canReviewTutor(id);
+      setCanReview(response.data.canReview);
+      setHasReviewed(response.data.hasReviewed);
+      setExistingReview(response.data.review);
+    } catch (error) {
+      console.error('Error checking review status:', error);
+    }
+  };
+
+  const handleReviewSuccess = () => {
+    setShowReviewForm(false);
+    setReviewToEdit(null);
+    fetchTutorProfile();
+    if (isStudent) {
+      checkCanReview();
+    }
+  };
+
+  const handleEditReview = (review) => {
+    setReviewToEdit(review);
+    setShowReviewForm(true);
   };
 
   if (loading) return <Loading />;
@@ -87,10 +130,17 @@ const TutorProfilePage = () => {
         </Link>
 
         {/* Header Section */}
-        <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-8 rounded-2xl mb-8 shadow-lg shadow-[#00ffcc]/10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-8 rounded-2xl mb-8 shadow-lg shadow-[#00ffcc]/10"
+        >
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
             {/* Profile Image */}
-            <div className="relative">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="relative"
+            >
               <img
                 src={tutor.profileImage || 'https://i.ibb.co/qpB9ZNp/default-avatar.png'}
                 alt={tutor.name}
@@ -103,7 +153,7 @@ const TutorProfilePage = () => {
                   {tutor.rating?.toFixed(1) || '0.0'}
                 </span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Basic Info */}
             <div className="flex-1 text-center md:text-left">
@@ -179,24 +229,34 @@ const TutorProfilePage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="md:col-span-2 space-y-8">
             {/* Bio Section */}
             {tutor.bio && (
-              <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10"
+              >
                 <h2 className="text-2xl font-bold text-[#00ffcc] mb-4 flex items-center gap-2">
                   <FaCheckCircle className="text-xl" />
                   About Me
                 </h2>
                 <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{tutor.bio}</p>
-              </div>
+              </motion.div>
             )}
 
             {/* Subjects Section */}
-            <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10"
+            >
               <h2 className="text-2xl font-bold text-[#00ffcc] mb-4 flex items-center gap-2">
                 <FaBook className="text-xl" />
                 Subjects I Teach
@@ -215,13 +275,18 @@ const TutorProfilePage = () => {
                   <p className="text-gray-400">No subjects listed</p>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Education Section - Full Array Display */}
+            {/* Education Section */}
             {tutor.education && Array.isArray(tutor.education) && tutor.education.length > 0 && (
-              <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10"
+              >
                 <h2 className="text-2xl font-bold text-[#00ff88] mb-4 flex items-center gap-2">
-                  <FaCheckCircle className="text-xl" />
+                  <FaGraduationCap className="text-xl" />
                   Education & Qualifications
                 </h2>
                 <div className="space-y-4">
@@ -247,7 +312,7 @@ const TutorProfilePage = () => {
                   
                   {/* Teaching Experience */}
                   {tutor.experience !== undefined && tutor.experience !== null && tutor.experience > 0 && (
-                    <div className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20 mt-4">
+                    <div className="flex items-start gap-3 p-4 bg-[#00ff88]/10 rounded-lg border border-[#00ff88]/20">
                       <FaBriefcase className="text-[#00ff88] text-xl mt-1 flex-shrink-0" />
                       <div>
                         <h3 className="font-semibold text-[#00ff88] mb-1">Teaching Experience</h3>
@@ -258,14 +323,19 @@ const TutorProfilePage = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
 
           {/* Right Column - Info Cards */}
           <div className="space-y-6">
             {/* Account Status */}
-            <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10"
+            >
               <h3 className="text-xl font-bold text-[#00ff88] mb-4">Status</h3>
               <div className="flex items-center gap-2">
                 <FaCheckCircle className="text-[#00ff88] text-2xl" />
@@ -278,10 +348,15 @@ const TutorProfilePage = () => {
                   Available for new students
                 </p>
               )}
-            </div>
+            </motion.div>
 
             {/* Rating Card */}
-            <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+              className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10"
+            >
               <h3 className="text-xl font-bold text-[#00ffcc] mb-4">Rating</h3>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
@@ -297,11 +372,16 @@ const TutorProfilePage = () => {
                   </p>
                 )}
               </div>
-            </div>
+            </motion.div>
 
             {/* Earnings Card */}
             {tutor.totalEarnings > 0 && (
-              <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ff88]/30 p-6 rounded-2xl shadow-lg shadow-[#00ff88]/10"
+              >
                 <h3 className="text-xl font-bold text-[#00ff88] mb-4">Total Earnings</h3>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
@@ -312,11 +392,16 @@ const TutorProfilePage = () => {
                   </div>
                   <p className="text-sm text-gray-400">Total lifetime earnings</p>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Contact Info Card */}
-            <div className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.25 }}
+              className="bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 p-6 rounded-2xl shadow-lg shadow-[#00ffcc]/10"
+            >
               <h3 className="text-xl font-bold text-[#00ffcc] mb-4">Contact Information</h3>
               <div className="space-y-3 text-sm">
                 <a 
@@ -348,10 +433,75 @@ const TutorProfilePage = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8 p-6 rounded-2xl bg-gradient-to-br from-[#0a0f0d] via-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/20 shadow-lg shadow-[#00ffcc]/10"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-[#00ffcc]">Student Reviews</h2>
+              <div className="px-3 py-1 bg-[#00ffcc]/10 rounded-full">
+                <RatingStars rating={tutor.rating || 0} size="sm" />
+              </div>
+            </div>
+
+            {/* Write Review Button */}
+            {isStudent && (
+              <>
+                {!hasReviewed ? (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowReviewForm(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d] font-bold hover:shadow-lg hover:shadow-[#00ffcc]/50 transition-all"
+                  >
+                    Write a Review
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleEditReview(existingReview)}
+                    className="px-6 py-3 bg-[#00ffcc]/10 border-2 border-[#00ffcc] rounded-lg text-[#00ffcc] font-bold hover:bg-[#00ffcc]/20 transition-all"
+                  >
+                    Edit Your Review
+                  </motion.button>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Review List */}
+          <ReviewList
+            tutorId={id}
+            currentUserId={currentUser?._id || currentUser?.userId}
+            onEdit={handleEditReview}
+          />
+        </motion.div>
       </div>
+
+      {/* Review Form Modal */}
+      <AnimatePresence>
+        {showReviewForm && (
+          <ReviewForm
+            tutorId={id}
+            tutorName={tutor.name}
+            existingReview={reviewToEdit}
+            onSuccess={handleReviewSuccess}
+            onCancel={() => {
+              setShowReviewForm(false);
+              setReviewToEdit(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

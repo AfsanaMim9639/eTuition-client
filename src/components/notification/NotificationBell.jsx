@@ -12,6 +12,13 @@ const NotificationBell = () => {
   // Fetch unread count
   const fetchUnreadCount = async () => {
     try {
+      // Check if user is logged in
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('No token found, skipping notification fetch');
+        return;
+      }
+
       const data = await getUnreadCount();
       const newCount = data.count || 0;
       
@@ -42,11 +49,11 @@ const NotificationBell = () => {
 
   return (
     <div className="relative">
-      {/* Notification Bell Button */}
+      {/* Notification Bell Button - Icon Only */}
       <motion.button
         onClick={handleBellClick}
-        className="relative p-2 rounded-lg bg-[#121212]/50 border border-[#FF10F0]/20 hover:border-[#FF10F0]/60 transition-all duration-300"
-        whileHover={{ scale: 1.05 }}
+        className="relative p-2 rounded-lg hover:bg-[#00ffcc]/10 transition-all duration-300"
+        whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         animate={isAnimating ? {
           rotate: [0, -15, 15, -15, 15, 0],
@@ -55,7 +62,7 @@ const NotificationBell = () => {
       >
         {/* Bell Icon */}
         <Bell 
-          className="w-5 h-5 text-[#FF10F0]" 
+          className="w-6 h-6 text-[#00ffcc]" 
           strokeWidth={2}
         />
         
@@ -66,7 +73,7 @@ const NotificationBell = () => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-gradient-to-r from-[#FF10F0] to-[#00F0FF] text-black text-xs font-bold"
+              className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-gradient-to-r from-[#00ff88] to-[#00ffcc] text-black text-[10px] font-bold"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </motion.div>
@@ -76,9 +83,9 @@ const NotificationBell = () => {
         {/* Neon Glow Effect */}
         {unreadCount > 0 && (
           <motion.div
-            className="absolute inset-0 rounded-lg bg-[#FF10F0]/20 blur-lg"
+            className="absolute inset-0 rounded-lg bg-[#00ffcc]/30 blur-md -z-10"
             animate={{
-              opacity: [0.3, 0.6, 0.3],
+              opacity: [0.4, 0.8, 0.4],
             }}
             transition={{
               duration: 2,

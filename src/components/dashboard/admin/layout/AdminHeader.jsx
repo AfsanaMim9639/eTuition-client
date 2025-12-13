@@ -1,8 +1,7 @@
-// src/components/dashboard/admin/layout/AdminHeader.jsx
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Bell, Settings } from 'lucide-react';
+import { Shield, Settings } from 'lucide-react';
+import NotificationBell from '../../../notification/NotificationBell';
 
 const AdminHeader = () => {
   return (
@@ -26,11 +25,14 @@ const AdminHeader = () => {
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>
-              eTuitionBD Admin
+              Admin
             </h1>
           </div>
+          
           <div className="flex items-center gap-4">
-            <Bell className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" style={{ color: '#00F0FF' }} />
+            {/* Dynamic Notification Bell */}
+            <NotificationBell />
+            
             <Settings className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" style={{ color: '#39FF14' }} />
           </div>
         </div>

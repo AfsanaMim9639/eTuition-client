@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-console.log('🔥 API Base URL:', `${API_URL}/api`);
+console.log('🔥 API Base URL:', API_URL);
 
 const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -28,7 +28,7 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Response interceptor - FIXED VERSION
 api.interceptors.response.use(
   (response) => {
     console.log('✅ API Response:', response.config.url, response.data);
@@ -36,11 +36,29 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error('❌ API Error:', error.response?.status, error.response?.data || error.message);
+    
+    // ✅ FIXED: Only logout on specific 401 errors (invalid/expired token)
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      const errorMessage = error.response?.data?.message || '';
+      
+      // Check if it's actually an auth error (not just "no data found")
+      const isAuthError = 
+        errorMessage.toLowerCase().includes('token') ||
+        errorMessage.toLowerCase().includes('unauthorized') ||
+        errorMessage.toLowerCase().includes('authentication') ||
+        errorMessage === 'Access denied. No token provided.';
+      
+      // Only logout if it's a real authentication issue
+      if (isAuthError) {
+        console.log('🚪 Auth error detected, logging out...');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        console.log('⚠️ 401 but not auth error, not logging out');
+      }
     }
+    
     return Promise.reject(error);
   }
 );
@@ -111,7 +129,7 @@ export const adminAPI = {
   updateUserStatus: (id, status) => api.put(`/admin/users/${id}/status`, { status }),
 };
 
-// ✅ NEW - Review APIs
+// Review APIs
 export const reviewAPI = {
   createReview: (data) => {
     console.log('📝 Creating review:', data);

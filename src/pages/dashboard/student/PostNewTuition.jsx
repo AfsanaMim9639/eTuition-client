@@ -136,13 +136,7 @@ const PostNewTuition = () => {
             {isEditing ? 'Update your tuition details' : 'Fill in the details to find the perfect tutor'}
           </p>
         </div>
-        <button
-          onClick={() => navigate('/student/my-tuitions')}
-          className="p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all"
-          title="Cancel"
-        >
-          <FaTimes />
-        </button>
+        
       </div>
 
       {/* Form */}
@@ -433,14 +427,7 @@ const PostNewTuition = () => {
 
         {/* Submit Buttons */}
         <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => navigate('/student/my-tuitions')}
-            className="flex-1 px-6 py-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-bold transition-all flex items-center justify-center gap-2"
-          >
-            <FaTimes />
-            Cancel
-          </button>
+          
           <button
             type="submit"
             disabled={loading}
