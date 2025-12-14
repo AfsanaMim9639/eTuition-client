@@ -1,8 +1,7 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-console.log('🔥 API Base URL:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
@@ -10,12 +9,12 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+  timeout: 30000,
 });
 
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    console.log('📤 API Request:', config.method?.toUpperCase(), config.url);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -23,45 +22,106 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('❌ Request Error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor - FIXED VERSION
+// Response interceptor
 api.interceptors.response.use(
-  (response) => {
-    console.log('✅ API Response:', response.config.url, response.data);
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error('❌ API Error:', error.response?.status, error.response?.data || error.message);
+    // Handle timeout
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      toast.error('Request timeout. Please try again.');
+      return Promise.reject(error);
+    }
     
-    // ✅ FIXED: Only logout on specific 401 errors (invalid/expired token)
+    // Handle network errors
+    if (error.message === 'Network Error' || !error.response) {
+      toast.error('Network error. Please check your connection.');
+      return Promise.reject(error);
+    }
+    
+    // Handle 401 - ONLY logout for real auth errors
     if (error.response?.status === 401) {
       const errorMessage = error.response?.data?.message || '';
       
-      // Check if it's actually an auth error (not just "no data found")
-      const isAuthError = 
-        errorMessage.toLowerCase().includes('token') ||
-        errorMessage.toLowerCase().includes('unauthorized') ||
-        errorMessage.toLowerCase().includes('authentication') ||
-        errorMessage === 'Access denied. No token provided.';
+      // STRICT: Only these exact messages cause logout
+      const mustLogout = 
+        errorMessage.includes('Token has expired') ||
+        errorMessage.includes('Invalid token') ||
+        errorMessage.includes('No token provided') ||
+        errorMessage.includes('jwt expired') ||
+        errorMessage.includes('jwt malformed');
       
-      // Only logout if it's a real authentication issue
-      if (isAuthError) {
-        console.log('🚪 Auth error detected, logging out...');
+      if (mustLogout) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
-      } else {
-        console.log('⚠️ 401 but not auth error, not logging out');
+        toast.error('Session expired. Please login again.');
+        
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1000);
       }
+    }
+    
+    // Handle 403
+    if (error.response?.status === 403) {
+      const errorMessage = error.response?.data?.message || '';
+      
+      if (errorMessage.includes('deactivated') || 
+          errorMessage.includes('blocked') ||
+          errorMessage.includes('suspended')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        toast.error('Account has been deactivated.');
+        
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1000);
+      }
+    }
+    
+    // Handle 500
+    if (error.response?.status === 500) {
+      const errorMessage = error.response?.data?.message || '';
+      
+      if (errorMessage.toLowerCase().includes('database') || 
+          errorMessage.toLowerCase().includes('connection')) {
+        toast.error('Server error. Please try again later.');
+      }
+    }
+    
+    // Handle 503
+    if (error.response?.status === 503) {
+      toast.error('Service temporarily unavailable.');
     }
     
     return Promise.reject(error);
   }
 );
+
+// Helper functions
+export const isAuthenticated = () => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  return !!(token && user);
+};
+
+export const getCurrentUser = () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/login';
+};
 
 // Auth APIs
 export const authAPI = {
@@ -72,35 +132,20 @@ export const authAPI = {
 
 // Tuition APIs
 export const tuitionAPI = {
-  getAllTuitions: (params) => {
-    console.log('🔍 Fetching tuitions with params:', params);
-    return api.get('/tuitions', { params });
-  },
-  getLatestTuitions: () => {
-    console.log('🔍 Fetching latest tuitions');
-    return api.get('/tuitions/latest');
-  },
-  getFilterOptions: () => {
-    console.log('🔍 Fetching filter options');
-    return api.get('/tuitions/filter-options');
-  },
+  getAllTuitions: (params) => api.get('/tuitions', { params }),
+  getLatestTuitions: () => api.get('/tuitions/latest'),
+  getFilterOptions: () => api.get('/tuitions/filter-options'),
   getTuitionById: (id) => api.get(`/tuitions/${id}`),
   createTuition: (data) => api.post('/tuitions', data),
   updateTuition: (id, data) => api.put(`/tuitions/${id}`, data),
   deleteTuition: (id) => api.delete(`/tuitions/${id}`),
-  getMyTuitions: () => api.get('/tuitions/my/tuitions'),
+  getMyTuitions: () => api.get('/tuitions/my-tuitions'),
 };
 
 // User/Tutor APIs
 export const userAPI = {
-  getAllTutors: (params) => {
-    console.log('🔍 Fetching tutors with params:', params);
-    return api.get('/users/tutors', { params });
-  },
-  getLatestTutors: () => {
-    console.log('🔍 Fetching latest tutors');
-    return api.get('/users/tutors/latest');
-  },
+  getAllTutors: (params) => api.get('/users/tutors', { params }),
+  getLatestTutors: () => api.get('/users/tutors/latest'),
   getUserProfile: (userId) => api.get(`/users/${userId}`),
   updateProfile: (data) => api.put('/users/profile', data),
 };
@@ -120,41 +165,44 @@ export const paymentAPI = {
   updatePaymentStatus: (id, status) => api.put(`/payments/${id}/status`, { status }),
 };
 
+// Schedule APIs
+export const scheduleAPI = {
+  getUpcomingClasses: (limit = 10) => api.get('/schedules/upcoming', { params: { limit } }),
+  getTodayClasses: () => api.get('/schedules/today'),
+  getClassStatistics: () => api.get('/schedules/stats'),
+  getAllSchedules: (params) => api.get('/schedules', { params }),
+  getScheduleById: (id) => api.get(`/schedules/${id}`),
+  createSchedule: (data) => api.post('/schedules', data),
+  updateSchedule: (id, data) => api.put(`/schedules/${id}`, data),
+  deleteSchedule: (id) => api.delete(`/schedules/${id}`),
+  cancelSchedule: (id, reason) => api.patch(`/schedules/${id}/cancel`, { reason }),
+  startClass: (id) => api.patch(`/schedules/${id}/start`),
+  completeClass: (id) => api.patch(`/schedules/${id}/complete`),
+  markAttendance: (id, data) => api.patch(`/schedules/${id}/attendance`, data),
+  getMySchedules: () => api.get('/schedules/my/schedules'),
+};
+
 // Admin APIs
 export const adminAPI = {
   getDashboardStats: () => api.get('/admin/stats'),
   getAllUsers: (params) => api.get('/admin/users', { params }),
   getAllTuitions: (params) => api.get('/admin/tuitions', { params }),
+  getPendingTuitions: () => api.get('/tuitions/admin/pending'),
+  getAllTuitionsAdmin: (params) => api.get('/tuitions/admin/all', { params }),
+  approveTuition: (id) => api.patch(`/tuitions/admin/${id}/approve`),
+  rejectTuition: (id, reason) => api.patch(`/tuitions/admin/${id}/reject`, { reason }),
   updateTuitionStatus: (id, status) => api.put(`/admin/tuitions/${id}/status`, { status }),
   updateUserStatus: (id, status) => api.put(`/admin/users/${id}/status`, { status }),
 };
 
 // Review APIs
 export const reviewAPI = {
-  createReview: (data) => {
-    console.log('📝 Creating review:', data);
-    return api.post('/reviews', data);
-  },
-  getTutorReviews: (tutorId, params = {}) => {
-    console.log('🔍 Fetching reviews for tutor:', tutorId);
-    return api.get(`/reviews/tutor/${tutorId}`, { params });
-  },
-  getMyReviews: () => {
-    console.log('🔍 Fetching my reviews');
-    return api.get('/reviews/my-reviews');
-  },
-  updateReview: (reviewId, data) => {
-    console.log('✏️ Updating review:', reviewId, data);
-    return api.put(`/reviews/${reviewId}`, data);
-  },
-  deleteReview: (reviewId) => {
-    console.log('🗑️ Deleting review:', reviewId);
-    return api.delete(`/reviews/${reviewId}`);
-  },
-  canReviewTutor: (tutorId) => {
-    console.log('🔍 Checking if can review tutor:', tutorId);
-    return api.get(`/reviews/can-review/${tutorId}`);
-  }
+  createReview: (data) => api.post('/reviews', data),
+  getTutorReviews: (tutorId, params = {}) => api.get(`/reviews/tutor/${tutorId}`, { params }),
+  getMyReviews: () => api.get('/reviews/my-reviews'),
+  updateReview: (reviewId, data) => api.put(`/reviews/${reviewId}`, data),
+  deleteReview: (reviewId) => api.delete(`/reviews/${reviewId}`),
+  canReviewTutor: (tutorId) => api.get(`/reviews/can-review/${tutorId}`),
 };
 
 export default api;

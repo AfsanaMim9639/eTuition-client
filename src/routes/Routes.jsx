@@ -29,6 +29,7 @@ import StudentPayments from '../pages/dashboard/student/StudentPayments';
 import StudentProfile from '../pages/dashboard/student/StudentProfile';
 import StudentMessages from '../pages/dashboard/student/Messages';
 import MyReviews from '../pages/dashboard/student/MyReviews';
+import StudentSchedule from '../pages/dashboard/student/MySchedule';
 
 // Tutor Dashboard Pages
 import TutorDashboard from '../pages/dashboard/tutor/TutorDashboard';
@@ -38,6 +39,7 @@ import OngoingTuitions from '../pages/dashboard/tutor/OngoingTuitions';
 import RevenueHistory from '../pages/dashboard/tutor/RevenueHistory';
 import TutorProfile from '../pages/dashboard/tutor/TutorProfile';
 import TutorMessages from '../pages/dashboard/tutor/Messages';
+import TutorSchedule from '../pages/dashboard/tutor/MySchedule';
 
 // Admin Dashboard Pages
 import AdminDashboard from '../pages/dashboard/admin/AdminDashboard';
@@ -46,8 +48,9 @@ import UserManagement from '../pages/dashboard/admin/UserManagement';
 import TuitionManagement from '../pages/dashboard/admin/TuitionManagement';
 import ReportsAnalytics from '../pages/dashboard/admin/ReportsAnalytics';
 import AdminMessages from '../pages/dashboard/admin/Messages';
+import AdminTuitionApproval from '../pages/dashboard/admin/AdminTuitionApproval'; // 🆕 NEW
 
-// ✅ NEW: Notification Page (shared for all roles)
+// Notification Page (shared for all roles)
 import Notifications from '../pages/dashboard/Notifications';
 
 // Error Page
@@ -127,6 +130,10 @@ const router = createBrowserRouter([
             element: <PostNewTuition />
           },
           {
+            path: 'edit-tuition/:id',
+            element: <PostNewTuition />
+          },
+          {
             path: 'tuition/:id/applications',
             element: <AppliedTutors />
           },
@@ -146,10 +153,13 @@ const router = createBrowserRouter([
             path: 'messages',
             element: <StudentMessages />
           },
-          // ✅ NEW: Student Notifications
           {
             path: 'notifications',
             element: <Notifications />
+          },
+          {
+            path: 'schedule',
+            element: <StudentSchedule />
           }
         ]
       },
@@ -187,10 +197,13 @@ const router = createBrowserRouter([
             path: 'messages',
             element: <TutorMessages />
           },
-          // ✅ NEW: Tutor Notifications
           {
             path: 'notifications',
             element: <Notifications />
+          },
+          {
+            path: 'schedule',
+            element: <TutorSchedule />
           }
         ]
       },
@@ -216,6 +229,11 @@ const router = createBrowserRouter([
             path: 'tuitions',
             element: <TuitionManagement />
           },
+          // 🆕 NEW: Admin Tuition Approval Route
+          {
+            path: 'tuition-approval',
+            element: <AdminTuitionApproval />
+          },
           {
             path: 'reports',
             element: <ReportsAnalytics />
@@ -224,7 +242,6 @@ const router = createBrowserRouter([
             path: 'messages',
             element: <AdminMessages />
           },
-          // ✅ NEW: Admin Notifications
           {
             path: 'notifications',
             element: <Notifications />

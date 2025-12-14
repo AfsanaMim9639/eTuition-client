@@ -11,7 +11,8 @@ import {
   FaTimes,
   FaArrowLeft,
   FaBell,
-  FaComments
+  FaComments,
+  FaCalendarAlt  // ✅ NEW - For Schedule
 } from 'react-icons/fa';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GraduationCap } from 'lucide-react';
@@ -32,10 +33,12 @@ const TutorDashboard = () => {
     }
   };
 
+  // ✅ Updated menu items with Schedule
   const menuItems = [
     { path: '/dashboard/tutor', icon: FaHome, label: 'Dashboard', end: true },
     { path: '/dashboard/tutor/applications', icon: FaFileAlt, label: 'My Applications' },
     { path: '/dashboard/tutor/ongoing', icon: FaBook, label: 'Ongoing Tuitions' },
+    { path: '/dashboard/tutor/schedule', icon: FaCalendarAlt, label: 'My Schedule' }, // ✅ NEW
     { path: '/dashboard/tutor/revenue', icon: FaDollarSign, label: 'Revenue History' },
     { path: '/dashboard/tutor/messages', icon: FaComments, label: 'Messages' },
     { path: '/dashboard/tutor/notifications', icon: FaBell, label: 'Notifications' },
@@ -115,8 +118,6 @@ const TutorDashboard = () => {
                 <span>Back to Website</span>
               </Link>
             </div>
-
-            
 
             {/* Navigation */}
             <nav className="flex-1 p-4 overflow-y-auto">

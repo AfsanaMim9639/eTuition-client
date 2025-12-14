@@ -24,7 +24,9 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const isFetchingUser = useRef(false); // Prevent multiple API calls
+  const isFetchingUser = useRef(false);
+  const retryCount = useRef(0);
+  const MAX_RETRIES = 3;
 
   // Register with email/password
   const register = async (userData) => {
@@ -45,6 +47,11 @@ export const AuthProvider = ({ children }) => {
 
       console.log('✅ Backend registration successful');
 
+      // Validate response
+      if (!response.data.token || !response.data.user) {
+        throw new Error('Invalid response from server');
+      }
+
       // Save token and user
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -54,66 +61,89 @@ export const AuthProvider = ({ children }) => {
       return response.data;
     } catch (error) {
       console.error('❌ Register error:', error);
-      toast.error(error.response?.data?.message || 'Registration failed');
+      
+      // Handle specific errors
+      if (error.message?.includes('timeout')) {
+        toast.error('Registration timeout. Please try again.');
+      } else if (error.message?.includes('Network error')) {
+        toast.error('Network error. Please check your connection.');
+      } else {
+        toast.error(error.response?.data?.message || error.message || 'Registration failed');
+      }
+      
       throw error;
     }
   };
 
-  // Login with email/password - UPDATED VERSION
-const login = async (email, password) => {
-  try {
-    console.log('🔐 Starting login for:', email);
-    
-    // Firebase login
-    await signInWithEmailAndPassword(auth, email, password);
-    
-    console.log('✅ Firebase login successful');
-    
-    // Backend login
-    const response = await api.post('/auth/login', { email, password });
+  // Login with email/password
+  const login = async (email, password) => {
+    try {
+      console.log('🔐 Starting login for:', email);
+      
+      // Firebase login
+      await signInWithEmailAndPassword(auth, email, password);
+      
+      console.log('✅ Firebase login successful');
+      
+      // Backend login
+      const response = await api.post('/auth/login', { email, password });
 
-    console.log('✅ Backend login response:', response.data);
-    console.log('👤 User from backend:', response.data.user);
-    console.log('🎭 User role:', response.data.user?.role);
+      console.log('✅ Backend login response:', response.data);
+      console.log('👤 User from backend:', response.data.user);
+      console.log('🎭 User role:', response.data.user?.role);
 
-    // Validate response
-    if (!response.data.success) {
-      throw new Error(response.data.message || 'Login failed');
+      // Validate response
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Login failed');
+      }
+
+      if (!response.data.user) {
+        throw new Error('User data not received from server');
+      }
+
+      if (!response.data.token) {
+        throw new Error('Token not received from server');
+      }
+
+      // Save token and user
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Update state
+      setUser(response.data.user);
+
+      console.log('✅ Login complete - User state updated:', response.data.user.role);
+
+      toast.success('Login successful!');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      console.error('❌ Error response:', error.response?.data);
+      
+      // Clear any partial data
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      
+      // Handle specific errors
+      let errorMessage = 'Login failed';
+      
+      if (error.message?.includes('timeout')) {
+        errorMessage = 'Login timeout. Please try again.';
+      } else if (error.message?.includes('Network error')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Invalid email or password';
+      } else if (error.response?.status === 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else {
+        errorMessage = error.response?.data?.message || error.message || 'Login failed';
+      }
+      
+      toast.error(errorMessage);
+      throw error;
     }
-
-    if (!response.data.user) {
-      throw new Error('User data not received from server');
-    }
-
-    if (!response.data.token) {
-      throw new Error('Token not received from server');
-    }
-
-    // Save token and user
-    localStorage.setItem('token', response.data.token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    
-    // Update state
-    setUser(response.data.user);
-
-    console.log('✅ Login complete - User state updated:', response.data.user.role);
-
-    toast.success('Login successful!');
-    return response.data;
-  } catch (error) {
-    console.error('❌ Login error:', error);
-    console.error('❌ Error response:', error.response?.data);
-    
-    // Clear any partial data
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    
-    const errorMessage = error.response?.data?.message || error.message || 'Login failed';
-    toast.error(errorMessage);
-    throw error;
-  }
-};
+  };
 
   // Google login
   const googleLogin = async (role = 'student') => {
@@ -135,6 +165,11 @@ const login = async (email, password) => {
 
       console.log('✅ Backend social login successful');
 
+      // Validate response
+      if (!response.data.token || !response.data.user) {
+        throw new Error('Invalid response from server');
+      }
+
       // Save token and user
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -144,7 +179,16 @@ const login = async (email, password) => {
       return response.data;
     } catch (error) {
       console.error('❌ Google login error:', error);
-      toast.error(error.response?.data?.message || 'Google login failed');
+      
+      // Handle specific errors
+      if (error.message?.includes('timeout')) {
+        toast.error('Login timeout. Please try again.');
+      } else if (error.message?.includes('Network error')) {
+        toast.error('Network error. Please check your connection.');
+      } else {
+        toast.error(error.response?.data?.message || error.message || 'Google login failed');
+      }
+      
       throw error;
     }
   };
@@ -157,10 +201,15 @@ const login = async (email, password) => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
+      retryCount.current = 0; // Reset retry count
       toast.success('Logged out successfully');
     } catch (error) {
       console.error('❌ Logout error:', error);
-      toast.error('Logout failed');
+      // Force logout even if Firebase signOut fails
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      toast.error('Logout completed');
     }
   };
 
@@ -171,6 +220,11 @@ const login = async (email, password) => {
       const response = await api.put('/users/profile', userData);
       
       const updatedUser = response.data.user;
+      
+      if (!updatedUser) {
+        throw new Error('Updated user data not received');
+      }
+      
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
 
@@ -179,69 +233,131 @@ const login = async (email, password) => {
       return response.data;
     } catch (error) {
       console.error('❌ Update profile error:', error);
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      
+      // Handle specific errors
+      if (error.message?.includes('timeout')) {
+        toast.error('Update timeout. Please try again.');
+      } else if (error.message?.includes('Network error')) {
+        toast.error('Network error. Please check your connection.');
+      } else if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        logout();
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to update profile');
+      }
+      
       throw error;
     }
   };
 
-  // Check authentication on mount - FIXED VERSION
+  // Fetch user with retry mechanism
+  const fetchUserWithRetry = async () => {
+    try {
+      console.log(`📡 Fetching user from /auth/me (Attempt ${retryCount.current + 1}/${MAX_RETRIES})...`);
+      const res = await api.get('/auth/me');
+
+      if (!res.data.user) {
+        throw new Error('User data not received from server');
+      }
+
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      setUser(res.data.user);
+      retryCount.current = 0; // Reset on success
+      
+      console.log('✅ User fetched successfully');
+    } catch (err) {
+      console.error('❌ /auth/me failed:', err);
+      
+      // Check if it's a network/timeout error and we can retry
+      const isNetworkError = err.message?.includes('timeout') || 
+                             err.message?.includes('Network error');
+      
+      const canRetry = isNetworkError && retryCount.current < MAX_RETRIES;
+      
+      if (canRetry) {
+        retryCount.current++;
+        console.log(`⏱️ Retrying... (${retryCount.current}/${MAX_RETRIES})`);
+        
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount.current));
+        
+        return fetchUserWithRetry();
+      }
+      
+      // If it's an auth error or max retries reached, clear everything
+      if (err.response?.status === 401 || retryCount.current >= MAX_RETRIES) {
+        console.log('🚪 Clearing auth data');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+      }
+      
+      throw err;
+    }
+  };
+
+  // Check authentication on mount
   useEffect(() => {
     console.log('🔍 Setting up auth listener...');
     
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-  console.log('🔥 Firebase auth state changed:', firebaseUser ? 'Logged in' : 'Logged out');
+      console.log('🔥 Firebase auth state changed:', firebaseUser ? 'Logged in' : 'Logged out');
 
-  const token = localStorage.getItem("token");
-  const storedUser = localStorage.getItem("user");
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
-  // 🔥 If NO Firebase user → clear everything
-  if (!firebaseUser) {
-    console.log('👤 No Firebase user, clearing');
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
-    setLoading(false);
-    return;
-  }
+      // If NO Firebase user → clear everything
+      if (!firebaseUser) {
+        console.log('👤 No Firebase user, clearing');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+        setLoading(false);
+        retryCount.current = 0;
+        return;
+      }
 
-  // 🔥 If Firebase user exists but NO token → do NOT call /me
-  if (!token) {
-    console.log("⛔ Token missing → skip /auth/me call");
-    setUser(null);
-    setLoading(false);
-    return;
-  }
+      // If Firebase user exists but NO token → skip /auth/me
+      if (!token) {
+        console.log('⛔ Token missing → skip /auth/me call');
+        setUser(null);
+        setLoading(false);
+        return;
+      }
 
-  // 🔥 If token + user stored → use that (FAST)
-  if (storedUser) {
-    console.log('⚡ Using stored user');
-    setUser(JSON.parse(storedUser));
-    setLoading(false);
-    return;
-  }
+      // If token + user stored → use that (FAST)
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('⚡ Using stored user');
+          setUser(parsedUser);
+          setLoading(false);
+          return;
+        } catch (parseError) {
+          console.error('❌ Error parsing stored user:', parseError);
+          localStorage.removeItem('user');
+          // Continue to fetch from backend
+        }
+      }
 
-  // 🔥 Otherwise fetch from backend (with token)
-  if (!isFetchingUser.current) {
-    isFetchingUser.current = true;
-    try {
-      console.log('📡 Fetching user from /auth/me ...');
-      const res = await api.get("/auth/me");
-
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      setUser(res.data.user);
-
-    } catch (err) {
-      console.error("❌ /auth/me failed:", err);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setUser(null);
-    } finally {
-      isFetchingUser.current = false;
-      setLoading(false);
-    }
-  }
-});
-
+      // Otherwise fetch from backend (with token and retry mechanism)
+      if (!isFetchingUser.current) {
+        isFetchingUser.current = true;
+        try {
+          await fetchUserWithRetry();
+        } catch (err) {
+          console.error('❌ Failed to fetch user after retries:', err);
+          
+          // Show error toast only if it's not a network error
+          if (!err.message?.includes('Network error') && !err.message?.includes('timeout')) {
+            toast.error('Failed to load user data. Please login again.');
+          }
+        } finally {
+          isFetchingUser.current = false;
+          setLoading(false);
+        }
+      }
+    });
 
     return () => {
       console.log('🧹 Cleaning up auth listener');

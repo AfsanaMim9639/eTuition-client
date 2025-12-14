@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   FaSave, 
   FaTimes, 
@@ -109,16 +110,16 @@ const PostNewTuition = () => {
       
       if (isEditing) {
         await tuitionAPI.updateTuition(editingTuition._id, formData);
-        alert('Tuition updated successfully!');
+        toast.success('Tuition updated successfully! Awaiting admin approval.');
       } else {
         await tuitionAPI.createTuition(formData);
-        alert('Tuition posted successfully!');
+        toast.success('Tuition posted successfully!');
       }
       
-      navigate('/student/my-tuitions');
+      navigate('/dashboard/student/tuitions');
     } catch (error) {
       console.error('Error saving tuition:', error);
-      alert(error.response?.data?.message || 'Failed to save tuition. Please try again.');
+      toast.error(error.response?.data?.message || 'Failed to save tuition. Please try again.');
     } finally {
       setLoading(false);
     }

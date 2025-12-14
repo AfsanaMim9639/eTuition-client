@@ -12,7 +12,8 @@ import {
   FaArrowLeft,
   FaComments,
   FaBell,
-  FaStar  // ✅ NEW - For Reviews
+  FaStar,
+  FaCalendarAlt  // ✅ NEW - For Schedule
 } from 'react-icons/fa';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GraduationCap } from 'lucide-react';
@@ -33,12 +34,13 @@ const StudentDashboard = () => {
     }
   };
 
-  // ✅ Updated menu items with My Reviews
+  // ✅ Updated menu items with Schedule
   const menuItems = [
     { path: '/dashboard/student', icon: FaHome, label: 'Dashboard', end: true },
     { path: '/dashboard/student/tuitions', icon: FaBriefcase, label: 'My Tuitions' },
     { path: '/dashboard/student/post-tuition', icon: FaPlus, label: 'Post New Tuition' },
-    { path: '/dashboard/student/my-reviews', icon: FaStar, label: 'My Reviews' }, // ✅ NEW
+    { path: '/dashboard/student/schedule', icon: FaCalendarAlt, label: 'My Schedule' }, // ✅ NEW
+    { path: '/dashboard/student/my-reviews', icon: FaStar, label: 'My Reviews' },
     { path: '/dashboard/student/messages', icon: FaComments, label: 'Messages' },
     { path: '/dashboard/student/notifications', icon: FaBell, label: 'Notifications' },
     { path: '/dashboard/student/payments', icon: FaMoneyBillWave, label: 'Payments' },

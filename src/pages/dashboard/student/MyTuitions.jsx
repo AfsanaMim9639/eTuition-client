@@ -9,7 +9,10 @@ import {
   FaDollarSign,
   FaClock,
   FaUsers,
-  FaCheckCircle
+  FaCheckCircle,
+  FaTimesCircle,
+  FaExclamationTriangle,
+  FaHourglassHalf
 } from 'react-icons/fa';
 import { tuitionAPI, applicationAPI } from '../../../utils/api';
 
@@ -17,6 +20,7 @@ const MyTuitions = () => {
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState({ show: false, tuition: null });
+  const [filter, setFilter] = useState('all'); // all, pending, approved, rejected
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,16 +31,11 @@ const MyTuitions = () => {
     try {
       setLoading(true);
       const response = await tuitionAPI.getMyTuitions();
-      const tuitionsData = response.data.tuitions || [];
-      
-      // Filter only approved tuitions
-      const approvedTuitions = tuitionsData.filter(
-        tuition => tuition.status === 'approved' || tuition.isApproved === true
-      );
+      const tuitionsData = response.data.data || response.data.tuitions || [];
       
       // Fetch application counts for each tuition
       const tuitionsWithCounts = await Promise.all(
-        approvedTuitions.map(async (tuition) => {
+        tuitionsData.map(async (tuition) => {
           try {
             const appResponse = await applicationAPI.getTuitionApplications(tuition._id);
             return {
@@ -70,6 +69,32 @@ const MyTuitions = () => {
     }
   };
 
+  // 🆕 Get approval status badge
+  const getApprovalBadge = (approvalStatus) => {
+    switch(approvalStatus) {
+      case 'approved':
+        return (
+          <span className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/50">
+            <FaCheckCircle /> Approved
+          </span>
+        );
+      case 'pending':
+        return (
+          <span className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/50">
+            <FaHourglassHalf /> Pending Approval
+          </span>
+        );
+      case 'rejected':
+        return (
+          <span className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/50">
+            <FaTimesCircle /> Rejected
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   const getStatusColor = (status) => {
     switch(status) {
       case 'open': return 'bg-green-500/20 text-green-400 border-green-500/50';
@@ -78,6 +103,20 @@ const MyTuitions = () => {
       case 'closed': return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
     }
+  };
+
+  // 🆕 Filter tuitions by approval status
+  const filteredTuitions = tuitions.filter(tuition => {
+    if (filter === 'all') return true;
+    return tuition.approvalStatus === filter;
+  });
+
+  // 🆕 Get counts for filter buttons
+  const counts = {
+    all: tuitions.length,
+    pending: tuitions.filter(t => t.approvalStatus === 'pending').length,
+    approved: tuitions.filter(t => t.approvalStatus === 'approved').length,
+    rejected: tuitions.filter(t => t.approvalStatus === 'rejected').length
   };
 
   if (loading) {
@@ -91,7 +130,7 @@ const MyTuitions = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffcc] to-[#00ff88] bg-clip-text text-transparent">
             My Tuitions
@@ -100,25 +139,50 @@ const MyTuitions = () => {
         </div>
         <Link
           to="/dashboard/student/post-tuition"
-          className="px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all flex items-center gap-2"
+          className="px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all flex items-center justify-center gap-2 w-full md:w-auto"
         >
           <FaPlus />
           Post New Tuition
         </Link>
       </div>
 
+      {/* 🆕 Filter Buttons */}
+      <div className="flex gap-3 flex-wrap">
+        {[
+          { key: 'all', label: 'All' },
+          { key: 'pending', label: 'Pending' },
+          { key: 'approved', label: 'Approved' },
+          { key: 'rejected', label: 'Rejected' }
+        ].map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setFilter(key)}
+            className={`px-6 py-2 rounded-lg font-semibold transition-all ${
+              filter === key
+                ? 'bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d]'
+                : 'bg-[#00ffcc]/10 text-[#00ffcc] border-2 border-[#00ffcc]/30 hover:border-[#00ffcc]'
+            }`}
+          >
+            {label} {counts[key] > 0 && `(${counts[key]})`}
+          </button>
+        ))}
+      </div>
+
       {/* Tuitions List */}
-      {tuitions.length > 0 ? (
+      {filteredTuitions.length > 0 ? (
         <div className="grid gap-6">
-          {tuitions.map((tuition) => (
+          {filteredTuitions.map((tuition) => (
             <div
               key={tuition._id}
               className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 rounded-xl p-6 hover:border-[#00ffcc] transition-all"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <h3 className="text-xl font-bold text-white">{tuition.title}</h3>
+                    {/* 🆕 Approval Status Badge */}
+                    {getApprovalBadge(tuition.approvalStatus)}
+                    {/* Tuition Status Badge */}
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(tuition.status)}`}>
                       {tuition.status}
                     </span>
@@ -130,13 +194,15 @@ const MyTuitions = () => {
                 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
-                  <Link
-                    to={`/dashboard/student/tuition/${tuition._id}/applications`}
-                    className="p-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all"
-                    title="View Applications"
-                  >
-                    <FaUsers />
-                  </Link>
+                  {tuition.approvalStatus === 'approved' && (
+                    <Link
+                      to={`/dashboard/student/tuition/${tuition._id}/applications`}
+                      className="p-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all"
+                      title="View Applications"
+                    >
+                      <FaUsers />
+                    </Link>
+                  )}
                   <button
                     onClick={() => navigate(`/dashboard/student/edit-tuition/${tuition._id}`, { state: { tuition } })}
                     className="p-2 bg-[#00ffcc]/20 border border-[#00ffcc]/50 text-[#00ffcc] rounded-lg hover:bg-[#00ffcc]/30 transition-all"
@@ -154,6 +220,31 @@ const MyTuitions = () => {
                 </div>
               </div>
 
+              {/* 🆕 Rejection Reason */}
+              {tuition.approvalStatus === 'rejected' && tuition.rejectionReason && (
+                <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <FaExclamationTriangle className="text-red-400 mt-1 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-red-400 font-semibold text-sm mb-1">Rejection Reason:</p>
+                      <p className="text-gray-300 text-sm">{tuition.rejectionReason}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 🆕 Pending Notice */}
+              {tuition.approvalStatus === 'pending' && (
+                <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <FaClock className="text-yellow-400" />
+                    <p className="text-yellow-400 text-sm">
+                      Your tuition is awaiting admin approval. It will be visible to tutors once approved.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Tuition Details */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -168,10 +259,12 @@ const MyTuitions = () => {
                   <FaClock className="text-[#00ff88]" />
                   <span>{tuition.tutoring_type || 'Not specified'}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <FaUsers className="text-[#00ff88]" />
-                  <span>{tuition.applicationsCount || 0} Applications</span>
-                </div>
+                {tuition.approvalStatus === 'approved' && (
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <FaUsers className="text-[#00ff88]" />
+                    <span>{tuition.applicationsCount || 0} Applications</span>
+                  </div>
+                )}
               </div>
 
               {/* Description */}
@@ -183,10 +276,16 @@ const MyTuitions = () => {
 
               {/* Footer */}
               <div className="flex justify-between items-center pt-4 border-t border-[#00ffcc]/20">
-                <span className="text-xs text-gray-500">
-                  Posted: {new Date(tuition.postedAt || tuition.createdAt).toLocaleDateString()}
-                </span>
-                {tuition.applicationsCount > 0 && (
+                <div className="text-xs text-gray-500 space-y-1">
+                  <p>Posted: {new Date(tuition.postedAt || tuition.createdAt).toLocaleDateString()}</p>
+                  {tuition.approvedAt && (
+                    <p>Approved: {new Date(tuition.approvedAt).toLocaleDateString()}</p>
+                  )}
+                  {tuition.rejectedAt && (
+                    <p>Rejected: {new Date(tuition.rejectedAt).toLocaleDateString()}</p>
+                  )}
+                </div>
+                {tuition.approvalStatus === 'approved' && tuition.applicationsCount > 0 && (
                   <Link
                     to={`/dashboard/student/tuition/${tuition._id}/applications`}
                     className="text-[#00ffcc] hover:text-[#00ff88] text-sm font-semibold flex items-center gap-2"
@@ -201,10 +300,27 @@ const MyTuitions = () => {
       ) : (
         <div className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 rounded-xl p-12 text-center">
           <FaCheckCircle className="text-6xl text-gray-600 mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-gray-300 mb-2">No Tuitions Posted Yet</h3>
+          <h3 className="text-2xl font-bold text-gray-300 mb-2">
+            {filter === 'all' 
+              ? 'No Tuitions Posted Yet' 
+              : `No ${filter.charAt(0).toUpperCase() + filter.slice(1)} Tuitions`
+            }
+          </h3>
           <p className="text-gray-400 mb-6">
-            Start by posting your first tuition to find the perfect tutor
+            {filter === 'all'
+              ? 'Start by posting your first tuition to find the perfect tutor'
+              : `You don't have any ${filter} tuitions`
+            }
           </p>
+          {filter === 'all' && (
+            <Link
+              to="/dashboard/student/post-tuition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all"
+            >
+              <FaPlus />
+              Post New Tuition
+            </Link>
+          )}
         </div>
       )}
 

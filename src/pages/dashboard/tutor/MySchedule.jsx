@@ -28,7 +28,7 @@ import {
   completeClass,
   createSchedule,
   updateSchedule
-} from '../../../services/scheduleService';
+} from '../../../utils/scheduleService';
 
 const MySchedule = () => {
   const [view, setView] = useState('calendar'); // calendar, list, upcoming

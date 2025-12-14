@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaStar, 
@@ -12,10 +12,11 @@ import {
   FaCheckCircle,
   FaArrowLeft,
   FaDollarSign,
-  FaCalendar
+  FaCalendar,
+  FaExclamationTriangle
 } from 'react-icons/fa';
-import api from '../../utils/api';
-import { reviewAPI } from '../../utils/reviewService';
+import api, { isAuthenticated } from '../../utils/api';
+import { reviewAPI } from '../../utils/api';
 import Loading from '../../components/shared/Loading';
 import ReviewList from '../../components/review/ReviewList';
 import ReviewForm from '../../components/review/ReviewForm';
@@ -23,6 +24,7 @@ import RatingStars from '../../components/review/RatingStars';
 
 const TutorProfilePage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [tutor, setTutor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,16 +33,23 @@ const TutorProfilePage = () => {
   const [hasReviewed, setHasReviewed] = useState(false);
   const [existingReview, setExistingReview] = useState(null);
   const [reviewToEdit, setReviewToEdit] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const isStudent = currentUser?.role === 'student';
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      navigate('/login');
+      return;
+    }
+    
     fetchTutorProfile();
     if (isStudent) {
       checkCanReview();
     }
-  }, [id]);
+  }, [id, retryCount]);
 
   const fetchTutorProfile = async () => {
     try {
@@ -54,7 +63,11 @@ const TutorProfilePage = () => {
       // Handle different response structures
       const tutorData = response.data.data || response.data.user || response.data;
       
-      if (!tutorData || tutorData.role !== 'tutor') {
+      if (!tutorData) {
+        throw new Error('Tutor data not found');
+      }
+      
+      if (tutorData.role !== 'tutor') {
         throw new Error('This user is not a tutor');
       }
       
@@ -62,7 +75,27 @@ const TutorProfilePage = () => {
       console.log('✅ Tutor profile loaded:', tutorData.name);
     } catch (error) {
       console.error('❌ Error fetching tutor:', error);
-      setError(error.response?.data?.message || error.message || 'Failed to load tutor profile');
+      
+      // Handle different error types
+      if (error.message.includes('timeout')) {
+        setError('Request timeout. The server is taking too long to respond.');
+      } else if (error.message.includes('Network error')) {
+        setError('Network error. Please check your internet connection.');
+      } else if (error.response?.status === 401) {
+        setError('Session expired. Redirecting to login...');
+        setTimeout(() => {
+          localStorage.clear();
+          navigate('/login');
+        }, 2000);
+      } else if (error.response?.status === 404) {
+        setError('Tutor not found. This profile may have been removed.');
+      } else if (error.response?.status === 500) {
+        setError('Server error. Please try again later.');
+      } else if (error.response?.status === 503) {
+        setError('Service temporarily unavailable. Please try again later.');
+      } else {
+        setError(error.response?.data?.message || error.message || 'Failed to load tutor profile');
+      }
     } finally {
       setLoading(false);
     }
@@ -76,6 +109,7 @@ const TutorProfilePage = () => {
       setExistingReview(response.data.review);
     } catch (error) {
       console.error('Error checking review status:', error);
+      // Don't show error for review check failure
     }
   };
 
@@ -93,25 +127,45 @@ const TutorProfilePage = () => {
     setShowReviewForm(true);
   };
 
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
+
   if (loading) return <Loading />;
   
   if (error || !tutor) {
     return (
-      <div className="min-h-screen bg-dark-bg pt-24 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-[#0a0f0d] pt-24 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500/30 mb-6">
-            <span className="text-4xl">⚠️</span>
+            <FaExclamationTriangle className="text-4xl text-red-400" />
           </div>
           <h2 className="text-3xl font-bold text-red-400 mb-4">
             {error || 'Tutor Not Found'}
           </h2>
-          <Link 
-            to="/tutors" 
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-semibold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all"
-          >
-            <FaArrowLeft />
-            Back to Tutors
-          </Link>
+          <p className="text-gray-400 mb-6">
+            {error?.includes('timeout') && 'The server is not responding. This might be a temporary issue.'}
+            {error?.includes('Network') && 'Please check your internet connection and try again.'}
+            {error?.includes('Session expired') && 'Your session has expired. You will be redirected to login.'}
+            {error?.includes('Server error') && 'There seems to be an issue with the server. Please try again in a few moments.'}
+            {!error?.includes('timeout') && !error?.includes('Network') && !error?.includes('Session') && !error?.includes('Server') && 
+              'Unable to load the tutor profile. Please try again.'}
+          </p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={handleRetry}
+              className="px-6 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-semibold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all"
+            >
+              Try Again
+            </button>
+            <Link 
+              to="/tutors" 
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-all"
+            >
+              <FaArrowLeft />
+              Back to Tutors
+            </Link>
+          </div>
         </div>
       </div>
     );
