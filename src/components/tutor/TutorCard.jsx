@@ -85,27 +85,27 @@ const TutorCard = ({ tutor }) => {
 
         {/* Subjects */}
         <div className="flex flex-wrap gap-2 justify-center mb-4 min-h-[64px]">
-          {tutorSubjects.length > 0 ? (
-            <>
-              {tutorSubjects.slice(0, 3).map((subject, index) => (
-                <motion.span 
-                  key={index}
-                  whileHover={{ scale: 1.05 }}
-                  className="px-3 py-1 bg-[#00ffcc]/20 border border-[#00ffcc]/30 rounded-full text-xs text-[#00ffcc] hover:bg-[#00ffcc]/30 transition-colors"
-                >
-                  {subject}
-                </motion.span>
-              ))}
-              {tutorSubjects.length > 3 && (
-                <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 rounded-full text-xs text-gray-400">
-                  +{tutorSubjects.length - 3} more
-                </span>
-              )}
-            </>
-          ) : (
-            <span className="text-xs text-gray-500">No subjects listed</span>
-          )}
-        </div>
+  {tutorSubjects.length > 0 ? (
+    <>
+      {tutorSubjects.slice(0, 3).map((subject, index) => (
+        <motion.span 
+          key={index}
+          whileHover={{ scale: 1.05 }}
+          className="px-3 py-1 bg-[#00ffcc]/20 border border-[#00ffcc]/30 text-xs text-[#00ffcc] text-center hover:bg-[#00ffcc]/30 transition-colors"
+        >
+          {subject}
+        </motion.span>
+      ))}
+      {tutorSubjects.length > 3 && (
+        <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 text-xs text-gray-400 text-center">
+          +{tutorSubjects.length - 3} more
+        </span>
+      )}
+    </>
+  ) : (
+    <span className="text-xs text-gray-500">No subjects listed</span>
+  )}
+</div>
 
         {/* Spacer */}
         <div className="flex-grow"></div>

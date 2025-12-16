@@ -11,9 +11,12 @@ import {
   FaTimes,
   FaEnvelope,
   FaPhone,
-  FaBook
+  FaBook,
+  FaSpinner,
+  FaExclamationTriangle
 } from 'react-icons/fa';
-import { tuitionAPI, applicationAPI } from '../../../utils/api';
+import { tuitionAPI, applicationAPI, isAuthenticated, getCurrentUser } from '../../../utils/api';
+import toast from 'react-hot-toast';
 
 const AppliedTutors = () => {
   const [searchParams] = useSearchParams();
@@ -22,37 +25,116 @@ const AppliedTutors = () => {
   const [selectedTuition, setSelectedTuition] = useState(null);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedApplication, setSelectedApplication] = useState(null);
   const [rejectModal, setRejectModal] = useState({ show: false, application: null });
   const [rejectionReason, setRejectionReason] = useState('');
 
+  // ✅ Helper function to safely render education
+  const renderEducation = (education) => {
+    if (!education) return 'N/A';
+    
+    // If it's a string, return directly
+    if (typeof education === 'string') {
+      return education;
+    }
+    
+    // If it's an array of objects
+    if (Array.isArray(education)) {
+      return education.map((edu, index) => {
+        if (typeof edu === 'string') {
+          return <div key={index}>{edu}</div>;
+        }
+        
+        if (typeof edu === 'object' && edu !== null) {
+          const parts = [];
+          if (edu.degree) parts.push(edu.degree);
+          if (edu.institution) parts.push(edu.institution);
+          if (edu.year) parts.push(`(${edu.year})`);
+          
+          return (
+            <div key={edu._id || index} className="text-sm text-gray-300">
+              {parts.join(' - ') || 'Education info'}
+            </div>
+          );
+        }
+        
+        return null;
+      }).filter(Boolean);
+    }
+    
+    // If it's a single object
+    if (typeof education === 'object' && education !== null) {
+      const parts = [];
+      if (education.degree) parts.push(education.degree);
+      if (education.institution) parts.push(education.institution);
+      if (education.year) parts.push(`(${education.year})`);
+      
+      return parts.join(' - ') || 'Education info';
+    }
+    
+    return 'N/A';
+  };
+
+  // ✅ Check authentication on mount
   useEffect(() => {
+    if (!isAuthenticated()) {
+      toast.error('Please login to continue');
+      navigate('/login');
+      return;
+    }
+
+    const user = getCurrentUser();
+    if (user?.role !== 'student') {
+      toast.error('Only students can access this page');
+      navigate('/dashboard');
+      return;
+    }
+
     fetchTuitions();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const tuitionId = searchParams.get('tuition');
+    
     if (tuitionId && tuitions.length > 0) {
       const tuition = tuitions.find(t => t._id === tuitionId);
       if (tuition) {
         setSelectedTuition(tuition);
         fetchApplications(tuitionId);
       }
+    } else if (tuitions.length > 0 && !tuitionId) {
+      setSelectedTuition(tuitions[0]);
+      fetchApplications(tuitions[0]._id);
     }
   }, [searchParams, tuitions]);
 
   const fetchTuitions = async () => {
     try {
+      setLoading(true);
       const response = await tuitionAPI.getMyTuitions();
-      const tuitionsData = response.data.tuitions || [];
-      setTuitions(tuitionsData);
       
-      if (tuitionsData.length > 0 && !searchParams.get('tuition')) {
-        setSelectedTuition(tuitionsData[0]);
-        fetchApplications(tuitionsData[0]._id);
+      // Handle different response structures
+      const tuitionsData = response.data.data || response.data.tuitions || [];
+      
+      // Only show approved tuitions
+      const approvedTuitions = tuitionsData.filter(t => t.approvalStatus === 'approved');
+      
+      setTuitions(approvedTuitions);
+      
+      if (approvedTuitions.length > 0 && !searchParams.get('tuition')) {
+        setSelectedTuition(approvedTuitions[0]);
+        fetchApplications(approvedTuitions[0]._id);
       }
     } catch (error) {
-      console.error('Error fetching tuitions:', error);
+      console.error('❌ Error fetching tuitions:', error);
+      
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      } else {
+        toast.error('Failed to load tuitions');
+      }
     } finally {
       setLoading(false);
     }
@@ -62,9 +144,25 @@ const AppliedTutors = () => {
     try {
       setLoading(true);
       const response = await applicationAPI.getTuitionApplications(tuitionId);
-      setApplications(response.data.applications || []);
+      
+      const applicationsData = response.data.applications || [];
+      setApplications(applicationsData);
     } catch (error) {
-      console.error('Error fetching applications:', error);
+      console.error('❌ Error fetching applications:', error);
+      
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      } else if (error.response?.status === 403) {
+        toast.error('You are not authorized to view these applications');
+      } else if (error.response?.status === 404) {
+        toast.error('Tuition not found');
+      } else {
+        toast.error('Failed to load applications');
+      }
+      
       setApplications([]);
     } finally {
       setLoading(false);
@@ -77,8 +175,7 @@ const AppliedTutors = () => {
   };
 
   const handleApprove = (application) => {
-    // Redirect to payment/checkout page
-    navigate('/student/checkout', { 
+    navigate('/dashboard/student/checkout', { 
       state: { 
         application,
         tuition: selectedTuition
@@ -107,17 +204,20 @@ const AppliedTutors = () => {
       
       setRejectModal({ show: false, application: null });
       setRejectionReason('');
-      alert('Application rejected successfully');
+      toast.success('Application rejected successfully');
     } catch (error) {
-      console.error('Error rejecting application:', error);
-      alert(error.response?.data?.message || 'Failed to reject application');
+      console.error('❌ Error rejecting application:', error);
+      toast.error(error.response?.data?.message || 'Failed to reject application');
     }
   };
 
   if (loading && tuitions.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#00ffcc] border-t-transparent"></div>
+        <div className="text-center">
+          <FaSpinner className="animate-spin text-5xl text-[#00ffcc] mx-auto mb-4" />
+          <p className="text-gray-400">Loading tuitions...</p>
+        </div>
       </div>
     );
   }
@@ -126,15 +226,15 @@ const AppliedTutors = () => {
     return (
       <div className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 rounded-xl p-12 text-center">
         <FaBook className="text-6xl text-gray-600 mx-auto mb-4" />
-        <h3 className="text-2xl font-bold text-gray-300 mb-2">No Tuitions Posted</h3>
+        <h3 className="text-2xl font-bold text-gray-300 mb-2">No Approved Tuitions</h3>
         <p className="text-gray-400 mb-6">
-          Post a tuition to start receiving applications from tutors
+          Post a tuition and wait for admin approval to start receiving applications from tutors
         </p>
         <button
-          onClick={() => navigate('/student/post-tuition')}
+          onClick={() => navigate('/dashboard/student/post-tuition')}
           className="px-8 py-3 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all"
         >
-          Post Your First Tuition
+          Post New Tuition
         </button>
       </div>
     );
@@ -147,14 +247,14 @@ const AppliedTutors = () => {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffcc] to-[#00ff88] bg-clip-text text-transparent">
           Applied Tutors
         </h1>
-        <p className="text-gray-400 mt-1">Review and manage tutor applications</p>
+        <p className="text-gray-400 mt-1">Review and manage tutor applications for your approved tuitions</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Tuition List Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 rounded-xl p-4 sticky top-4">
-            <h2 className="text-lg font-bold text-[#00ffcc] mb-4">Your Tuitions</h2>
+            <h2 className="text-lg font-bold text-[#00ffcc] mb-4">Your Approved Tuitions</h2>
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
               {tuitions.map((tuition) => (
                 <button
@@ -198,7 +298,10 @@ const AppliedTutors = () => {
 
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#00ffcc] border-t-transparent"></div>
+              <div className="text-center">
+                <FaSpinner className="animate-spin text-5xl text-[#00ffcc] mx-auto mb-4" />
+                <p className="text-gray-400">Loading applications...</p>
+              </div>
             </div>
           ) : applications.length > 0 ? (
             <div className="space-y-6">
@@ -211,7 +314,7 @@ const AppliedTutors = () => {
                     {/* Tutor Avatar */}
                     <img
                       src={application.tutor?.profileImage || 'https://i.ibb.co/qpB9ZNp/default-avatar.png'}
-                      alt={application.tutor?.name}
+                      alt={application.tutor?.name || 'Tutor'}
                       className="w-20 h-20 rounded-full border-2 border-[#00ffcc] object-cover"
                     />
 
@@ -220,14 +323,14 @@ const AppliedTutors = () => {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="text-xl font-bold text-white mb-1">
-                            {application.tutor?.name}
+                            {application.tutor?.name || application.name || 'Unknown Tutor'}
                           </h3>
                           <div className="flex items-center gap-2 text-sm text-gray-400">
                             <FaStar className="text-yellow-400" />
                             <span>{application.tutor?.rating?.toFixed(1) || '0.0'}</span>
                             <span className="text-gray-600">•</span>
                             <FaBriefcase className="text-[#00ff88]" />
-                            <span>{application.tutor?.experience || 0} years</span>
+                            <span>{application.tutor?.experience || application.experience || 0} years</span>
                           </div>
                         </div>
 
@@ -245,16 +348,16 @@ const AppliedTutors = () => {
 
                       {/* Tutor Details */}
                       <div className="grid grid-cols-2 gap-3 text-sm text-gray-400 mb-4">
-                        {application.tutor?.address && (
+                        {(application.tutor?.address || application.address) && (
                           <div className="flex items-center gap-2">
                             <FaMapMarkerAlt className="text-[#00ff88]" />
-                            <span>{application.tutor.address}</span>
+                            <span>{application.tutor?.address || application.address}</span>
                           </div>
                         )}
-                        {application.tutor?.email && (
+                        {(application.tutor?.email || application.email) && (
                           <div className="flex items-center gap-2">
                             <FaEnvelope className="text-[#00ff88]" />
-                            <span className="truncate">{application.tutor.email}</span>
+                            <span className="truncate">{application.tutor?.email || application.email}</span>
                           </div>
                         )}
                         {application.tutor?.phone && (
@@ -263,31 +366,40 @@ const AppliedTutors = () => {
                             <span>{application.tutor.phone}</span>
                           </div>
                         )}
-                        {application.proposedRate && (
+                        {application.expectedSalary && (
                           <div className="flex items-center gap-2">
                             <FaDollarSign className="text-[#00ff88]" />
-                            <span>{application.proposedRate} BDT/month</span>
+                            <span>{application.expectedSalary} BDT/month</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Education */}
-                      {application.tutor?.education && application.tutor.education.length > 0 && (
+                      {/* Qualifications */}
+                      {application.qualifications && (
+                        <div className="mb-4 p-4 bg-[#00ffcc]/5 border border-[#00ffcc]/20 rounded-lg">
+                          <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+                            <FaGraduationCap className="text-[#00ffcc]" />
+                            <span className="font-semibold">Qualifications:</span>
+                          </div>
+                          <p className="text-sm text-gray-300">{application.qualifications}</p>
+                        </div>
+                      )}
+
+                      {/* Education - ✅ FIXED */}
+                      {application.tutor?.education && (
                         <div className="mb-4">
                           <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
                             <FaGraduationCap className="text-[#00ffcc]" />
                             <span className="font-semibold">Education:</span>
                           </div>
-                          {application.tutor.education.map((edu, idx) => (
-                            <p key={idx} className="text-sm text-gray-300 ml-6">
-                              {edu.degree} {edu.institution && `- ${edu.institution}`}
-                            </p>
-                          ))}
+                          <div className="ml-6">
+                            {renderEducation(application.tutor.education)}
+                          </div>
                         </div>
                       )}
 
                       {/* Subjects */}
-                      {application.tutor?.subjects && application.tutor.subjects.length > 0 && (
+                      {application.tutor?.subjects && Array.isArray(application.tutor.subjects) && application.tutor.subjects.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-4">
                           {application.tutor.subjects.map((subject, idx) => (
                             <span
@@ -300,14 +412,7 @@ const AppliedTutors = () => {
                         </div>
                       )}
 
-                      {/* Application Message */}
-                      {application.message && (
-                        <div className="p-4 bg-[#00ffcc]/5 border border-[#00ffcc]/20 rounded-lg mb-4">
-                          <p className="text-sm text-gray-300 italic">"{application.message}"</p>
-                        </div>
-                      )}
-
-                      {/* Rejection Reason (if rejected) */}
+                      {/* Rejection Reason */}
                       {application.status === 'rejected' && application.rejectionReason && (
                         <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg mb-4">
                           <p className="text-sm text-red-400">
@@ -363,7 +468,7 @@ const AppliedTutors = () => {
           <div className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-red-500/50 rounded-xl p-8 max-w-md w-full">
             <h3 className="text-2xl font-bold text-red-400 mb-4">Reject Application</h3>
             <p className="text-gray-300 mb-4">
-              Are you sure you want to reject <strong className="text-white">{rejectModal.application?.tutor?.name}</strong>'s application?
+              Are you sure you want to reject <strong className="text-white">{rejectModal.application?.tutor?.name || rejectModal.application?.name}</strong>'s application?
             </p>
             <textarea
               value={rejectionReason}

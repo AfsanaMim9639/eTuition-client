@@ -1,11 +1,36 @@
 import { FaTrash } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import { formatTime } from '../../utils/dateUtils';
 
 const MessageBubble = ({ message, isOwn, onDelete }) => {
   const handleDelete = () => {
-    if (window.confirm('Delete this message?')) {
-      onDelete(message._id);
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-medium text-gray-800">Delete this message?</p>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+            }}
+            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              onDelete(message._id);
+            }}
+            className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: Infinity,
+      position: 'top-center',
+    });
   };
 
   return (

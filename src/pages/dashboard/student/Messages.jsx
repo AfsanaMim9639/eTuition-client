@@ -36,6 +36,16 @@ const Messages = () => {
       socketService.onNewMessage((data) => {
         console.log('📨 New message received:', data);
         loadConversations();
+        
+        // Only show notification if message is from another user and conversation is not currently selected
+        const sender = data.sender || data.message?.sender;
+        if (sender?._id !== user._id && 
+            data.conversationId !== selectedConversation?._id) {
+          toast.success(`New message from ${sender?.name || 'Someone'}`, {
+            duration: 3000,
+            icon: '💬'
+          });
+        }
       });
     }
 
@@ -73,11 +83,29 @@ const Messages = () => {
       console.error('Error loading conversations:', error);
       setConversations([]);
       
-      if (error.response?.status !== 404) {
-        setError(error.response?.data?.message || 'Failed to load conversations');
-        if (error.response?.status !== 401) {
-          toast.error('Failed to load conversations');
+      if (error.response?.status === 401) {
+        // Authentication error - check if token exists
+        const token = localStorage.getItem('token');
+        if (!token) {
+          toast.error('Please login to access messages', { duration: 3000 });
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
+        } else {
+          toast.error('Session expired. Please login again.', { duration: 3000 });
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
         }
+      } else if (error.response?.status === 404) {
+        // No conversations found - this is okay, don't show toast
+        setConversations([]);
+      } else {
+        const errorMsg = error.response?.data?.message || 'Failed to load conversations';
+        setError(errorMsg);
+        toast.error(errorMsg, { duration: 4000 });
       }
     } finally {
       setLoading(false);
@@ -94,10 +122,11 @@ const Messages = () => {
       
       if (response.data && response.data.data) {
         setTutors(response.data.data);
+        // No toast for empty tutors - UI already shows "No tutors available"
       }
     } catch (error) {
       console.error('Error loading tutors:', error);
-      toast.error('Failed to load tutors');
+      toast.error(error.response?.data?.message || 'Failed to load tutors', { duration: 4000 });
     } finally {
       setLoadingTutors(false);
     }
@@ -111,7 +140,10 @@ const Messages = () => {
       const response = await conversationAPI.createOrGet(tutorId, null, 'student-tutor');
       
       if (response.success) {
-        toast.success(`Chat with ${tutorName} started!`);
+        toast.success(`Chat with ${tutorName} started!`, {
+          duration: 3000,
+          icon: '✅'
+        });
         setShowNewChatModal(false);
         await loadConversations();
         
@@ -119,11 +151,13 @@ const Messages = () => {
         if (response.data) {
           setSelectedConversation(response.data);
         }
+      } else {
+        toast.error('Could not start chat. Please try again.', { duration: 3000 });
       }
       
     } catch (error) {
       console.error('Error creating chat:', error);
-      toast.error('Failed to start chat');
+      toast.error(error.response?.data?.message || 'Failed to start chat', { duration: 4000 });
     } finally {
       setCreatingChat(false);
     }
@@ -136,9 +170,12 @@ const Messages = () => {
       conversationAPI.markAsRead(conversation._id)
         .then(() => {
           loadConversations();
+          // Toast removed - user already knows they selected the conversation
         })
         .catch((error) => {
           console.error('Error marking as read:', error);
+          // Only show error toast if marking as read fails
+          toast.error('Could not mark messages as read', { duration: 3000 });
         });
     }
   };
@@ -146,14 +183,16 @@ const Messages = () => {
   const handleDeleteConversation = async (conversationId) => {
     try {
       await conversationAPI.delete(conversationId);
-      toast.success('Conversation deleted');
+      // Success toast removed - user already confirmed deletion
       loadConversations();
       if (selectedConversation?._id === conversationId) {
         setSelectedConversation(null);
       }
     } catch (error) {
       console.error('Error deleting conversation:', error);
-      toast.error('Failed to delete conversation');
+      toast.error(error.response?.data?.message || 'Failed to delete conversation', { 
+        duration: 4000 
+      });
     }
   };
 
@@ -204,6 +243,13 @@ const Messages = () => {
           </button>
         </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
+          {error}
+        </div>
+      )}
 
       {/* Messages Layout */}
       <div className="grid lg:grid-cols-3 gap-6 h-[calc(100vh-250px)]">

@@ -1,9 +1,9 @@
 // src/components/dashboard/admin/tables/UsersTable.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, Shield, Ban, CheckCircle } from 'lucide-react';
+import { Trash2, Eye, Edit } from 'lucide-react';
 
-const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete }) => {
+const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete, onView, onEdit }) => {
   if (!users || users.length === 0) {
     return (
       <div className="text-center py-12 text-gray-400">
@@ -14,9 +14,11 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return '#39FF14';
-      case 'suspended': return '#FFA500';
-      case 'blocked': return '#FF0000';
+      case 'pending': return '#FFA500';
+      case 'approved': return '#39FF14';
+      case 'rejected': return '#FF0000';
+      case 'suspended': return '#FFD700';
+      case 'blocked': return '#8B0000';
       default: return '#888';
     }
   };
@@ -101,16 +103,18 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete }) => {
               {/* Status Select */}
               <td className="px-6 py-4">
                 <select
-                  value={user.status || 'active'}
+                  value={user.status || 'pending'}
                   onChange={(e) => onUpdateStatus(user._id, e.target.value)}
                   className="px-3 py-1.5 rounded-lg border-2 font-semibold transition-all cursor-pointer"
                   style={{
                     backgroundColor: 'rgba(18, 18, 18, 0.8)',
-                    borderColor: getStatusColor(user.status || 'active'),
-                    color: getStatusColor(user.status || 'active')
+                    borderColor: getStatusColor(user.status || 'pending'),
+                    color: getStatusColor(user.status || 'pending')
                   }}
                 >
-                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
                   <option value="suspended">Suspended</option>
                   <option value="blocked">Blocked</option>
                 </select>
@@ -128,18 +132,50 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete }) => {
                 }
               </td>
 
-              {/* Actions */}
+              {/* Actions - ⭐ UPDATED with View & Edit buttons */}
               <td className="px-6 py-4">
                 <div className="flex items-center justify-center gap-2">
+                  {/* View Button */}
                   <motion.button
-                    onClick={() => onDelete(user._id)}
+                    onClick={() => onView(user)}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    className="p-2 rounded-lg hover:bg-red-500/20 transition-colors"
-                    title="Delete User"
+                    className="p-2 rounded-lg hover:bg-blue-500/20 transition-colors"
+                    title="View Details"
                   >
-                    <Trash2 className="w-4 h-4" style={{ color: '#FF10F0' }} />
+                    <Eye className="w-4 h-4" style={{ color: '#00F0FF' }} />
                   </motion.button>
+
+                  {/* Edit Button */}
+                  <motion.button
+                    onClick={() => onEdit(user)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="p-2 rounded-lg hover:bg-green-500/20 transition-colors"
+                    title="Edit User"
+                  >
+                    <Edit className="w-4 h-4" style={{ color: '#39FF14' }} />
+                  </motion.button>
+
+                  {/* Delete Button */}
+                  {user.role !== 'admin' ? (
+                    <motion.button
+                      onClick={() => onDelete(user._id)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-2 rounded-lg hover:bg-red-500/20 transition-colors"
+                      title="Delete User"
+                    >
+                      <Trash2 className="w-4 h-4" style={{ color: '#FF10F0' }} />
+                    </motion.button>
+                  ) : (
+                    <div 
+                      className="p-2 rounded-lg opacity-50 cursor-not-allowed"
+                      title="Cannot delete admin accounts"
+                    >
+                      <Trash2 className="w-4 h-4 text-gray-600" />
+                    </div>
+                  )}
                 </div>
               </td>
             </motion.tr>

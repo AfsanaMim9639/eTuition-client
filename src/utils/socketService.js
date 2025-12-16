@@ -1,3 +1,4 @@
+import api from './api';
 
 class PollingService {
   constructor() {
@@ -52,36 +53,36 @@ class PollingService {
     if (!this.currentConversationId) return;
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/messages/conversation/${this.currentConversationId}?since=${this.lastMessageTimestamp}`,
+      // Use axios api instance instead of fetch - this fixes the /api/api issue
+      const response = await api.get(
+        `/messages/conversation/${this.currentConversationId}`,
         {
-          headers: {
-            'Authorization': `Bearer ${this.token}`
+          params: {
+            since: this.lastMessageTimestamp
           }
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data.data && data.data.length > 0) {
-          // New messages found
-          data.data.forEach(message => {
-            this.callbacks.newMessage.forEach(callback => {
-              callback({
-                conversationId: this.currentConversationId,
-                message
-              });
+      if (response.data && response.data.data && response.data.data.length > 0) {
+        // New messages found
+        response.data.data.forEach(message => {
+          this.callbacks.newMessage.forEach(callback => {
+            callback({
+              conversationId: this.currentConversationId,
+              message
             });
           });
+        });
 
-          // Update timestamp
-          const lastMessage = data.data[data.data.length - 1];
-          this.lastMessageTimestamp = lastMessage.createdAt;
-        }
+        // Update timestamp
+        const lastMessage = response.data.data[response.data.data.length - 1];
+        this.lastMessageTimestamp = lastMessage.createdAt;
       }
     } catch (error) {
-      console.error('Polling error:', error);
+      // Only log non-404 errors (404 means no new messages)
+      if (error.response?.status !== 404) {
+        console.error('Polling error:', error);
+      }
     }
   }
 
@@ -139,4 +140,3 @@ class PollingService {
 const socketService = new PollingService();
 
 export default socketService;
-

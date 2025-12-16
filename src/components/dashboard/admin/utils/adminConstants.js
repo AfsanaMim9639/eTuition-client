@@ -16,8 +16,11 @@ export const USER_ROLES = {
   ADMIN: 'admin'
 };
 
+// ⭐ UPDATED: New user statuses
 export const USER_STATUSES = {
-  ACTIVE: 'active',
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
   SUSPENDED: 'suspended',
   BLOCKED: 'blocked'
 };
@@ -42,7 +45,7 @@ export const TABS = [
   { id: 'reports', label: 'Reports & Analytics', color: COLORS.primary }
 ];
 
-export const API_BASE_URL = 'http://localhost:5000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const PAGINATION = {
   DEFAULT_PAGE: 1,

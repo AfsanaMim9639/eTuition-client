@@ -5,6 +5,8 @@ import UserFilters from '../filters/UserFilters';
 import UsersTable from '../tables/UsersTable';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import Pagination from '../ui/Pagination';
+import UserViewModal from '../modals/UserViewModal';
+import UserEditModal from '../modals/UserEditModal';
 
 const UsersTab = ({ usersHook }) => {
   const {
@@ -17,7 +19,16 @@ const UsersTab = ({ usersHook }) => {
     loadUsers,
     updateRole,
     updateStatus,
-    deleteUser
+    deleteUser,
+    // ⭐ New props for view & edit
+    viewUser,
+    editUser,
+    saveUserInfo,
+    selectedUser,
+    isViewModalOpen,
+    setIsViewModalOpen,
+    isEditModalOpen,
+    setIsEditModalOpen
   } = usersHook;
 
   useEffect(() => {
@@ -53,12 +64,13 @@ const UsersTab = ({ usersHook }) => {
           <LoadingSpinner />
         ) : (
           <>
-            {/* Users Table */}
             <UsersTable
               users={users}
               onUpdateRole={updateRole}
               onUpdateStatus={updateStatus}
               onDelete={deleteUser}
+              onView={viewUser}
+              onEdit={editUser}
             />
 
             {/* Pagination */}
@@ -72,6 +84,27 @@ const UsersTab = ({ usersHook }) => {
           </>
         )}
       </div>
+
+      {/* View User Modal */}
+      <UserViewModal
+        user={selectedUser}
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedUser(null);
+        }}
+      />
+
+      {/* Edit User Modal */}
+      <UserEditModal
+        user={selectedUser}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedUser(null);
+        }}
+        onSave={saveUserInfo}
+      />
     </motion.div>
   );
 };

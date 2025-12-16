@@ -139,7 +139,7 @@ export const tuitionAPI = {
   createTuition: (data) => api.post('/tuitions', data),
   updateTuition: (id, data) => api.put(`/tuitions/${id}`, data),
   deleteTuition: (id) => api.delete(`/tuitions/${id}`),
-  getMyTuitions: () => api.get('/tuitions/my-tuitions'),
+  getMyTuitions: () => api.get('/tuitions/my/tuitions'),
 };
 
 // User/Tutor APIs
@@ -150,18 +150,41 @@ export const userAPI = {
   updateProfile: (data) => api.put('/users/profile', data),
 };
 
-// Application APIs
+// ✅ Application APIs - FIXED
 export const applicationAPI = {
-  applyForTuition: (tuitionId) => api.post(`/applications/${tuitionId}`),
-  getMyApplications: () => api.get('/applications/my/applications'),
+  // Apply for tuition (with form data)
+  applyForTuition: (data) => api.post('/applications/apply', data),
+  
+  // Check if already applied to a tuition
+  checkIfApplied: (tuitionId) => api.get(`/applications/check/${tuitionId}`),
+  
+  // Get my applications (Tutor view)
+  getMyApplications: () => api.get('/applications/my-applications'),
+  
+  // Get applications for a specific tuition (Student view)
   getTuitionApplications: (tuitionId) => api.get(`/applications/tuition/${tuitionId}`),
-  updateApplicationStatus: (id, status) => api.put(`/applications/${id}/status`, { status }),
+  
+  // Update application status (Accept/Reject) - FIXED: using PATCH
+  updateApplicationStatus: (applicationId, data) => 
+    api.patch(`/applications/${applicationId}/status`, data),
+  
+  // Withdraw application (Tutor)
+  withdrawApplication: (applicationId) => 
+    api.patch(`/applications/${applicationId}/withdraw`),
 };
 
-// Payment APIs
+// ✅ Payment APIs - FIXED
 export const paymentAPI = {
-  createPayment: (data) => api.post('/payments', data),
-  getMyPayments: () => api.get('/payments/my/payments'),
+  // Create payment intent (Stripe)
+  createPaymentIntent: (data) => api.post('/payments/create-intent', data),
+  
+  // Confirm payment after Stripe success
+  confirmPayment: (data) => api.post('/payments/confirm', data),
+  
+  // Get my payments history
+  getMyPayments: () => api.get('/payments/my-payments'),
+  
+  // Update payment status (Admin)
   updatePaymentStatus: (id, status) => api.put(`/payments/${id}/status`, { status }),
 };
 

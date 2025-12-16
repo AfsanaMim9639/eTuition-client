@@ -233,20 +233,20 @@ function AllTutors() {
 
                     {/* Subjects */}
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
-                      {tutor.subjects?.slice(0, 3).map((subject, index) => (
-                        <span 
-                          key={index} 
-                          className="px-2 py-1 bg-neon-blue/20 border border-neon-blue/30 rounded text-xs text-neon-blue"
-                        >
-                          {subject}
-                        </span>
-                      ))}
-                      {tutor.subjects?.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-700/50 border border-gray-600 rounded text-xs text-gray-400">
-                          +{tutor.subjects.length - 3} more
-                        </span>
-                      )}
-                    </div>
+              {tutor.subjects?.slice(0, 3).map((subject, index) => (
+                <span 
+                  key={index} 
+                  className="px-3 py-1 bg-neon-blue/20 border border-neon-blue/30 text-xs text-neon-blue text-center"
+                >
+                  {subject}
+                </span>
+              ))}
+              {tutor.subjects?.length > 3 && (
+                <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 text-xs text-gray-400 text-center">
+                  +{tutor.subjects.length - 3} more
+                </span>
+              )}
+            </div>
 
                     {/* View Profile Button */}
                     <div className="pt-3 border-t border-neon-blue/30">

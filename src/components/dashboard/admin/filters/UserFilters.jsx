@@ -16,13 +16,32 @@ const UserFilters = ({ filters, setFilters, onApply }) => (
         style={{ background: 'rgba(18, 18, 18, 0.95)', border: '2px solid rgba(0, 240, 255, 0.3)', color: 'white' }}
       />
     </div>
-    <select value={filters.role} onChange={(e) => setFilters({ ...filters, role: e.target.value })}>
-      <option value="">All Roles</option>
-      <option value="student">Student</option>
-      <option value="tutor">Tutor</option>
-      <option value="admin">Admin</option>
-    </select>
-    <motion.button onClick={onApply} whileHover={{ scale: 1.05 }}>Apply Filters</motion.button>
-  </div>
+    <select 
+  value={filters.role} 
+  onChange={(e) => setFilters({ ...filters, role: e.target.value })}
+  className="px-4 py-2 rounded-lg border-2 text-white"
+  style={{
+    backgroundColor: 'rgba(18, 18, 18, 0.95)',
+    borderColor: 'rgba(0, 240, 255, 0.3)'
+  }}
+>
+  <option value="">All Roles</option>
+  <option value="student">Student</option>
+  <option value="tutor">Tutor</option>
+  <option value="admin">Admin</option>
+</select>
+  <motion.button 
+  onClick={onApply} 
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+  className="px-6 py-2 rounded-lg font-semibold transition-all"
+  style={{
+    background: 'linear-gradient(135deg, #FF10F0, #00F0FF)',
+    color: 'white',
+    border: 'none'
+  }}
+>
+  Apply Filters
+</motion.button>  </div>
 );
 export default UserFilters;

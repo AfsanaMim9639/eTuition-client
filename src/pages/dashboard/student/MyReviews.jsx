@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import { reviewAPI } from '../../../utils/reviewService';
 import RatingStars from '../../../components/review/RatingStars';
 import ReviewForm from '../../../components/review/ReviewForm';
@@ -11,6 +12,7 @@ const MyReviews = () => {
   const [loading, setLoading] = useState(true);
   const [showEditForm, setShowEditForm] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ show: false, reviewId: null, tutorName: '' });
 
   useEffect(() => {
     fetchMyReviews();
@@ -23,6 +25,7 @@ const MyReviews = () => {
       setReviews(response.data.reviews);
     } catch (error) {
       console.error('Failed to fetch reviews:', error);
+      toast.error('Failed to load reviews');
     } finally {
       setLoading(false);
     }
@@ -33,15 +36,23 @@ const MyReviews = () => {
     setShowEditForm(true);
   };
 
-  const handleDelete = async (reviewId) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) return;
+  const handleDelete = (review) => {
+    setDeleteModal({ 
+      show: true, 
+      reviewId: review._id, 
+      tutorName: review.tutor?.name || 'this tutor' 
+    });
+  };
 
+  const confirmDelete = async () => {
     try {
-      await reviewAPI.deleteReview(reviewId);
-      setReviews(reviews.filter(r => r._id !== reviewId));
+      await reviewAPI.deleteReview(deleteModal.reviewId);
+      setReviews(reviews.filter(r => r._id !== deleteModal.reviewId));
+      setDeleteModal({ show: false, reviewId: null, tutorName: '' });
+      toast.success('Review deleted successfully!');
     } catch (error) {
       console.error('Failed to delete review:', error);
-      alert(error.response?.data?.message || 'Failed to delete review');
+      toast.error(error.response?.data?.message || 'Failed to delete review');
     }
   };
 
@@ -49,6 +60,7 @@ const MyReviews = () => {
     setShowEditForm(false);
     setReviewToEdit(null);
     fetchMyReviews();
+    toast.success('Review updated successfully!');
   };
 
   const formatDate = (date) => {
@@ -168,7 +180,7 @@ const MyReviews = () => {
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDelete(review._id)}
+                        onClick={() => handleDelete(review)}
                         className="p-2 text-gray-400 hover:text-[#ff0066] transition-colors"
                         title="Delete Review"
                       >
@@ -214,6 +226,47 @@ const MyReviews = () => {
               setReviewToEdit(null);
             }}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteModal.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setDeleteModal({ show: false, reviewId: null, tutorName: '' })}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-red-500/50 rounded-xl p-8 max-w-md w-full"
+            >
+              <h3 className="text-2xl font-bold text-red-400 mb-4">Delete Review?</h3>
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete your review for <strong className="text-white">{deleteModal.tutorName}</strong>? 
+                This action cannot be undone.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setDeleteModal({ show: false, reviewId: null, tutorName: '' })}
+                  className="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

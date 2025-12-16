@@ -153,13 +153,13 @@ const Navbar = () => {
                         </div>
                         <div className="p-2">
                           <Link
-                            to="/profile"
-                            className="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-[#00ff88] hover:bg-[#00ff88]/10 rounded-lg transition-all duration-200"
-                            onClick={() => setIsProfileOpen(false)}
-                          >
-                            <User className="w-4 h-4" />
-                            My Profile
-                          </Link>
+                          to={`/dashboard/${user.role}/profile`}
+                          className="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-[#00ff88] hover:bg-[#00ff88]/10 rounded-lg transition-all duration-200"
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          <User className="w-4 h-4" />
+                          My Profile
+                        </Link>
                           <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-200"
@@ -244,11 +244,11 @@ const Navbar = () => {
                       Dashboard
                     </Link>
                     <Link
-                      to="/profile"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 px-6 py-3 bg-[#00ff88]/10 text-[#00ff88] rounded-lg font-semibold border border-[#00ff88]/30"
+                      to={`/dashboard/${user.role}/profile`}
+                      className="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-[#00ff88] hover:bg-[#00ff88]/10 rounded-lg transition-all duration-200"
+                      onClick={() => setIsProfileOpen(false)}
                     >
-                      <User className="w-5 h-5" />
+                      <User className="w-4 h-4" />
                       My Profile
                     </Link>
                     <button

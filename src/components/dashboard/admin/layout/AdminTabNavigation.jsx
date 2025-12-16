@@ -1,14 +1,14 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BarChart3, Users, BookOpen, FileText } from 'lucide-react';
+import { BarChart3, Users, BookOpen, FileText, User } from 'lucide-react'; // ✅ User import করুন
 
 const TABS = [
   { id: 'dashboard', icon: BarChart3, label: 'Dashboard', color: '#FF10F0', path: '/dashboard/admin' },
   { id: 'users', icon: Users, label: 'User Management', color: '#00F0FF', path: '/dashboard/admin/users' },
   { id: 'tuitions', icon: BookOpen, label: 'Tuition Management', color: '#39FF14', path: '/dashboard/admin/tuitions' },
-  { id: 'reports', icon: FileText, label: 'Reports & Analytics', color: '#FF10F0', path: '/dashboard/admin/reports' }
+  { id: 'reports', icon: FileText, label: 'Reports & Analytics', color: '#FF10F0', path: '/dashboard/admin/reports' },
+  { id: 'profile', icon: User, label: 'Profile', color: '#00F0FF', path: '/dashboard/admin/profile' } // ✅ এটা add করুন
 ];
 
 const AdminTabNavigation = ({ activeTab }) => {
@@ -23,7 +23,7 @@ const AdminTabNavigation = ({ activeTab }) => {
             <NavLink
               key={tab.id}
               to={tab.path}
-              end={tab.id === 'dashboard'} // Exact match for dashboard only
+              end={tab.id === 'dashboard'}
             >
               {({ isActive: isRouteActive }) => {
                 const active = isActive || isRouteActive;

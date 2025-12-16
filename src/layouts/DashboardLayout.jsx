@@ -18,6 +18,7 @@ import {
 
 // ✅ IMPORT NotificationBell
 import NotificationBell from '../components/notification/NotificationBell';
+import ScrollToTop from '../components/ScrollToTop';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -71,6 +72,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg">
+      <ScrollToTop />
       {/* ✅ Mobile Top Bar with Notification Bell */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0f1512]/95 backdrop-blur-xl border-b-2 border-[#00ffcc]/30">
         <div className="flex items-center justify-between px-4 py-3">

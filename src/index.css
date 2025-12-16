@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: auto !important;
+}
+
+/* Ensure full height */
+html, body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Flex layout for sticky footer */
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prevent scroll restoration */
+@supports (overscroll-behavior: none) {
+  html {
+    overscroll-behavior: none;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

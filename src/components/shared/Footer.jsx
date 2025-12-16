@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom'; // ✅ useLocation add
 import { FaFacebook, FaInstagram, FaLinkedin, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { GraduationCap } from 'lucide-react';
@@ -10,25 +10,55 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Footer = () => {
   const footerRef = useRef(null);
+  const location = useLocation(); // ✅ Track route changes
 
   useEffect(() => {
-    gsap.fromTo(
-      footerRef.current,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: 'top bottom-=100',
+    // ✅ Refresh ScrollTrigger on route change
+    ScrollTrigger.refresh();
+    
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      // Kill all previous triggers for this element
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.vars.trigger === footerRef.current) {
+          trigger.kill();
         }
-      }
-    );
-  }, []);
+      });
+
+      // Create new animation
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          footerRef.current,
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: footerRef.current,
+              start: 'top bottom',
+              end: 'bottom bottom',
+              toggleActions: 'play none none reverse',
+              invalidateOnRefresh: true, // ✅ Important
+              once: false
+            }
+          }
+        );
+      }, footerRef);
+
+      return () => ctx.revert();
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      ScrollTrigger.refresh();
+    };
+  }, [location.pathname]); // ✅ Re-run on route change
 
   return (
     <footer ref={footerRef} className="bg-[#0f1512] border-t-2 border-[#00ff88]/30">
+      {/* Rest of your footer code - same as before */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}

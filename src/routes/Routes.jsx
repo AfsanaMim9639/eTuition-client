@@ -30,7 +30,7 @@ import StudentProfile from '../pages/dashboard/student/StudentProfile';
 import StudentMessages from '../pages/dashboard/student/Messages';
 import MyReviews from '../pages/dashboard/student/MyReviews';
 import StudentSchedule from '../pages/dashboard/student/MySchedule';
-
+import Checkout from '../pages/dashboard/student/Checkout';
 // Tutor Dashboard Pages
 import TutorDashboard from '../pages/dashboard/tutor/TutorDashboard';
 import TutorDashboardHome from '../pages/dashboard/tutor/TutorDashboardHome';
@@ -55,6 +55,8 @@ import Notifications from '../pages/dashboard/Notifications';
 
 // Error Page
 import ErrorPage from '../components/shared/ErrorPage';
+import ProfileTab from '../components/dashboard/admin/tabs/ProfileTab';
+import ProfileRedirect from '../components/ProfileRedirect';
 
 const router = createBrowserRouter([
   {
@@ -97,6 +99,15 @@ const router = createBrowserRouter([
       {
         path: '/tutors/:id',
         element: <TutorProfilePage />
+      },
+      {
+        path: '/profile',
+        element: (
+          <PrivateRoute>
+            {/* Create a ProfileRedirect component or handle redirect */}
+            <ProfileRedirect />
+          </PrivateRoute>
+        )
       }
     ]
   },
@@ -134,12 +145,16 @@ const router = createBrowserRouter([
             element: <PostNewTuition />
           },
           {
-            path: 'tuition/:id/applications',
+            path: 'applications',
             element: <AppliedTutors />
           },
           {
             path: 'payments',
             element: <StudentPayments />
+          },
+          {
+            path: 'checkout',
+            element: <Checkout />
           },
           {
             path: 'profile',
@@ -245,6 +260,10 @@ const router = createBrowserRouter([
           {
             path: 'notifications',
             element: <Notifications />
+          },
+          {
+          path: 'profile',
+          element: <ProfileTab />
           }
         ]
       }

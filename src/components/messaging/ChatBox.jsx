@@ -74,7 +74,7 @@ const ChatBox = ({ conversation, currentUser, onConversationUpdate }) => {
       setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error('Error loading messages:', error);
-      toast.error('Failed to load messages');
+      toast.error('Failed to load messages', { duration: 3000 });
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ const ChatBox = ({ conversation, currentUser, onConversationUpdate }) => {
       onConversationUpdate?.();
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message');
+      toast.error('Failed to send message', { duration: 3000 });
     } finally {
       setSending(false);
     }
@@ -101,10 +101,9 @@ const ChatBox = ({ conversation, currentUser, onConversationUpdate }) => {
     try {
       await messageAPI.delete(messageId);
       setMessages(prev => prev.filter(m => m._id !== messageId));
-      toast.success('Message deleted');
     } catch (error) {
       console.error('Error deleting message:', error);
-      toast.error('Failed to delete message');
+      toast.error('Failed to delete message', { duration: 3000 });
     }
   };
 

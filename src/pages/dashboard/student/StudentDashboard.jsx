@@ -13,7 +13,8 @@ import {
   FaComments,
   FaBell,
   FaStar,
-  FaCalendarAlt  // ✅ NEW - For Schedule
+  FaCalendarAlt,
+  FaUserCheck  // ✅ NEW - For Applied Tutors
 } from 'react-icons/fa';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GraduationCap } from 'lucide-react';
@@ -34,12 +35,12 @@ const StudentDashboard = () => {
     }
   };
 
-  // ✅ Updated menu items with Schedule
+  // ✅ Updated menu items with Applied Tutors
   const menuItems = [
     { path: '/dashboard/student', icon: FaHome, label: 'Dashboard', end: true },
     { path: '/dashboard/student/tuitions', icon: FaBriefcase, label: 'My Tuitions' },
     { path: '/dashboard/student/post-tuition', icon: FaPlus, label: 'Post New Tuition' },
-    { path: '/dashboard/student/schedule', icon: FaCalendarAlt, label: 'My Schedule' }, // ✅ NEW
+   { path: '/dashboard/student/applications', icon: FaUserCheck, label: 'Applied Tutors' }, // ✅ সঠিক { path: '/dashboard/student/schedule', icon: FaCalendarAlt, label: 'My Schedule' },
     { path: '/dashboard/student/my-reviews', icon: FaStar, label: 'My Reviews' },
     { path: '/dashboard/student/messages', icon: FaComments, label: 'Messages' },
     { path: '/dashboard/student/notifications', icon: FaBell, label: 'Notifications' },
@@ -190,7 +191,7 @@ const StudentDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 lg:mt-10 pt-10 lg:pt-10 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
+        <main className="flex-1 lg:ml-10 pt-20 lg:pt-20 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
           <Outlet />
         </main>
       </div>

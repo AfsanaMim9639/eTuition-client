@@ -1,5 +1,6 @@
 import { FaTrash, FaCircle } from 'react-icons/fa';
 import { formatDistanceToNow } from '../../utils/dateUtils';
+import toast from 'react-hot-toast';
 
 const ConversationList = ({ 
   conversations, 
@@ -23,11 +24,48 @@ const ConversationList = ({
     }
   };
 
-  const handleDelete = (e, conversationId) => {
+  const handleDelete = (e, conversationId, userName) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this conversation?')) {
-      onDeleteConversation(conversationId);
-    }
+    
+    // Custom toast with confirmation buttons
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <div>
+          <p className="font-semibold text-gray-900">Delete Conversation?</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Are you sure you want to delete this conversation with {userName}?
+          </p>
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+            }}
+            className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition-colors text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              onDeleteConversation(conversationId);
+              toast.dismiss(t.id);
+            }}
+            className="px-3 py-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white font-medium transition-colors text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 5000,
+      position: 'top-center',
+      style: {
+        background: '#fff',
+        padding: '16px',
+        borderRadius: '12px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      }
+    });
   };
 
   if (conversations.length === 0) {
@@ -95,7 +133,7 @@ const ConversationList = ({
                     
                     {/* Delete Button */}
                     <button
-                      onClick={(e) => handleDelete(e, conversation._id)}
+                      onClick={(e) => handleDelete(e, conversation._id, otherUser?.name || 'Unknown User')}
                       className="p-1.5 hover:bg-red-500/20 rounded-lg text-red-400 hover:text-red-300 transition-colors flex-shrink-0"
                       title="Delete conversation"
                     >

@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaMapMarkerAlt, FaDollarSign, FaBook, FaSearch, FaFilter, FaSortAmountDown } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaMapMarkerAlt, FaDollarSign, FaBook, FaSearch, FaFilter, FaSortAmountDown, FaPaperPlane, FaCheckCircle, FaClock } from 'react-icons/fa';
 import TuitionCard from '../../components/tuition/TuitionCard';
-import { tuitionAPI } from '../../utils/api';
+import { tuitionAPI, applicationAPI } from '../../utils/api';
+import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 function AllTuitions() {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,6 +36,23 @@ function AllTuitions() {
   
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  
+  // Apply Modal State
+  const [applyModal, setApplyModal] = useState({
+    show: false,
+    tuition: null
+  });
+  const [applicationForm, setApplicationForm] = useState({
+    qualifications: '',
+    experience: '',
+    expectedSalary: ''
+  });
+  const [applyLoading, setApplyLoading] = useState(false);
+
+  // ✅ Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     fetchFilterOptions();
@@ -44,7 +65,6 @@ function AllTuitions() {
   const fetchFilterOptions = async () => {
     try {
       const response = await tuitionAPI.getFilterOptions();
-      // ✅ Fixed: Handle both old and new response formats
       if (response.data.status === 'success') {
         setFilterOptions(response.data.data || response.data.options || {
           subjects: [],
@@ -79,7 +99,6 @@ function AllTuitions() {
       
       const response = await tuitionAPI.getAllTuitions(params);
       
-      // ✅ Fixed: Handle standardized response format
       if (response.data.status === 'success') {
         setTuitions(response.data.data || []);
         setPagination({
@@ -153,6 +172,68 @@ function AllTuitions() {
     setPagination({ ...pagination, currentPage: 1 });
   };
 
+  // ✅ Apply functions - Updated with correct fields
+  const handleApplyClick = (tuition) => {
+    if (!isAuthenticated) {
+      toast.error('Please login as a tutor to apply');
+      navigate('/login');
+      return;
+    }
+
+    if (user?.role !== 'tutor') {
+      toast.error('Only tutors can apply for tuitions');
+      return;
+    }
+
+    setApplyModal({ show: true, tuition });
+    setApplicationForm({
+      qualifications: '',
+      experience: '',
+      expectedSalary: tuition.salary || ''
+    });
+  };
+
+  const handleApplySubmit = async (e) => {
+    e.preventDefault();
+
+    // ✅ Updated validation
+    if (applicationForm.qualifications.trim().length < 20) {
+      toast.error('Qualifications must be at least 20 characters');
+      return;
+    }
+
+    if (!applicationForm.experience.trim()) {
+      toast.error('Please enter your experience');
+      return;
+    }
+
+    if (!applicationForm.expectedSalary || applicationForm.expectedSalary < 1) {
+      toast.error('Please enter your expected salary');
+      return;
+    }
+
+    try {
+      setApplyLoading(true);
+      
+      // ✅ Send correct data format
+      await applicationAPI.applyForTuition({
+        tuitionId: applyModal.tuition._id,
+        qualifications: applicationForm.qualifications.trim(),
+        experience: applicationForm.experience.trim(),
+        expectedSalary: parseFloat(applicationForm.expectedSalary)
+      });
+
+      toast.success('Application submitted successfully!');
+      setApplyModal({ show: false, tuition: null });
+      setApplicationForm({ qualifications: '', experience: '', expectedSalary: '' });
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      toast.error(error.response?.data?.message || 'Failed to submit application');
+    } finally {
+      setApplyLoading(false);
+    }
+  };
+
   if (loading && tuitions.length === 0) {
     return (
       <div className="min-h-screen bg-dark-bg pt-24 flex items-center justify-center">
@@ -162,7 +243,7 @@ function AllTuitions() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg pt-12 pb-12">
+    <div className="bg-dark-bg pt-12 pb-12">
       <div className="container mx-auto px-4">
         {/* Header */}
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
@@ -312,7 +393,20 @@ function AllTuitions() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 auto-rows-fr">
                   {tuitions.map(tuition => (
-                    <TuitionCard key={tuition._id} tuition={tuition} />
+                    <div key={tuition._id} className="relative">
+                      <TuitionCard tuition={tuition} />
+                      
+                      {/* Apply Button - Only for logged-in tutors */}
+                      {isAuthenticated && user?.role === 'tutor' && (
+                        <button
+                          onClick={() => handleApplyClick(tuition)}
+                          className="absolute bottom-4 right-4 px-4 py-2 bg-gradient-to-r from-neon-pink to-neon-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-neon-pink/50 transition-all flex items-center gap-2"
+                        >
+                          <FaPaperPlane />
+                          Apply Now
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
 
@@ -373,6 +467,112 @@ function AllTuitions() {
           </>
         )}
       </div>
+
+      {/* ✅ Apply Modal - Updated with correct fields */}
+      {applyModal.show && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="card-neon card-neon-blue p-8 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold neon-text-blue mb-6">Apply for Tuition</h2>
+            
+            {/* Tuition Info */}
+            <div className="bg-gray-800/50 p-4 rounded-lg mb-6">
+              <h3 className="font-bold text-white mb-2">{applyModal.tuition?.title}</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm text-gray-400">
+                <div className="flex items-center gap-2">
+                  <FaBook className="text-neon-blue" />
+                  {applyModal.tuition?.subject} • {applyModal.tuition?.grade}
+                </div>
+                <div className="flex items-center gap-2">
+                  <FaDollarSign className="text-neon-green" />
+                  {applyModal.tuition?.salary} BDT/month
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleApplySubmit} className="space-y-4">
+              {/* Qualifications */}
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                  Qualifications <span className="text-red-400">*</span>
+                </label>
+                <textarea
+                  value={applicationForm.qualifications}
+                  onChange={(e) => setApplicationForm({ ...applicationForm, qualifications: e.target.value })}
+                  placeholder="Describe your educational background, certifications, and relevant qualifications..."
+                  rows="4"
+                  className="input-neon w-full resize-none"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {applicationForm.qualifications.length} / 20 minimum characters
+                </p>
+              </div>
+
+              {/* Experience */}
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                  Experience <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={applicationForm.experience}
+                  onChange={(e) => setApplicationForm({ ...applicationForm, experience: e.target.value })}
+                  placeholder="e.g., 3 years of teaching experience in Mathematics"
+                  className="input-neon w-full"
+                  required
+                />
+              </div>
+
+              {/* Expected Salary */}
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                  Expected Salary (BDT/month) <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={applicationForm.expectedSalary}
+                  onChange={(e) => setApplicationForm({ ...applicationForm, expectedSalary: e.target.value })}
+                  placeholder="e.g., 5000"
+                  min="0"
+                  className="input-neon w-full"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Student's budget: ৳{applyModal.tuition?.salary}/month
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setApplyModal({ show: false, tuition: null })}
+                  className="flex-1 btn border-2 border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500 py-3 rounded-lg font-semibold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={applyLoading}
+                  className="flex-1 btn btn-neon-blue py-3 rounded-lg font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {applyLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <FaPaperPlane />
+                      Submit Application
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

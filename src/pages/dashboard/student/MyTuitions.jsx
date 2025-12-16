@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   FaPlus, 
   FaEdit, 
@@ -20,7 +21,7 @@ const MyTuitions = () => {
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState({ show: false, tuition: null });
-  const [filter, setFilter] = useState('all'); // all, pending, approved, rejected
+  const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,6 +52,7 @@ const MyTuitions = () => {
       setTuitions(tuitionsWithCounts);
     } catch (error) {
       console.error('Error fetching tuitions:', error);
+      toast.error('Failed to load tuitions');
     } finally {
       setLoading(false);
     }
@@ -63,13 +65,13 @@ const MyTuitions = () => {
       await tuitionAPI.deleteTuition(deleteModal.tuition._id);
       setTuitions(tuitions.filter(t => t._id !== deleteModal.tuition._id));
       setDeleteModal({ show: false, tuition: null });
+      toast.success('Tuition deleted successfully!');
     } catch (error) {
       console.error('Error deleting tuition:', error);
-      alert(error.response?.data?.message || 'Failed to delete tuition');
+      toast.error(error.response?.data?.message || 'Failed to delete tuition');
     }
   };
 
-  // 🆕 Get approval status badge
   const getApprovalBadge = (approvalStatus) => {
     switch(approvalStatus) {
       case 'approved':
@@ -105,13 +107,11 @@ const MyTuitions = () => {
     }
   };
 
-  // 🆕 Filter tuitions by approval status
   const filteredTuitions = tuitions.filter(tuition => {
     if (filter === 'all') return true;
     return tuition.approvalStatus === filter;
   });
 
-  // 🆕 Get counts for filter buttons
   const counts = {
     all: tuitions.length,
     pending: tuitions.filter(t => t.approvalStatus === 'pending').length,
@@ -146,7 +146,7 @@ const MyTuitions = () => {
         </Link>
       </div>
 
-      {/* 🆕 Filter Buttons */}
+      {/* Filter Buttons */}
       <div className="flex gap-3 flex-wrap">
         {[
           { key: 'all', label: 'All' },
@@ -180,9 +180,7 @@ const MyTuitions = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <h3 className="text-xl font-bold text-white">{tuition.title}</h3>
-                    {/* 🆕 Approval Status Badge */}
                     {getApprovalBadge(tuition.approvalStatus)}
-                    {/* Tuition Status Badge */}
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(tuition.status)}`}>
                       {tuition.status}
                     </span>
@@ -196,7 +194,7 @@ const MyTuitions = () => {
                 <div className="flex items-center gap-2">
                   {tuition.approvalStatus === 'approved' && (
                     <Link
-                      to={`/dashboard/student/tuition/${tuition._id}/applications`}
+                      to={`/dashboard/student/applications?tuition=${tuition._id}`}
                       className="p-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all"
                       title="View Applications"
                     >
@@ -220,7 +218,7 @@ const MyTuitions = () => {
                 </div>
               </div>
 
-              {/* 🆕 Rejection Reason */}
+              {/* Rejection Reason */}
               {tuition.approvalStatus === 'rejected' && tuition.rejectionReason && (
                 <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
                   <div className="flex items-start gap-2">
@@ -233,7 +231,7 @@ const MyTuitions = () => {
                 </div>
               )}
 
-              {/* 🆕 Pending Notice */}
+              {/* Pending Notice */}
               {tuition.approvalStatus === 'pending' && (
                 <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                   <div className="flex items-center gap-2">
@@ -287,7 +285,7 @@ const MyTuitions = () => {
                 </div>
                 {tuition.approvalStatus === 'approved' && tuition.applicationsCount > 0 && (
                   <Link
-                    to={`/dashboard/student/tuition/${tuition._id}/applications`}
+                     to={`/dashboard/student/applications?tuition=${tuition._id}`}
                     className="text-[#00ffcc] hover:text-[#00ff88] text-sm font-semibold flex items-center gap-2"
                   >
                     View {tuition.applicationsCount} Applications →
@@ -324,7 +322,7 @@ const MyTuitions = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal - ✅ Already has popup! */}
       {deleteModal.show && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-red-500/50 rounded-xl p-8 max-w-md w-full">

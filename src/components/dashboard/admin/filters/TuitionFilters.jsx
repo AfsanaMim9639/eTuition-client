@@ -11,6 +11,7 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
   const handleClearFilters = () => {
     setFilters({
       status: '',
+      approvalStatus: '',
       subject: '',
       tutoring_type: '',
       grade: '',
@@ -20,8 +21,8 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
   };
 
   const hasActiveFilters = () => {
-    return filters.status || filters.subject || filters.tutoring_type || 
-           filters.grade || filters.search;
+    return filters.status || filters.approvalStatus || filters.subject || 
+           filters.tutoring_type || filters.grade || filters.search;
   };
 
   return (
@@ -54,7 +55,31 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
       </div>
 
       {/* Filter Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        
+        {/* ⭐ NEW: Approval Status Filter */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-400 flex items-center gap-2">
+            <Filter className="w-4 h-4" />
+            Approval
+          </label>
+          <select
+            value={filters.approvalStatus || ''}
+            onChange={(e) => handleInputChange('approvalStatus', e.target.value)}
+            className="w-full px-4 py-2.5 rounded-lg border-2 transition-all focus:outline-none cursor-pointer"
+            style={{
+              backgroundColor: 'rgba(18, 18, 18, 0.8)',
+              borderColor: filters.approvalStatus ? '#FF10F0' : 'rgba(255, 16, 240, 0.2)',
+              color: filters.approvalStatus ? '#FF10F0' : '#888'
+            }}
+          >
+            <option value="">All Approvals</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
         {/* Status Filter */}
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-400 flex items-center gap-2">
@@ -216,6 +241,20 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
           className="flex flex-wrap gap-2 pt-2"
         >
           <span className="text-sm text-gray-400">Active Filters:</span>
+          
+          {filters.approvalStatus && (
+            <span 
+              className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
+              style={{ backgroundColor: '#FF10F022', color: '#FF10F0', border: '1px solid #FF10F0' }}
+            >
+              Approval: {filters.approvalStatus}
+              <X 
+                className="w-3 h-3 cursor-pointer" 
+                onClick={() => handleInputChange('approvalStatus', '')}
+              />
+            </span>
+          )}
+          
           {filters.status && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
@@ -228,6 +267,7 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
               />
             </span>
           )}
+          
           {filters.tutoring_type && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
@@ -240,6 +280,7 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
               />
             </span>
           )}
+          
           {filters.subject && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
@@ -252,6 +293,7 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
               />
             </span>
           )}
+          
           {filters.grade && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
