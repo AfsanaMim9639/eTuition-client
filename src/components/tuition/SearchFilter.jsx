@@ -1,12 +1,37 @@
+import { useState, useEffect } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 
 const SearchFilter = ({ filters, setFilters, onSearch }) => {
+  const [localSearch, setLocalSearch] = useState(filters.search);
+
+  // Debounce search input - এখন 500ms পর update হবে
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== filters.search) {
+        setFilters({ ...filters, search: localSearch });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localSearch]);
+
+  // Sync with external filters
+  useEffect(() => {
+    setLocalSearch(filters.search);
+  }, [filters.search]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
+    
+    if (name === 'search') {
+      setLocalSearch(value);
+    } else {
+      setFilters({ ...filters, [name]: value });
+    }
   };
 
   const handleClearFilters = () => {
+    setLocalSearch('');
     setFilters({
       search: '',
       subject: '',
@@ -17,9 +42,16 @@ const SearchFilter = ({ filters, setFilters, onSearch }) => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSearch = () => {
+    // নিশ্চিত করুন যে latest search value set হয়েছে
+    setFilters({ ...filters, search: localSearch });
     onSearch();
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const categories = [
@@ -49,7 +81,7 @@ const SearchFilter = ({ filters, setFilters, onSearch }) => {
 
   return (
     <div className="card-neon-blue p-6 mb-8">
-      <form onSubmit={handleSubmit}>
+      <div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           {/* Search Input */}
           <div className="lg:col-span-3">
@@ -57,15 +89,16 @@ const SearchFilter = ({ filters, setFilters, onSearch }) => {
               Search Keywords
             </label>
             <div className="relative">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm z-10" />
               <input
                 type="text"
                 name="search"
-                value={filters.search}
+                value={localSearch}
                 onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
                 placeholder="Search by location, area, or details..."
-                className="input-neon w-full pl-10"
+                className="input-neon w-full pl-11 pr-4 py-3"
               />
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
           </div>
 
@@ -165,14 +198,13 @@ const SearchFilter = ({ filters, setFilters, onSearch }) => {
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3">
           <button
-            type="submit"
+            onClick={handleSearch}
             className="btn btn-neon-pink px-6 py-3 flex items-center space-x-2"
           >
             <FaSearch />
-            <span>Search</span>
+            <span>Search Now</span>
           </button>
           <button
-            type="button"
             onClick={handleClearFilters}
             className="btn btn-neon-blue px-6 py-3 flex items-center space-x-2"
           >
@@ -180,7 +212,7 @@ const SearchFilter = ({ filters, setFilters, onSearch }) => {
             <span>Clear Filters</span>
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

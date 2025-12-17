@@ -8,6 +8,10 @@
 ![Node.js](https://img.shields.io/badge/Node.js-Backend-00F0FF?style=for-the-badge&logo=node.js&logoColor=00F0FF&labelColor=000000)
 ![Stripe](https://img.shields.io/badge/Stripe-Payment-FF10F0?style=for-the-badge&logo=stripe&logoColor=FF10F0&labelColor=000000)
 
+
+### 🚀 [**LIVE DEMO**](https://etuitionbd-b9b1d.web.app/) 🚀
+
+
 </div>
 
 ---
@@ -244,15 +248,7 @@ Firebase Authentication • Google OAuth • JWT Token Verification
 
 </div>
 
----
 
-## 🔑 Admin Credentials
-
-<div style="background: #000000; border: 2px solid #FF10F0; padding: 15px; border-radius: 8px; box-shadow: 0 0 20px rgba(255, 16, 240, 0.3);">
-```bash
-Email: admin@etuitionbd.com
-Password: admin123
-```
 
 </div>
 
@@ -296,33 +292,11 @@ NODE_ENV=production
 
 ---
 
-## 🎯 Commit History
 
-<div style="display: flex; gap: 20px; justify-content: center;">
 
-<div style="background: rgba(0, 240, 255, 0.1); border: 2px solid #00F0FF; padding: 15px; border-radius: 8px; text-align: center;">
 
-**Client Repository**
-```
-20+ Commits
-```
-Clear, meaningful messages
 
-</div>
 
-<div style="background: rgba(57, 255, 20, 0.1); border: 2px solid #39FF14; padding: 15px; border-radius: 8px; text-align: center;">
-
-**Server Repository**
-```
-12+ Commits
-```
-Documenting API development
-
-</div>
-
-</div>
-
----
 
 ## ✅ Quality Assurance
 
@@ -344,10 +318,8 @@ Documenting API development
 
 <div align="center" style="background: linear-gradient(90deg, #00F0FF, #39FF14, #FF10F0); padding: 20px; border-radius: 10px; margin-top: 30px;">
 
-### 🌟 **Made with Neon Energy** 🌟
 
-![Neon](https://img.shields.io/badge/Powered_by-Neon_Tech-00F0FF?style=for-the-badge&logoColor=00F0FF&labelColor=000000)
 
-**© 2024 eTuitionBD. All rights reserved.**
+**© 2025 eTuitionBD. All rights reserved.**
 
 </div>

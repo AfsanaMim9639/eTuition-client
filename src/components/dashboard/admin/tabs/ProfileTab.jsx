@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Calendar, Shield, Edit2, Save, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { userAPI } from '../../../../utils/api'; // ✅ Import API
 
 const ProfileTab = () => {
   const [user, setUser] = useState(null);
@@ -41,30 +42,22 @@ const ProfileTab = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // TODO: Add API call to update profile
-      // const response = await fetch(`/api/admin/profile`, {
-      //   method: 'PATCH',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('token')}`
-      //   },
-      //   body: JSON.stringify(formData)
-      // });
-
-      // Simulate API call
-      setTimeout(() => {
-        // Update localStorage
-        const updatedUser = { ...user, ...formData };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        setUser(updatedUser);
-        setIsEditing(false);
-        toast.success('Profile updated successfully!');
-        setLoading(false);
-      }, 1000);
-
+      // ✅ Call API to update profile
+      const response = await userAPI.updateProfile(formData);
+      
+      console.log('✅ Profile update response:', response.data);
+      
+      // ✅ Update localStorage with new user data
+      const updatedUser = response.data.user || { ...user, ...formData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setIsEditing(false);
+      
+      toast.success('Profile updated successfully!');
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      console.error('❌ Error updating profile:', error);
+      toast.error(error.response?.data?.message || 'Failed to update profile');
+    } finally {
       setLoading(false);
     }
   };
@@ -121,7 +114,7 @@ const ProfileTab = () => {
             <button
               onClick={handleCancel}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all bg-gray-700 text-white hover:bg-gray-600"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50"
             >
               <X className="w-4 h-4" />
               Cancel
@@ -129,7 +122,7 @@ const ProfileTab = () => {
             <button
               onClick={handleSave}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all disabled:opacity-50"
               style={{
                 background: loading ? 'rgba(100, 100, 100, 0.3)' : 'linear-gradient(135deg, #39FF14, #00F0FF)',
                 color: loading ? '#666' : '#000'
@@ -199,23 +192,15 @@ const ProfileTab = () => {
             )}
           </div>
 
-          {/* Email */}
+          {/* Email - Read only */}
           <div>
             <label className="flex items-center gap-2 text-gray-400 text-sm mb-2">
               <Mail className="w-4 h-4" />
               Email Address
             </label>
-            {isEditing ? (
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-cyan-400 focus:outline-none transition-colors"
-                placeholder="Enter your email"
-              />
-            ) : (
-              <p className="text-white text-lg font-medium">{user.email}</p>
+            <p className="text-white text-lg font-medium">{user.email}</p>
+            {isEditing && (
+              <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
             )}
           </div>
 
@@ -277,7 +262,7 @@ const ProfileTab = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 rounded-lg bg-gray-900/50">
             <p className="text-gray-400 text-sm mb-1">User ID</p>
-            <p className="text-white font-mono">{user._id || user.id || 'N/A'}</p>
+            <p className="text-white font-mono text-xs">{user._id || user.id || 'N/A'}</p>
           </div>
           <div className="p-4 rounded-lg bg-gray-900/50">
             <p className="text-gray-400 text-sm mb-1">Role</p>
@@ -289,7 +274,7 @@ const ProfileTab = () => {
           </div>
           <div className="p-4 rounded-lg bg-gray-900/50">
             <p className="text-gray-400 text-sm mb-1">Last Login</p>
-            <p className="text-white">{new Date().toLocaleDateString('en-US', { 
+            <p className="text-white text-sm">{new Date().toLocaleDateString('en-US', { 
               month: 'short', 
               day: 'numeric', 
               year: 'numeric',

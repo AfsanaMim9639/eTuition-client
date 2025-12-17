@@ -30,19 +30,19 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle timeout
+    // ✅ Handle timeout - Silent fail, let components handle it
     if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-      toast.error('Request timeout. Please try again.');
+      console.warn('⏱️ Request timeout');
       return Promise.reject(error);
     }
     
-    // Handle network errors
+    // ✅ Handle network errors - Silent fail, let components handle it
     if (error.message === 'Network Error' || !error.response) {
-      toast.error('Network error. Please check your connection.');
+      console.warn('🌐 Network error');
       return Promise.reject(error);
     }
     
-    // Handle 401 - ONLY logout for real auth errors
+    // ✅ Handle 401 - ONLY logout for real auth errors (KEEP TOAST)
     if (error.response?.status === 401) {
       const errorMessage = error.response?.data?.message || '';
       
@@ -65,7 +65,7 @@ api.interceptors.response.use(
       }
     }
     
-    // Handle 403
+    // ✅ Handle 403 - Account deactivated (KEEP TOAST)
     if (error.response?.status === 403) {
       const errorMessage = error.response?.data?.message || '';
       
@@ -82,19 +82,16 @@ api.interceptors.response.use(
       }
     }
     
-    // Handle 500
+    // ✅ Handle 500 - Silent fail, let components handle it
     if (error.response?.status === 500) {
-      const errorMessage = error.response?.data?.message || '';
-      
-      if (errorMessage.toLowerCase().includes('database') || 
-          errorMessage.toLowerCase().includes('connection')) {
-        toast.error('Server error. Please try again later.');
-      }
+      console.error('🔥 Server error:', error.response?.data?.message);
+      // No toast - let components show error UI
     }
     
-    // Handle 503
+    // ✅ Handle 503 - Silent fail, let components handle it
     if (error.response?.status === 503) {
-      toast.error('Service temporarily unavailable.');
+      console.warn('⚠️ Service unavailable');
+      // No toast - let components show error UI
     }
     
     return Promise.reject(error);
@@ -150,7 +147,7 @@ export const userAPI = {
   updateProfile: (data) => api.put('/users/profile', data),
 };
 
-// ✅ Application APIs - FIXED
+// Application APIs
 export const applicationAPI = {
   // Apply for tuition (with form data)
   applyForTuition: (data) => api.post('/applications/apply', data),
@@ -164,7 +161,7 @@ export const applicationAPI = {
   // Get applications for a specific tuition (Student view)
   getTuitionApplications: (tuitionId) => api.get(`/applications/tuition/${tuitionId}`),
   
-  // Update application status (Accept/Reject) - FIXED: using PATCH
+  // Update application status (Accept/Reject)
   updateApplicationStatus: (applicationId, data) => 
     api.patch(`/applications/${applicationId}/status`, data),
   
@@ -173,7 +170,7 @@ export const applicationAPI = {
     api.patch(`/applications/${applicationId}/withdraw`),
 };
 
-// ✅ Payment APIs - FIXED
+// Payment APIs
 export const paymentAPI = {
   // Create payment intent (Stripe)
   createPaymentIntent: (data) => api.post('/payments/create-intent', data),

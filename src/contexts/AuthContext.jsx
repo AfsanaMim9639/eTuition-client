@@ -76,122 +76,135 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login with email/password
-  const login = async (email, password) => {
-    try {
-      console.log('🔐 Starting login for:', email);
-      
-      // Firebase login
-      await signInWithEmailAndPassword(auth, email, password);
-      
-      console.log('✅ Firebase login successful');
-      
-      // Backend login
-      const response = await api.post('/auth/login', { email, password });
+  // Login with email/password
+const login = async (email, password, selectedRole) => { // ✅ Add selectedRole parameter
+  try {
+    console.log('🔐 Starting login for:', email, 'as', selectedRole);
+    
+    // Firebase login
+    await signInWithEmailAndPassword(auth, email, password);
+    
+    console.log('✅ Firebase login successful');
+    
+    // Backend login - ✅ Pass selectedRole
+    const response = await api.post('/auth/login', { 
+      email, 
+      password, 
+      selectedRole // ✅ Send to backend
+    });
 
-      console.log('✅ Backend login response:', response.data);
-      console.log('👤 User from backend:', response.data.user);
-      console.log('🎭 User role:', response.data.user?.role);
+    console.log('✅ Backend login response:', response.data);
+    console.log('👤 User from backend:', response.data.user);
+    console.log('🎭 User role:', response.data.user?.role);
 
-      // Validate response
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Login failed');
-      }
-
-      if (!response.data.user) {
-        throw new Error('User data not received from server');
-      }
-
-      if (!response.data.token) {
-        throw new Error('Token not received from server');
-      }
-
-      // Save token and user
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Update state
-      setUser(response.data.user);
-
-      console.log('✅ Login complete - User state updated:', response.data.user.role);
-
-      toast.success('Login successful!');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Login error:', error);
-      console.error('❌ Error response:', error.response?.data);
-      
-      // Clear any partial data
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setUser(null);
-      
-      // Handle specific errors
-      let errorMessage = 'Login failed';
-      
-      if (error.message?.includes('timeout')) {
-        errorMessage = 'Login timeout. Please try again.';
-      } else if (error.message?.includes('Network error')) {
-        errorMessage = 'Network error. Please check your connection.';
-      } else if (error.response?.status === 401) {
-        errorMessage = 'Invalid email or password';
-      } else if (error.response?.status === 500) {
-        errorMessage = 'Server error. Please try again later.';
-      } else {
-        errorMessage = error.response?.data?.message || error.message || 'Login failed';
-      }
-      
-      toast.error(errorMessage);
-      throw error;
+    // Validate response
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Login failed');
     }
-  };
 
-  // Google login
-  const googleLogin = async (role = 'student') => {
-    try {
-      console.log('🔐 Starting Google login...');
-      
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      console.log('✅ Google popup successful');
-
-      // Backend social login
-      const response = await api.post('/auth/social-login', {
-        name: user.displayName,
-        email: user.email,
-        profileImage: user.photoURL,
-        role
-      });
-
-      console.log('✅ Backend social login successful');
-
-      // Validate response
-      if (!response.data.token || !response.data.user) {
-        throw new Error('Invalid response from server');
-      }
-
-      // Save token and user
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      setUser(response.data.user);
-
-      toast.success('Login successful!');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Google login error:', error);
-      
-      // Handle specific errors
-      if (error.message?.includes('timeout')) {
-        toast.error('Login timeout. Please try again.');
-      } else if (error.message?.includes('Network error')) {
-        toast.error('Network error. Please check your connection.');
-      } else {
-        toast.error(error.response?.data?.message || error.message || 'Google login failed');
-      }
-      
-      throw error;
+    if (!response.data.user) {
+      throw new Error('User data not received from server');
     }
-  };
+
+    if (!response.data.token) {
+      throw new Error('Token not received from server');
+    }
+
+    // Save token and user
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    
+    // Update state
+    setUser(response.data.user);
+
+    console.log('✅ Login complete - User state updated:', response.data.user.role);
+
+    toast.success('Login successful!');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    console.error('❌ Error response:', error.response?.data);
+    
+    // Clear any partial data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    
+    // Handle specific errors
+    let errorMessage = 'Login failed';
+    
+    // ✅ Handle role mismatch error
+    if (error.response?.status === 403) {
+      errorMessage = error.response?.data?.message || 'Role mismatch';
+    } else if (error.message?.includes('timeout')) {
+      errorMessage = 'Login timeout. Please try again.';
+    } else if (error.message?.includes('Network error')) {
+      errorMessage = 'Network error. Please check your connection.';
+    } else if (error.response?.status === 401) {
+      errorMessage = 'Invalid email or password';
+    } else if (error.response?.status === 500) {
+      errorMessage = 'Server error. Please try again later.';
+    } else {
+      errorMessage = error.response?.data?.message || error.message || 'Login failed';
+    }
+    
+    toast.error(errorMessage);
+    throw error;
+  }
+};
+
+// Google login
+const googleLogin = async (selectedRole = 'student') => { // ✅ Rename to selectedRole
+  try {
+    console.log('🔐 Starting Google login with role:', selectedRole);
+    
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+
+    console.log('✅ Google popup successful');
+
+    // Backend social login - ✅ Pass selectedRole as role
+    const response = await api.post('/auth/social-login', {
+      name: user.displayName,
+      email: user.email,
+      profileImage: user.photoURL,
+      role: selectedRole // ✅ Send selected role
+    });
+
+    console.log('✅ Backend social login successful');
+
+    // Validate response
+    if (!response.data.token || !response.data.user) {
+      throw new Error('Invalid response from server');
+    }
+
+    // Save token and user
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    setUser(response.data.user);
+
+    toast.success('Login successful!');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Google login error:', error);
+    
+    // Handle specific errors
+    // ✅ Handle role mismatch error
+    if (error.response?.status === 403) {
+      toast.error(error.response?.data?.message || 'Role mismatch');
+    } else if (error.message?.includes('timeout')) {
+      toast.error('Login timeout. Please try again.');
+    } else if (error.message?.includes('Network error')) {
+      toast.error('Network error. Please check your connection.');
+    } else {
+      toast.error(error.response?.data?.message || error.message || 'Google login failed');
+    }
+    
+    throw error;
+  }
+};
+
+  
 
   // Logout
   const logout = async () => {
