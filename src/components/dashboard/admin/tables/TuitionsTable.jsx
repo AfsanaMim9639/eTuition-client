@@ -14,6 +14,8 @@ const rowVariants = {
 };
 
 const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove, onReject }) => {
+  console.log('🔍 Props:', { onApprove, onReject }); // ✅ এটা add করুন
+  console.log('📊 Tuitions:', tuitions); // ✅ এটা add করুন
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedTuitionId, setSelectedTuitionId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');

@@ -165,10 +165,14 @@ export const applicationAPI = {
   updateApplicationStatus: (applicationId, data) => 
     api.patch(`/applications/${applicationId}/status`, data),
   
+  //Update application
+  updateApplication: (applicationId, data) => 
+    api.patch(`/applications/${applicationId}`, data),
   // Withdraw application (Tutor)
   withdrawApplication: (applicationId) => 
     api.patch(`/applications/${applicationId}/withdraw`),
 };
+
 
 // Payment APIs
 export const paymentAPI = {
@@ -178,8 +182,8 @@ export const paymentAPI = {
   // Confirm payment after Stripe success
   confirmPayment: (data) => api.post('/payments/confirm', data),
   
-  // Get my payments history
-  getMyPayments: () => api.get('/payments/my-payments'),
+  // Get my payments history - ✅ FIXED PATH
+  getMyPayments: () => api.get('/payments/my/payments'),
   
   // Update payment status (Admin)
   updatePaymentStatus: (id, status) => api.put(`/payments/${id}/status`, { status }),

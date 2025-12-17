@@ -106,7 +106,7 @@ const LatestTutors = () => {
                 viewport={{ once: true }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
               >
-                {tutors.map((tutor) => (
+                {tutors.slice(0, 6).map((tutor) => (
                   <motion.div
                     key={tutor._id || tutor.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -163,19 +163,19 @@ const LatestTutors = () => {
                       </div>
 
                       {/* Subjects */}
-                      <div className="flex flex-wrap gap-2 justify-center mb-4 min-h-[64px]">
+                      <div className="flex flex-wrap gap-2 justify-center mb-4 min-h-[16px]">
                         {tutor.subjects && Array.isArray(tutor.subjects) && tutor.subjects.length > 0 ? (
                           <>
                             {tutor.subjects.slice(0, 3).map((subject, index) => (
                               <span 
                                 key={index} 
-                                className="px-3 py-1 bg-[#00ffcc]/20 border border-[#00ffcc]/30 rounded-full text-xs text-[#00ffcc]"
+                                className="px-3 py-1 bg-[#00ffcc]/20 border border-[#00ffcc]/30  text-xs text-[#00ffcc]"
                               >
                                 {subject}
                               </span>
                             ))}
                             {tutor.subjects.length > 3 && (
-                              <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 rounded-full text-xs text-gray-400">
+                              <span className="px-3 py-1 bg-gray-700/50 border border-gray-600  text-xs text-gray-400">
                                 +{tutor.subjects.length - 3} more
                               </span>
                             )}

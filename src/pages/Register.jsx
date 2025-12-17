@@ -113,7 +113,7 @@ const Register = () => {
   };
 
   return (
-    <div className="mt-20 min-h-screen bg-[#0a0f0d] flex items-center justify-center px-4 py-12">
+    <div className=" min-h-screen bg-[#0a0f0d] flex items-center justify-center px-4 py-12">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-48 w-96 h-96 bg-[#00ff88]/10 rounded-full blur-3xl"></div>
@@ -207,7 +207,17 @@ const Register = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form 
+              onSubmit={handleSubmit(onSubmit)} 
+              className="space-y-4"
+              onKeyDown={(e) => {
+                // ⭐ Enter key press হলে form submit হবে
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(onSubmit)();
+                }
+              }}
+            >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name */}
               <div className="space-y-2">

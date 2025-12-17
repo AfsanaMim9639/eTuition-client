@@ -234,7 +234,9 @@ export default function MyApplications() {
                   className="border-2 border-blue-500/30 bg-blue-500/5 rounded-lg p-4 mb-4"
                 >
                   <p className="text-sm font-medium text-blue-400 mb-2">Your Message:</p>
-                  <p className="text-sm text-gray-300 leading-relaxed">{app.message}</p>
+                 <p className="text-sm text-gray-300 leading-relaxed">
+                    {app.qualifications || app.message || 'No details provided'}
+                  </p>
                   {app.proposedRate && (
                     <p className="text-sm text-gray-300 mt-2">
                       <span className="font-medium text-cyan-400">Proposed Rate:</span> ৳{app.proposedRate}/month

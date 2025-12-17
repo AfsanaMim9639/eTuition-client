@@ -15,9 +15,14 @@ function AllTutors() {
     minExperience: ''
   });
 
+  // Auto-search with debounce
   useEffect(() => {
-    fetchTutors();
-  }, []);
+    const timeoutId = setTimeout(() => {
+      fetchTutors();
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [filters]);
 
   const fetchTutors = async () => {
     try {
@@ -52,11 +57,6 @@ function AllTutors() {
     });
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchTutors();
-  };
-
   const clearFilters = () => {
     setFilters({
       search: '',
@@ -65,11 +65,9 @@ function AllTutors() {
       minRating: '',
       minExperience: ''
     });
-    // Fetch all tutors after clearing
-    setTimeout(() => fetchTutors(), 100);
   };
 
-  if (loading) {
+  if (loading && tutors.length === 0) {
     return (
       <div className="min-h-screen bg-dark-bg pt-24 flex items-center justify-center">
         <div className="spinner-neon w-12 h-12"></div>
@@ -90,7 +88,7 @@ function AllTutors() {
 
         {/* Filters */}
         <div className="card-neon card-neon-blue p-6 rounded-xl mb-8 max-w-5xl mx-auto">
-          <form onSubmit={handleSearch} className="space-y-4">
+          <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Search by Name */}
               <input
@@ -147,14 +145,8 @@ function AllTutors() {
               />
             </div>
 
-            {/* Buttons */}
-            <div className="flex gap-3 justify-center">
-              <button
-                type="submit"
-                className="btn-neon btn-neon-primary px-6"
-              >
-                Search
-              </button>
+            {/* Clear Filters Button */}
+            <div className="flex justify-center">
               <button
                 type="button"
                 onClick={clearFilters}
@@ -163,8 +155,15 @@ function AllTutors() {
                 Clear Filters
               </button>
             </div>
-          </form>
+          </div>
         </div>
+
+        {/* Loading indicator while searching */}
+        {loading && tutors.length > 0 && (
+          <div className="text-center py-4">
+            <div className="inline-block spinner-neon w-8 h-8"></div>
+          </div>
+        )}
 
         {/* Error State */}
         {error && (
@@ -216,7 +215,6 @@ function AllTutors() {
 
                     {/* Location & Experience */}
                     <div className="space-y-2 mb-4">
-                     
                       {(tutor.address || tutor.location) && (
                         <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
                           <FaMapMarkerAlt className="text-neon-pink flex-shrink-0" />
@@ -233,20 +231,20 @@ function AllTutors() {
 
                     {/* Subjects */}
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
-              {tutor.subjects?.slice(0, 3).map((subject, index) => (
-                <span 
-                  key={index} 
-                  className="px-3 py-1 bg-neon-blue/20 border border-neon-blue/30 text-xs text-neon-blue text-center"
-                >
-                  {subject}
-                </span>
-              ))}
-              {tutor.subjects?.length > 3 && (
-                <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 text-xs text-gray-400 text-center">
-                  +{tutor.subjects.length - 3} more
-                </span>
-              )}
-            </div>
+                      {tutor.subjects?.slice(0, 3).map((subject, index) => (
+                        <span 
+                          key={index} 
+                          className="px-3 py-1 bg-neon-blue/20 border border-neon-blue/30 text-xs text-neon-blue text-center"
+                        >
+                          {subject}
+                        </span>
+                      ))}
+                      {tutor.subjects?.length > 3 && (
+                        <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 text-xs text-gray-400 text-center">
+                          +{tutor.subjects.length - 3} more
+                        </span>
+                      )}
+                    </div>
 
                     {/* View Profile Button */}
                     <div className="pt-3 border-t border-neon-blue/30">

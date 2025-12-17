@@ -43,13 +43,13 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete, onView, onE
       <table className="w-full">
         <thead>
           <tr style={{ borderBottom: '2px solid rgba(255, 16, 240, 0.2)' }}>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">User</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Email</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Phone</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Role</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Status</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Joined</th>
-            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Actions</th>
+            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300">User</th>
+            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300">Email</th>
+            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300">Phone</th>
+            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300">Role</th>
+            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300">Status</th>
+            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300">Joined</th>
+            <th className="px-4 py-2 text-center text-xs font-semibold text-gray-300">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -62,32 +62,32 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete, onView, onE
               className="border-b border-gray-800 hover:bg-gray-900/50 transition-colors"
             >
               {/* User Info */}
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-3">
+              <td className="px-4 py-2">
+                <div className="flex items-center gap-2">
                   <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white"
+                    className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-sm"
                     style={{
                       background: 'linear-gradient(135deg, #FF10F0, #00F0FF)'
                     }}
                   >
                     {user.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
-                  <span className="text-white font-medium">{user.name || 'Unknown'}</span>
+                  <span className="text-white font-medium text-sm">{user.name || 'Unknown'}</span>
                 </div>
               </td>
 
               {/* Email */}
-              <td className="px-6 py-4 text-gray-300">{user.email}</td>
+              <td className="px-4 py-2 text-gray-300 text-xs max-w-[200px] truncate">{user.email}</td>
 
               {/* Phone */}
-              <td className="px-6 py-4 text-gray-300">{user.phone || 'N/A'}</td>
+              <td className="px-4 py-2 text-gray-300 text-sm">{user.phone || 'N/A'}</td>
 
               {/* Role Select */}
-              <td className="px-6 py-4">
+              <td className="px-4 py-2">
                 <select
                   value={user.role}
                   onChange={(e) => onUpdateRole(user._id, e.target.value)}
-                  className="px-3 py-1.5 rounded-lg border-2 font-semibold transition-all cursor-pointer"
+                  className="px-2 py-1 rounded-lg border-2 font-semibold transition-all cursor-pointer text-xs"
                   style={{
                     backgroundColor: 'rgba(18, 18, 18, 0.8)',
                     borderColor: getRoleColor(user.role),
@@ -101,11 +101,11 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete, onView, onE
               </td>
 
               {/* Status Select */}
-              <td className="px-6 py-4">
+              <td className="px-4 py-2">
                 <select
                   value={user.status || 'pending'}
                   onChange={(e) => onUpdateStatus(user._id, e.target.value)}
-                  className="px-3 py-1.5 rounded-lg border-2 font-semibold transition-all cursor-pointer"
+                  className="px-2 py-1 rounded-lg border-2 font-semibold transition-all cursor-pointer text-xs"
                   style={{
                     backgroundColor: 'rgba(18, 18, 18, 0.8)',
                     borderColor: getStatusColor(user.status || 'pending'),
@@ -121,7 +121,7 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete, onView, onE
               </td>
 
               {/* Joined Date */}
-              <td className="px-6 py-4 text-gray-300">
+              <td className="px-4 py-2 text-gray-300 text-xs">
                 {user.createdAt 
                   ? new Date(user.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -132,9 +132,9 @@ const UsersTable = ({ users, onUpdateRole, onUpdateStatus, onDelete, onView, onE
                 }
               </td>
 
-              {/* Actions - ⭐ UPDATED with View & Edit buttons */}
-              <td className="px-6 py-4">
-                <div className="flex items-center justify-center gap-2">
+              {/* Actions */}
+              <td className="px-4 py-2">
+                <div className="flex items-center justify-center gap-1.5">
                   {/* View Button */}
                   <motion.button
                     onClick={() => onView(user)}

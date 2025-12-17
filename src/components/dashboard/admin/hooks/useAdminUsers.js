@@ -65,14 +65,16 @@ export const useAdminUsers = () => {
       const data = await updateUserRole(userId, newRole);
       
       if (data.success) {
-        toast.success('User role updated successfully!', { id: loadingToast });
+        toast.dismiss(loadingToast); // ⭐ First dismiss loading toast
+        toast.success('User role updated successfully!', { duration: 3000 });
         await loadUsers(currentPage);
       } else {
         throw new Error(data.message || 'Failed to update role');
       }
     } catch (err) {
       console.error('Error updating user role:', err);
-      toast.error(err.message || 'Failed to update user role', { id: loadingToast });
+      toast.dismiss(loadingToast);
+      toast.error(err.message || 'Failed to update user role', { duration: 3000 });
     }
   };
 
@@ -83,38 +85,37 @@ export const useAdminUsers = () => {
       const data = await updateUserStatus(userId, newStatus);
       
       if (data.success) {
-        toast.success('User status updated successfully!', { id: loadingToast });
+        toast.dismiss(loadingToast); // ⭐ First dismiss loading toast
+        toast.success('User status updated successfully!', { duration: 3000 });
         await loadUsers(currentPage);
       } else {
         throw new Error(data.message || 'Failed to update status');
       }
     } catch (err) {
       console.error('Error updating user status:', err);
-      toast.error(err.message || 'Failed to update user status', { id: loadingToast });
+      toast.dismiss(loadingToast);
+      toast.error(err.message || 'Failed to update user status', { duration: 3000 });
     }
   };
 
+  // ⭐ UPDATED: Delete without window.confirm - handled in UsersTab component now
   const handleDeleteUser = async (userId) => {
-    const confirmDelete = window.confirm(
-      '⚠️ Are you sure you want to delete this user?\n\nThis action cannot be undone.'
-    );
-    
-    if (!confirmDelete) return;
-    
     const loadingToast = toast.loading('Deleting user...');
     
     try {
       const data = await deleteUser(userId);
       
       if (data.success) {
-        toast.success('User deleted successfully!', { id: loadingToast });
+        toast.dismiss(loadingToast); // ⭐ First dismiss loading toast
+        toast.success('User deleted successfully!', { duration: 3000 }); // ⭐ Then show success
         await loadUsers(currentPage);
       } else {
         throw new Error(data.message || 'Failed to delete user');
       }
     } catch (err) {
       console.error('Error deleting user:', err);
-      toast.error(err.message || 'Failed to delete user', { id: loadingToast });
+      toast.dismiss(loadingToast); // ⭐ Dismiss loading toast
+      toast.error(err.message || 'Failed to delete user', { duration: 3000 }); // ⭐ Then show error
     }
   };
 
@@ -138,7 +139,8 @@ export const useAdminUsers = () => {
       const data = await updateUserInfo(userId, userData);
       
       if (data.success) {
-        toast.success('User information updated successfully!', { id: loadingToast });
+        toast.dismiss(loadingToast); // ⭐ First dismiss loading toast
+        toast.success('User information updated successfully!', { duration: 3000 });
         setIsEditModalOpen(false);
         setSelectedUser(null);
         await loadUsers(currentPage);
@@ -147,7 +149,8 @@ export const useAdminUsers = () => {
       }
     } catch (err) {
       console.error('Error updating user information:', err);
-      toast.error(err.message || 'Failed to update user information', { id: loadingToast });
+      toast.dismiss(loadingToast);
+      toast.error(err.message || 'Failed to update user information', { duration: 3000 });
       throw err;
     }
   };
@@ -168,6 +171,7 @@ export const useAdminUsers = () => {
     editUser: handleEditUser,
     saveUserInfo: handleSaveUserInfo,
     selectedUser,
+    setSelectedUser, // ⭐ Added this export
     isViewModalOpen,
     setIsViewModalOpen,
     isEditModalOpen,

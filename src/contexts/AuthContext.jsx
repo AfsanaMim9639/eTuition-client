@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
 
-      toast.success('Registration successful!');
+      //toast.success('Registration successful!');
       return response.data;
     } catch (error) {
       console.error('❌ Register error:', error);
