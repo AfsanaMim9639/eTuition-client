@@ -238,7 +238,7 @@ function AllTuitions() {
   }
 
   return (
-    <div className="bg-dark-bg pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 overflow-x-hidden">
+    <div className="bg-dark-bg pt-16 sm:pt-20 md:pt-10 pb-8 sm:pb-12 overflow-x-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
         {/* Header - Responsive */}
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-3 sm:mb-4">
