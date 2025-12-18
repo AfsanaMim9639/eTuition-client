@@ -1,14 +1,15 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BarChart3, Users, BookOpen, FileText, User } from 'lucide-react'; // ✅ User import করুন
+import { BarChart3, Users, BookOpen, FileText, MessageCircle, User } from 'lucide-react';
 
 const TABS = [
   { id: 'dashboard', icon: BarChart3, label: 'Dashboard', color: '#FF10F0', path: '/dashboard/admin' },
   { id: 'users', icon: Users, label: 'User Management', color: '#00F0FF', path: '/dashboard/admin/users' },
   { id: 'tuitions', icon: BookOpen, label: 'Tuition Management', color: '#39FF14', path: '/dashboard/admin/tuitions' },
   { id: 'reports', icon: FileText, label: 'Reports & Analytics', color: '#FF10F0', path: '/dashboard/admin/reports' },
-  { id: 'profile', icon: User, label: 'Profile', color: '#00F0FF', path: '/dashboard/admin/profile' } // ✅ এটা add করুন
+  { id: 'messages', icon: MessageCircle, label: 'Messages', color: '#00ffcc', path: '/dashboard/admin/messages' },
+  { id: 'profile', icon: User, label: 'Profile', color: '#00F0FF', path: '/dashboard/admin/profile' }
 ];
 
 const AdminTabNavigation = ({ activeTab }) => {

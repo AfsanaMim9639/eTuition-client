@@ -9,6 +9,7 @@ import {
   FaSchool,
   FaCamera
 } from 'react-icons/fa';
+import { Toaster, toast } from 'react-hot-toast';
 import { userAPI } from '../../../utils/api';
 
 const StudentProfile = () => {
@@ -65,10 +66,40 @@ const StudentProfile = () => {
       const updatedUser = response.data.data || response.data.user;
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
-      alert('Profile updated successfully!');
+      toast.success('Profile updated successfully!', {
+        duration: 4000,
+        position: 'top-right',
+        style: {
+          background: '#0f1512',
+          color: '#00ffcc',
+          border: '2px solid #00ffcc',
+          borderRadius: '12px',
+          padding: '16px',
+          fontWeight: '600'
+        },
+        iconTheme: {
+          primary: '#00ffcc',
+          secondary: '#0f1512',
+        },
+      });
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert(error.response?.data?.message || 'Failed to update profile');
+      toast.error(error.response?.data?.message || 'Failed to update profile', {
+        duration: 4000,
+        position: 'top-right',
+        style: {
+          background: '#0f1512',
+          color: '#ff4444',
+          border: '2px solid #ff4444',
+          borderRadius: '12px',
+          padding: '16px',
+          fontWeight: '600'
+        },
+        iconTheme: {
+          primary: '#ff4444',
+          secondary: '#0f1512',
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -76,6 +107,9 @@ const StudentProfile = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      {/* Toast Container */}
+      <Toaster />
+      
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffcc] to-[#00ff88] bg-clip-text text-transparent">
@@ -84,7 +118,7 @@ const StudentProfile = () => {
         <p className="text-gray-400 mt-2">Update your personal information</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         {/* Profile Image */}
         <div className="bg-gradient-to-br from-[#0f1512] to-[#0a0f0d] border-2 border-[#00ffcc]/30 rounded-xl p-8">
           <h2 className="text-xl font-bold text-[#00ffcc] mb-6">Profile Picture</h2>
@@ -225,7 +259,8 @@ const StudentProfile = () => {
 
         {/* Submit Button */}
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           disabled={loading}
           className="w-full px-6 py-4 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] text-[#0a0f0d] rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-[#00ffcc]/30 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -241,7 +276,7 @@ const StudentProfile = () => {
             </>
           )}
         </button>
-      </form>
+      </div>
     </div>
   );
 };

@@ -7,17 +7,19 @@ import DashboardTab from './tabs/DashboardTab';
 import UsersTab from './tabs/UsersTab';
 import TuitionsTab from './tabs/TuitionsTab';
 import ReportsTab from './tabs/ReportsTab';
+import ProfileTab from './tabs/ProfileTab';
+import Messages from '../../../pages/dashboard/admin/Messages';
 import { useAdminStats } from './hooks/useAdminStats';
 import { useAdminUsers } from './hooks/useAdminUsers';
 import { useAdminTuitions } from './hooks/useAdminTuitions';
-import { useAdminReports } from './hooks/useAdminReports'; // ✅ Changed from useAdminPayments
-import ProfileTab from './tabs/ProfileTab';
+import { useAdminReports } from './hooks/useAdminReports';
+
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const statsHook = useAdminStats();
   const usersHook = useAdminUsers();
   const tuitionsHook = useAdminTuitions();
-  const reportsHook = useAdminReports(); // ✅ Changed from paymentsHook
+  const reportsHook = useAdminReports();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#0a0f0d', color: 'white' }}>
@@ -29,8 +31,8 @@ const AdminDashboard = () => {
           {activeTab === 'dashboard' && <DashboardTab stats={statsHook.stats} />}
           {activeTab === 'users' && <UsersTab usersHook={usersHook} />}
           {activeTab === 'tuitions' && <TuitionsTab tuitionsHook={tuitionsHook} />}
-          {/* ✅ Changed prop name from paymentsHook to reportsHook */}
           {activeTab === 'reports' && <ReportsTab reportsHook={reportsHook} />}
+          {activeTab === 'messages' && <Messages />}
           {activeTab === 'profile' && <ProfileTab />}
         </AnimatePresence>
       </div>

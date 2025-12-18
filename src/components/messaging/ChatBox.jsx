@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FaPaperPlane, FaUser } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 import { messageAPI } from '../../utils/messageService';
@@ -26,15 +26,19 @@ const ChatBox = ({ conversation, currentUser, onConversationUpdate }) => {
     // Listen for new messages
     const handleNewMessage = (data) => {
       if (data.conversationId === conversation._id) {
-        setMessages(prev => [...prev, data.message]);
+        // Only add if not already in messages (prevent duplicates)
+        setMessages(prev => {
+          const exists = prev.some(m => m._id === data.message._id);
+          if (exists) return prev;
+          return [...prev, data.message];
+        });
         scrollToBottom();
-        onConversationUpdate?.();
       }
     };
 
     // Listen for typing
     const handleTyping = (data) => {
-      if (data.conversationId === conversation._id) {
+      if (data.conversationId === conversation._id && data.userId !== currentUser._id) {
         setTypingUsers(prev => {
           const newSet = new Set(prev);
           if (data.isTyping) {
@@ -60,55 +64,99 @@ const ChatBox = ({ conversation, currentUser, onConversationUpdate }) => {
 
     return () => {
       socketService.leaveConversation(conversation._id);
-      socketService.removeListener('new-message');
-      socketService.removeListener('user-typing');
-      socketService.removeListener('message-deleted');
+      socketService.removeListener('new-message', handleNewMessage);
+      socketService.removeListener('user-typing', handleTyping);
+      socketService.removeListener('message-deleted', handleMessageDeleted);
     };
-  }, [conversation._id]);
+  }, [conversation._id, currentUser._id]);
 
   const loadMessages = async () => {
     try {
       setLoading(true);
       const response = await messageAPI.getMessages(conversation._id);
-      setMessages(response.data);
+      setMessages(response.data || []);
       setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error('Error loading messages:', error);
-      toast.error('Failed to load messages', { duration: 3000 });
+      if (error.response?.status !== 404) {
+        toast.error('Failed to load messages', { duration: 3000 });
+      }
+      setMessages([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSendMessage = async (content) => {
-    if (!content.trim()) return;
+    if (!content.trim() || sending) return;
+
+    // Create optimistic message
+    const tempId = `temp-${Date.now()}`;
+    const optimisticMessage = {
+      _id: tempId,
+      content: content.trim(),
+      sender: {
+        _id: currentUser._id,
+        name: currentUser.name
+      },
+      createdAt: new Date().toISOString(),
+      isOptimistic: true
+    };
 
     try {
       setSending(true);
-      const response = await messageAPI.send(conversation._id, content);
-      setMessages(prev => [...prev, response.data]);
+      
+      // Add message to UI immediately
+      setMessages(prev => [...prev, optimisticMessage]);
       scrollToBottom();
-      onConversationUpdate?.();
+      
+      // Send to backend
+      const response = await messageAPI.send(conversation._id, content.trim());
+      
+      // Replace optimistic message with real one
+      setMessages(prev => 
+        prev.map(m => m._id === tempId ? response.data : m)
+      );
+      
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message', { duration: 3000 });
+      
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(m => m._id !== tempId));
+      
+      toast.error(error.response?.data?.message || 'Failed to send message', { 
+        duration: 3000 
+      });
     } finally {
       setSending(false);
     }
   };
 
   const handleDeleteMessage = async (messageId) => {
+    // Optimistically remove from UI
+    const messageToDelete = messages.find(m => m._id === messageId);
+    setMessages(prev => prev.filter(m => m._id !== messageId));
+    
     try {
       await messageAPI.delete(messageId);
-      setMessages(prev => prev.filter(m => m._id !== messageId));
     } catch (error) {
       console.error('Error deleting message:', error);
+      
+      // Restore message on error
+      if (messageToDelete) {
+        setMessages(prev => [...prev, messageToDelete].sort((a, b) => 
+          new Date(a.createdAt) - new Date(b.createdAt)
+        ));
+      }
+      
       toast.error('Failed to delete message', { duration: 3000 });
     }
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
   };
 
   if (loading) {
@@ -163,6 +211,7 @@ const ChatBox = ({ conversation, currentUser, onConversationUpdate }) => {
                 message={message}
                 isOwn={message.sender._id === currentUser?._id}
                 onDelete={handleDeleteMessage}
+                isOptimistic={message.isOptimistic}
               />
             ))}
             

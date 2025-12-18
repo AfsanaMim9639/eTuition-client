@@ -22,7 +22,7 @@ const Messages = () => {
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [tutors, setTutors] = useState([]);
   const [loadingTutors, setLoadingTutors] = useState(false);
-  const [creatingChat, setCreatingChat] = useState(false);
+  const [creatingChatId, setCreatingChatId] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -33,25 +33,50 @@ const Messages = () => {
         socketService.connect(token);
       }
 
-      socketService.onNewMessage((data) => {
+      // Define handler function
+      const handleNewMessage = (data) => {
         console.log('📨 New message received:', data);
-        loadConversations();
         
-        // Only show notification if message is from another user and conversation is not currently selected
         const sender = data.sender || data.message?.sender;
-        if (sender?._id !== user._id && 
-            data.conversationId !== selectedConversation?._id) {
-          toast.success(`New message from ${sender?.name || 'Someone'}`, {
-            duration: 3000,
-            icon: '💬'
+        
+        // Update conversations list
+        setConversations(prevConvs => {
+          const updated = prevConvs.map(conv => {
+            if (conv._id === data.conversationId) {
+              return {
+                ...conv,
+                lastMessage: data.message,
+                myUnreadCount: sender?._id !== user._id ? (conv.myUnreadCount || 0) + 1 : conv.myUnreadCount
+              };
+            }
+            return conv;
+          });
+          return updated;
+        });
+        
+        // Show notification only for messages from others
+        if (sender?._id !== user._id) {
+          setUnreadCount(prev => prev + 1);
+          
+          // Check if this conversation is currently selected
+          setSelectedConversation(prevSelected => {
+            if (prevSelected?._id !== data.conversationId) {
+              toast.success(`New message from ${sender?.name || 'Someone'}`, {
+                duration: 3000,
+                icon: '💬'
+              });
+            }
+            return prevSelected;
           });
         }
-      });
-    }
+      };
 
-    return () => {
-      socketService.removeListener('new-message');
-    };
+      socketService.onNewMessage(handleNewMessage);
+
+      return () => {
+        socketService.removeListener('new-message', handleNewMessage);
+      };
+    }
   }, [user]);
 
   useEffect(() => {
@@ -84,7 +109,6 @@ const Messages = () => {
       setConversations([]);
       
       if (error.response?.status === 401) {
-        // Authentication error - check if token exists
         const token = localStorage.getItem('token');
         if (!token) {
           toast.error('Please login to access messages', { duration: 3000 });
@@ -100,7 +124,6 @@ const Messages = () => {
           }, 1500);
         }
       } else if (error.response?.status === 404) {
-        // No conversations found - this is okay, don't show toast
         setConversations([]);
       } else {
         const errorMsg = error.response?.data?.message || 'Failed to load conversations';
@@ -122,7 +145,6 @@ const Messages = () => {
       
       if (response.data && response.data.data) {
         setTutors(response.data.data);
-        // No toast for empty tutors - UI already shows "No tutors available"
       }
     } catch (error) {
       console.error('Error loading tutors:', error);
@@ -135,22 +157,29 @@ const Messages = () => {
   // Create new conversation
   const handleCreateChat = async (tutorId, tutorName) => {
     try {
-      setCreatingChat(true);
+      setCreatingChatId(tutorId);
       
       const response = await conversationAPI.createOrGet(tutorId, null, 'student-tutor');
       
       if (response.success) {
-        toast.success(`Chat with ${tutorName} started!`, {
-          duration: 3000,
-          icon: '✅'
-        });
         setShowNewChatModal(false);
-        await loadConversations();
         
-        // Select the new conversation
-        if (response.data) {
+        // Check if conversation already exists in list
+        const existingConv = conversations.find(c => c._id === response.data._id);
+        
+        if (existingConv) {
+          // Just select it, no need to reload
+          setSelectedConversation(existingConv);
+        } else {
+          // Add to list and select
+          setConversations(prev => [response.data, ...prev]);
           setSelectedConversation(response.data);
         }
+        
+        toast.success(`Chat with ${tutorName} ready!`, {
+          duration: 2000,
+          icon: '✅'
+        });
       } else {
         toast.error('Could not start chat. Please try again.', { duration: 3000 });
       }
@@ -159,7 +188,7 @@ const Messages = () => {
       console.error('Error creating chat:', error);
       toast.error(error.response?.data?.message || 'Failed to start chat', { duration: 4000 });
     } finally {
-      setCreatingChat(false);
+      setCreatingChatId(null);
     }
   };
 
@@ -167,32 +196,46 @@ const Messages = () => {
     setSelectedConversation(conversation);
     
     if (conversation.myUnreadCount > 0) {
+      // Optimistically update UI
+      setUnreadCount(prev => Math.max(0, prev - conversation.myUnreadCount));
+      setConversations(prevConvs => 
+        prevConvs.map(conv => 
+          conv._id === conversation._id 
+            ? { ...conv, myUnreadCount: 0 }
+            : conv
+        )
+      );
+      
+      // Then update backend
       conversationAPI.markAsRead(conversation._id)
-        .then(() => {
-          loadConversations();
-          // Toast removed - user already knows they selected the conversation
-        })
         .catch((error) => {
           console.error('Error marking as read:', error);
-          // Only show error toast if marking as read fails
-          toast.error('Could not mark messages as read', { duration: 3000 });
+          // Revert on error
+          loadConversations();
         });
     }
   };
 
   const handleDeleteConversation = async (conversationId) => {
+    // Optimistically update UI
+    const deletedConv = conversations.find(c => c._id === conversationId);
+    setConversations(prev => prev.filter(c => c._id !== conversationId));
+    if (selectedConversation?._id === conversationId) {
+      setSelectedConversation(null);
+    }
+    if (deletedConv?.myUnreadCount) {
+      setUnreadCount(prev => Math.max(0, prev - deletedConv.myUnreadCount));
+    }
+    
     try {
       await conversationAPI.delete(conversationId);
-      // Success toast removed - user already confirmed deletion
-      loadConversations();
-      if (selectedConversation?._id === conversationId) {
-        setSelectedConversation(null);
-      }
     } catch (error) {
       console.error('Error deleting conversation:', error);
       toast.error(error.response?.data?.message || 'Failed to delete conversation', { 
         duration: 4000 
       });
+      // Reload on error
+      loadConversations();
     }
   };
 
@@ -345,10 +388,10 @@ const Messages = () => {
                       </div>
                       <button
                         onClick={() => handleCreateChat(tutor._id, tutor.name)}
-                        disabled={creatingChat}
+                        disabled={creatingChatId === tutor._id}
                         className="px-4 py-2 bg-gradient-to-r from-[#00ffcc] to-[#00ff88] rounded-lg text-[#0a0f0d] font-medium hover:shadow-lg transition-all disabled:opacity-50"
                       >
-                        {creatingChat ? 'Starting...' : 'Chat'}
+                        {creatingChatId === tutor._id ? 'Starting...' : 'Chat'}
                       </button>
                     </div>
                   ))}
