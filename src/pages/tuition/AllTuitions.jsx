@@ -37,7 +37,6 @@ function AllTuitions() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
   
-  // Apply Modal State
   const [applyModal, setApplyModal] = useState({
     show: false,
     tuition: null
@@ -49,7 +48,6 @@ function AllTuitions() {
   });
   const [applyLoading, setApplyLoading] = useState(false);
 
-  // ✅ Scroll to top on component mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -172,7 +170,6 @@ function AllTuitions() {
     setPagination({ ...pagination, currentPage: 1 });
   };
 
-  // ✅ Apply functions - Updated with correct fields
   const handleApplyClick = (tuition) => {
     if (!isAuthenticated) {
       toast.error('Please login as a tutor to apply');
@@ -196,7 +193,6 @@ function AllTuitions() {
   const handleApplySubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Updated validation
     if (applicationForm.qualifications.trim().length < 20) {
       toast.error('Qualifications must be at least 20 characters');
       return;
@@ -215,7 +211,6 @@ function AllTuitions() {
     try {
       setApplyLoading(true);
       
-      // ✅ Send correct data format
       await applicationAPI.applyForTuition({
         tuitionId: applyModal.tuition._id,
         qualifications: applicationForm.qualifications.trim(),
@@ -236,48 +231,48 @@ function AllTuitions() {
 
   if (loading && tuitions.length === 0) {
     return (
-      <div className="min-h-screen bg-dark-bg pt-24 flex items-center justify-center">
-        <div className="spinner-neon w-12 h-12"></div>
+      <div className="min-h-screen bg-dark-bg pt-16 sm:pt-20 md:pt-24 flex items-center justify-center px-4">
+        <div className="spinner-neon w-10 h-10 sm:w-12 sm:h-12"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-dark-bg pt-12 pb-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
+    <div className="bg-dark-bg pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 overflow-x-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
+        {/* Header - Responsive */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-3 sm:mb-4">
           All <span className="gradient-text">Tuitions</span>
         </h1>
-        <p className="text-center text-gray-400 mb-8">
+        <p className="text-center text-sm sm:text-base text-gray-400 mb-6 sm:mb-8">
           Explore {pagination.totalItems}+ tuition opportunities
         </p>
 
-        {/* Compact Filters */}
-        <div className="card-neon card-neon-pink p-3 rounded-xl mb-8 max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row gap-2 items-stretch">
+        {/* Filters - Responsive */}
+        <div className="card-neon card-neon-pink p-3 sm:p-4 rounded-xl mb-6 sm:mb-8 w-full overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-2 sm:gap-3 items-stretch w-full">
             {/* Search Bar */}
-            <div className="lg:w-2/5">
+            <div className="w-full lg:w-2/5 min-w-0">
               <div className="relative h-full">
-                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-pink text-sm z-10" />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-pink text-xs sm:text-sm z-10" />
                 <input
                   type="text"
                   name="search"
                   value={filters.search}
                   onChange={handleFilterChange}
-                  placeholder="Search by title, subject, or location..."
-                  className="input-neon w-full h-full pl-10 py-2 text-sm"
+                  
+                  className="input-neon w-full h-full pl-8 sm:pl-10 pr-3 py-2 text-xs sm:text-sm"
                 />
               </div>
             </div>
 
-            {/* Filters */}
-            <div className="lg:w-3/5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2">
+            {/* Filters Grid - Responsive */}
+            <div className="w-full lg:w-3/5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 min-w-0">
               <select
                 name="class"
                 value={filters.class}
                 onChange={handleFilterChange}
-                className="input-neon text-xs py-2 px-2"
+                className="input-neon text-xs py-2 px-1 sm:px-2 w-full min-w-0"
               >
                 <option value="">Class</option>
                 {filterOptions.grades?.map(grade => (
@@ -289,7 +284,7 @@ function AllTuitions() {
                 name="subject"
                 value={filters.subject}
                 onChange={handleFilterChange}
-                className="input-neon text-xs py-2 px-2"
+                className="input-neon text-xs py-2 px-1 sm:px-2 w-full min-w-0"
               >
                 <option value="">Subject</option>
                 {filterOptions.subjects?.map(subject => (
@@ -301,7 +296,7 @@ function AllTuitions() {
                 name="tutoring_type"
                 value={filters.tutoring_type}
                 onChange={handleFilterChange}
-                className="input-neon text-xs py-2 px-2"
+                className="input-neon text-xs py-2 px-1 sm:px-2 w-full min-w-0"
               >
                 <option value="">Type</option>
                 {filterOptions.tutoringTypes?.map(type => (
@@ -315,12 +310,12 @@ function AllTuitions() {
                 name="preferred_medium"
                 value={filters.preferred_medium}
                 onChange={handleFilterChange}
-                className="input-neon text-xs py-2 px-2"
+                className="input-neon text-xs py-2 px-1 sm:px-2 w-full min-w-0"
               >
                 <option value="">Medium</option>
                 {filterOptions.mediums?.map(medium => (
                   <option key={medium} value={medium}>
-                    {medium.replace(' Medium', '').replace('English Version', 'Version')}
+                    {medium.replace(' Medium', '').replace('English Version', 'Ver.')}
                   </option>
                 ))}
               </select>
@@ -331,7 +326,7 @@ function AllTuitions() {
                 value={filters.minSalary}
                 onChange={handleFilterChange}
                 placeholder="Min ৳"
-                className="input-neon text-xs py-2 px-2"
+                className="input-neon text-xs py-2 px-1 sm:px-2 w-full min-w-0"
                 min="0"
               />
 
@@ -341,13 +336,13 @@ function AllTuitions() {
                 value={filters.maxSalary}
                 onChange={handleFilterChange}
                 placeholder="Max ৳"
-                className="input-neon text-xs py-2 px-2"
+                className="input-neon text-xs py-2 px-1 sm:px-2 w-full min-w-0"
                 min="0"
               />
 
               <select
                 onChange={handleSortChange}
-                className="input-neon text-xs py-2 px-2"
+                className="input-neon text-xs py-2 px-1 sm:px-2 w-full min-w-0"
                 defaultValue="date-newest"
               >
                 <option value="date-newest">Newest</option>
@@ -370,63 +365,63 @@ function AllTuitions() {
           </div>
         </div>
 
-        {/* Error State */}
+        {/* Error State - Responsive */}
         {error && (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 border-2 border-red-500/30 mb-4">
-              <span className="text-2xl">⚠️</span>
+          <div className="text-center py-8 sm:py-12 px-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-500/10 border-2 border-red-500/30 mb-3 sm:mb-4">
+              <span className="text-xl sm:text-2xl">⚠️</span>
             </div>
-            <p className="text-red-400 mb-4">{error}</p>
+            <p className="text-sm sm:text-base text-red-400 mb-3 sm:mb-4">{error}</p>
             <button
               onClick={fetchTuitions}
-              className="btn-neon btn-neon-primary"
+              className="btn-neon btn-neon-primary text-sm sm:text-base px-4 sm:px-6 py-2"
             >
               Try Again
             </button>
           </div>
         )}
 
-        {/* Tuitions Grid */}
+        {/* Tuitions Grid - Same as Desktop */}
         {!error && (
           <>
             {tuitions.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 auto-rows-fr">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 auto-rows-fr w-full">
                   {tuitions.map(tuition => (
                     <div key={tuition._id} className="relative">
                       <TuitionCard tuition={tuition} />
                       
-                      {/* Apply Button - Only for logged-in tutors */}
                       {isAuthenticated && user?.role === 'tutor' && (
                         <button
                           onClick={() => handleApplyClick(tuition)}
-                          className="absolute bottom-4 right-4 px-4 py-2 bg-gradient-to-r from-neon-pink to-neon-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-neon-pink/50 transition-all flex items-center gap-2"
+                          className="absolute bottom-4 right-4 px-3 sm:px-4 py-2 text-xs sm:text-sm bg-gradient-to-r from-neon-pink to-neon-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-neon-pink/50 transition-all flex items-center gap-1 sm:gap-2"
                         >
-                          <FaPaperPlane />
-                          Apply Now
+                          <FaPaperPlane className="text-xs sm:text-sm" />
+                          <span className="hidden sm:inline">Apply Now</span>
+                          <span className="sm:hidden">Apply</span>
                         </button>
                       )}
                     </div>
                   ))}
                 </div>
 
-                {/* Pagination */}
+                {/* Pagination - Responsive */}
                 {pagination.totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2">
+                  <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-2">
                     <button
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
                       disabled={pagination.currentPage === 1}
-                      className="btn-neon btn-neon-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto btn-neon btn-neon-secondary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
                     
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2 justify-center">
                       {[...Array(pagination.totalPages)].map((_, i) => (
                         <button
                           key={i + 1}
                           onClick={() => handlePageChange(i + 1)}
-                          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                          className={`px-3 sm:px-4 py-2 text-sm rounded-lg font-semibold transition-all ${
                             pagination.currentPage === i + 1
                               ? 'bg-neon-pink text-dark-bg'
                               : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -440,7 +435,7 @@ function AllTuitions() {
                     <button
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
                       disabled={pagination.currentPage === pagination.totalPages}
-                      className="btn-neon btn-neon-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto btn-neon btn-neon-secondary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>
@@ -448,12 +443,12 @@ function AllTuitions() {
                 )}
               </>
             ) : (
-              <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neon-pink/10 border-2 border-neon-pink/30 mb-4">
-                  <FaBook className="text-neon-pink text-3xl" />
+              <div className="text-center py-12 sm:py-20 px-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-neon-pink/10 border-2 border-neon-pink/30 mb-3 sm:mb-4">
+                  <FaBook className="text-neon-pink text-2xl sm:text-3xl" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-300 mb-2">No tuitions found</h3>
-                <p className="text-gray-400 mb-6">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-300 mb-2">No tuitions found</h3>
+                <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6">
                   Try adjusting your search filters or{' '}
                   <button 
                     onClick={clearFilters}
@@ -468,64 +463,64 @@ function AllTuitions() {
         )}
       </div>
 
-      {/* ✅ Apply Modal - Updated with correct fields */}
+      {/* Apply Modal - Responsive */}
       {applyModal.show && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="card-neon card-neon-blue p-8 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold neon-text-blue mb-6">Apply for Tuition</h2>
+          <div className="card-neon card-neon-blue p-4 sm:p-6 md:p-8 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl sm:text-2xl font-bold neon-text-blue mb-4 sm:mb-6">Apply for Tuition</h2>
             
             {/* Tuition Info */}
-            <div className="bg-gray-800/50 p-4 rounded-lg mb-6">
-              <h3 className="font-bold text-white mb-2">{applyModal.tuition?.title}</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm text-gray-400">
+            <div className="bg-gray-800/50 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+              <h3 className="font-bold text-sm sm:text-base text-white mb-2">{applyModal.tuition?.title}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-gray-400">
                 <div className="flex items-center gap-2">
-                  <FaBook className="text-neon-blue" />
-                  {applyModal.tuition?.subject} • {applyModal.tuition?.grade}
+                  <FaBook className="text-neon-blue flex-shrink-0" />
+                  <span className="truncate">{applyModal.tuition?.subject} • {applyModal.tuition?.grade}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <FaDollarSign className="text-neon-green" />
+                  <FaDollarSign className="text-neon-green flex-shrink-0" />
                   {applyModal.tuition?.salary} BDT/month
                 </div>
               </div>
             </div>
 
-            <form onSubmit={handleApplySubmit} className="space-y-4">
+            <form onSubmit={handleApplySubmit} className="space-y-3 sm:space-y-4">
               {/* Qualifications */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-300">
                   Qualifications <span className="text-red-400">*</span>
                 </label>
                 <textarea
                   value={applicationForm.qualifications}
                   onChange={(e) => setApplicationForm({ ...applicationForm, qualifications: e.target.value })}
-                  placeholder="Describe your educational background, certifications, and relevant qualifications..."
+                  placeholder="Describe your educational background..."
                   rows="4"
-                  className="input-neon w-full resize-none"
+                  className="input-neon w-full resize-none text-sm"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {applicationForm.qualifications.length} / 20 minimum characters
+                  {applicationForm.qualifications.length} / 20 minimum
                 </p>
               </div>
 
               {/* Experience */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-300">
                   Experience <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={applicationForm.experience}
                   onChange={(e) => setApplicationForm({ ...applicationForm, experience: e.target.value })}
-                  placeholder="e.g., 3 years of teaching experience in Mathematics"
-                  className="input-neon w-full"
+                  placeholder="e.g., 3 years teaching Math"
+                  className="input-neon w-full text-sm"
                   required
                 />
               </div>
 
               {/* Expected Salary */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-300">
                   Expected Salary (BDT/month) <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -534,7 +529,7 @@ function AllTuitions() {
                   onChange={(e) => setApplicationForm({ ...applicationForm, expectedSalary: e.target.value })}
                   placeholder="e.g., 5000"
                   min="0"
-                  className="input-neon w-full"
+                  className="input-neon w-full text-sm"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -543,28 +538,30 @@ function AllTuitions() {
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
                 <button
                   type="button"
                   onClick={() => setApplyModal({ show: false, tuition: null })}
-                  className="flex-1 btn border-2 border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500 py-3 rounded-lg font-semibold transition-all"
+                  className="order-2 sm:order-1 flex-1 btn border-2 border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={applyLoading}
-                  className="flex-1 btn btn-neon-blue py-3 rounded-lg font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="order-1 sm:order-2 flex-1 btn btn-neon-blue py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {applyLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                      Submitting...
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white border-t-transparent"></div>
+                      <span className="hidden sm:inline">Submitting...</span>
+                      <span className="sm:hidden">Submitting</span>
                     </>
                   ) : (
                     <>
-                      <FaPaperPlane />
-                      Submit Application
+                      <FaPaperPlane className="text-xs sm:text-sm" />
+                      <span className="hidden sm:inline">Submit Application</span>
+                      <span className="sm:hidden">Submit</span>
                     </>
                   )}
                 </button>

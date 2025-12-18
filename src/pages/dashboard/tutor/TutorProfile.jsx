@@ -209,7 +209,7 @@ const TutorProfile = () => {
   }
 
   return (
-    <div className="space-y-6 px-4 sm:px-0">
+    <div className="max-w-5xl mx-auto space-y-6 px-4 sm:px-0">
       {/* Header - Responsive */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent mb-2">

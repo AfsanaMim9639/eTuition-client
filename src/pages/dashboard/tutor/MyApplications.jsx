@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Clock, CheckCircle, XCircle, Trash2, MapPin, BookOpen, DollarSign, Edit } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, Trash2, MapPin, BookOpen, DollarSign, Edit, AlertTriangle } from 'lucide-react';
 import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 import EditApplicationModal from '../../../components/tuition/EditApplicationModal';
@@ -10,6 +10,7 @@ export default function MyApplications() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [editingApp, setEditingApp] = useState(null);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(null);
 
   useEffect(() => {
     fetchApplications();
@@ -30,17 +31,21 @@ export default function MyApplications() {
   };
 
   const handleWithdraw = async (applicationId) => {
-    if (!confirm('Are you sure you want to withdraw this application?')) return;
+    setConfirmWithdraw(applicationId);
+  };
 
+  const confirmWithdrawAction = async () => {
     try {
-      const response = await api.patch(`/applications/${applicationId}/withdraw`);
+      const response = await api.patch(`/applications/${confirmWithdraw}/withdraw`);
       
       if (response.data.success) {
         toast.success('Application withdrawn successfully');
         fetchApplications();
       }
+      setConfirmWithdraw(null);
     } catch (error) {
       toast.error('Error withdrawing application');
+      setConfirmWithdraw(null);
     }
   };
 
@@ -111,7 +116,7 @@ export default function MyApplications() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="max-w-7xl mx-auto p-6"
+      className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
     >
       {/* Header */}
       <motion.div variants={itemVariants} className="mb-8">
@@ -289,6 +294,43 @@ export default function MyApplications() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Confirmation Modal */}
+      {confirmWithdraw && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-red-500/30 rounded-xl p-6 sm:p-8 max-w-md w-full shadow-2xl"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-red-500/20 rounded-full">
+                <AlertTriangle size={24} className="text-red-400" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">Confirm Withdrawal</h3>
+            </div>
+            
+            <p className="text-sm sm:text-base text-gray-300 mb-6">
+              Are you sure you want to withdraw this application? This action cannot be undone.
+            </p>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmWithdraw(null)}
+                className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmWithdrawAction}
+                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all text-sm sm:text-base font-medium shadow-lg shadow-red-500/30"
+              >
+                Withdraw
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editingApp && (

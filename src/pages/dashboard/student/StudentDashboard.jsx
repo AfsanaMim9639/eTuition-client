@@ -116,7 +116,7 @@ const StudentDashboard = () => {
         {/* Sidebar */}
         <aside
           className={`
-            fixed top-0 left-0 h-full w-64 
+            fixed top-0 left-0 h-full w-60 
             bg-gradient-to-b from-[#0f1512] to-[#0a0f0d] 
             border-r-2 border-[#00ffcc]/30
             transition-transform duration-300 z-40 overflow-y-auto
@@ -191,7 +191,7 @@ const StudentDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 lg:ml-10 pt-20 lg:pt-20 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
+        <main className="lg:ml-20 flex-1 lg:ml-10 pt-20 lg:pt-20 pb-8 px-4 md:px-8 max-w-7xl mx-auto">
           <Outlet />
         </main>
       </div>

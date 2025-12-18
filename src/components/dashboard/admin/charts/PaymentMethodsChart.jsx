@@ -6,8 +6,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 const PaymentMethodsChart = ({ data }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400">
-        <p>No payment method data available</p>
+      <div className="text-center py-8 sm:py-12 text-gray-400">
+        <p className="text-sm sm:text-base">No payment method data available</p>
       </div>
     );
   }
@@ -21,37 +21,50 @@ const PaymentMethodsChart = ({ data }) => {
     cash: '#39FF14'
   };
 
-  // Format data for chart
   const chartData = data.map(item => ({
     name: item.method?.toUpperCase() || 'UNKNOWN',
     value: item.count,
     amount: item.amount
   }));
 
-  // Custom label
+  const getRadius = () => {
+    if (typeof window === 'undefined') return 80;
+    const width = window.innerWidth;
+    if (width < 640) return 60;
+    if (width < 768) return 75;
+    return 100;
+  };
+
   const renderLabel = (entry) => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    if (isMobile) {
+      const total = chartData.reduce((sum, item) => sum + item.value, 0);
+      const percentage = ((entry.value / total) * 100).toFixed(0);
+      return `${percentage}%`;
+    }
     return `${entry.name}: ${entry.value}`;
   };
 
-  // Custom tooltip
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
         <div 
-          className="p-4 rounded-lg border"
+          className="p-3 sm:p-4 rounded-lg border shadow-lg"
           style={{
-            backgroundColor: 'rgba(18, 18, 18, 0.95)',
+            backgroundColor: 'rgba(18, 18, 18, 0.98)',
             borderColor: 'rgba(255, 16, 240, 0.3)'
           }}
         >
-          <p className="text-white font-semibold mb-2">{payload[0].name}</p>
-          <p className="text-cyan-400 text-sm">
+          <p className="text-white font-semibold mb-1.5 sm:mb-2 text-xs sm:text-sm">
+            {payload[0].name}
+          </p>
+          <p className="text-cyan-400 text-xs sm:text-sm mb-0.5">
             Transactions: {payload[0].value}
           </p>
-          <p className="text-green-400 text-sm">
+          <p className="text-green-400 text-xs sm:text-sm mb-0.5">
             Amount: ৳{payload[0].payload.amount.toLocaleString()}
           </p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-xs sm:text-sm">
             {((payload[0].value / data.reduce((sum, item) => sum + item.count, 0)) * 100).toFixed(1)}%
           </p>
         </div>
@@ -61,16 +74,16 @@ const PaymentMethodsChart = ({ data }) => {
   };
 
   return (
-    <div className="h-80">
+    <div className="h-64 sm:h-72 md:h-80 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={chartData}
             cx="50%"
-            cy="50%"
+            cy="45%"
             labelLine={false}
             label={renderLabel}
-            outerRadius={100}
+            outerRadius={getRadius()}
             fill="#8884d8"
             dataKey="value"
           >
@@ -84,6 +97,7 @@ const PaymentMethodsChart = ({ data }) => {
           <Tooltip content={<CustomTooltip />} />
           <Legend 
             wrapperStyle={{ fontSize: '12px', color: '#888' }}
+            verticalAlign="bottom"
           />
         </PieChart>
       </ResponsiveContainer>

@@ -182,7 +182,7 @@ export default function TutorDashboardHome() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="space-y-8"
+      className="space-y-8 max-w-6xl mx-auto"
     >
       {/* Header */}
       <motion.div variants={itemVariants}>
