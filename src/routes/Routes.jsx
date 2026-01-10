@@ -57,6 +57,10 @@ import Notifications from '../pages/dashboard/Notifications';
 import ErrorPage from '../components/shared/ErrorPage';
 import ProfileTab from '../components/dashboard/admin/tabs/ProfileTab';
 import ProfileRedirect from '../components/ProfileRedirect';
+import Blog from '../pages/blog';
+import Help from '../pages/Help';
+import Privacy from '../pages/Privacy';
+import Terms from '../pages/Terms';
 
 const router = createBrowserRouter([
   {
@@ -100,6 +104,23 @@ const router = createBrowserRouter([
         path: '/tutors/:id',
         element: <TutorProfilePage />
       },
+      {
+        path: '/blog',
+        element: <Blog />
+      },
+      {
+        path: '/help',
+        element: <Help />
+      },
+      {
+        path: '/privacy',
+        element: <Privacy />
+      },
+      {
+        path: '/terms',
+        element: <Terms />
+      },
+
       {
         path: '/profile',
         element: (

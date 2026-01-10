@@ -1,7 +1,10 @@
 import React from 'react';
 import { Shield, Zap, DollarSign, Clock, TrendingUp, Award } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const WhyChooseUs = () => {
+  const { isDark } = useTheme();
+
   const features = [
     {
       icon: Shield,
@@ -36,29 +39,51 @@ const WhyChooseUs = () => {
   ];
 
   return (
-    <section className="relative py-20 z-10 bg-[#0a0f0d]/50">
+    <section className={`relative py-20 z-10 ${
+      isDark ? 'bg-[#0a0f0d]/50' : 'bg-gradient-to-b from-emerald-200 via-teal-100 to-emerald-200'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-4">
+          <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${
+            isDark ? '' : 'text-gray-900'
+          }`}>
             <span className="bg-gradient-to-r from-[#00ff88] to-[#00ffcc] bg-clip-text text-transparent">
               Why Choose eTuitionBd
             </span>
           </h2>
-          <p className="text-gray-400 text-lg">The ultimate platform for tuition management</p>
+          <p className={`text-lg ${
+            isDark ? 'text-gray-400' : 'text-gray-800'
+          }`}>
+            The ultimate platform for tuition management
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, idx) => (
             <div
               key={idx}
-              className="group relative bg-[#0a0f0d]/40 backdrop-blur-sm border border-[#00ff88]/20 rounded-xl p-6 hover:border-[#00ff88] transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-[#00ff88]/20"
+              className={`group relative backdrop-blur-sm border rounded-xl p-6 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl ${
+                isDark
+                  ? 'bg-[#0a0f0d]/40 border-[#00ff88]/20 hover:border-[#00ff88] hover:shadow-[#00ff88]/20'
+                  : 'bg-white/80 border-emerald-200 hover:border-emerald-400 hover:shadow-emerald-300/50'
+              }`}
             >
-              <div className="w-14 h-14 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <feature.icon className="w-7 h-7 text-[#0a0f0d]" />
+              <div className={`w-14 h-14 bg-gradient-to-br from-[#00ff88] to-[#00ffcc] rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${
+                isDark ? '' : 'shadow-lg shadow-emerald-300/50'
+              }`}>
+                <feature.icon className={`w-7 h-7 ${
+                  isDark ? 'text-[#0a0f0d]' : 'text-white'
+                }`} />
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
+              <h3 className={`text-xl font-bold mb-3 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
+                {feature.title}
+              </h3>
+              <p className={isDark ? 'text-gray-400' : 'text-gray-800'}>
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>

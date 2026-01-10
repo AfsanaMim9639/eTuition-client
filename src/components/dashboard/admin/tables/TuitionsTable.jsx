@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, CheckCircle, XCircle, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -14,8 +15,10 @@ const rowVariants = {
 };
 
 const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove, onReject }) => {
-  console.log('🔍 Props:', { onApprove, onReject }); // ✅ এটা add করুন
-  console.log('📊 Tuitions:', tuitions); // ✅ এটা add করুন
+  const { isDark } = useTheme();
+  console.log('🔍 Props:', { onApprove, onReject });
+  console.log('📊 Tuitions:', tuitions);
+  
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedTuitionId, setSelectedTuitionId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -46,9 +49,21 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
   
   const getApprovalStatusBadge = (approvalStatus) => {
     const styles = {
-      pending: { bg: 'rgba(255, 165, 0, 0.2)', border: '#FFA500', text: '#FFA500' },
-      approved: { bg: 'rgba(57, 255, 20, 0.2)', border: '#39FF14', text: '#39FF14' },
-      rejected: { bg: 'rgba(255, 0, 0, 0.2)', border: '#FF0000', text: '#FF0000' }
+      pending: { 
+        bg: isDark ? 'rgba(255, 165, 0, 0.2)' : 'rgba(255, 165, 0, 0.15)', 
+        border: '#FFA500', 
+        text: '#FFA500' 
+      },
+      approved: { 
+        bg: isDark ? 'rgba(57, 255, 20, 0.2)' : 'rgba(57, 255, 20, 0.15)', 
+        border: '#39FF14', 
+        text: '#39FF14' 
+      },
+      rejected: { 
+        bg: isDark ? 'rgba(255, 0, 0, 0.2)' : 'rgba(255, 0, 0, 0.15)', 
+        border: '#FF0000', 
+        text: '#FF0000' 
+      }
     };
     
     const style = styles[approvalStatus] || styles.pending;
@@ -69,10 +84,22 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
 
   const getStatusBadge = (status) => {
     const styles = {
-      open: { bg: 'rgba(57, 255, 20, 0.2)', text: '#39FF14' },
-      closed: { bg: 'rgba(255, 0, 0, 0.2)', text: '#FF0000' },
-      ongoing: { bg: 'rgba(0, 240, 255, 0.2)', text: '#00F0FF' },
-      completed: { bg: 'rgba(255, 16, 240, 0.2)', text: '#FF10F0' }
+      open: { 
+        bg: isDark ? 'rgba(57, 255, 20, 0.2)' : 'rgba(57, 255, 20, 0.15)', 
+        text: '#39FF14' 
+      },
+      closed: { 
+        bg: isDark ? 'rgba(255, 0, 0, 0.2)' : 'rgba(255, 0, 0, 0.15)', 
+        text: '#FF0000' 
+      },
+      ongoing: { 
+        bg: isDark ? 'rgba(0, 240, 255, 0.2)' : 'rgba(0, 240, 255, 0.15)', 
+        text: '#00F0FF' 
+      },
+      completed: { 
+        bg: isDark ? 'rgba(255, 16, 240, 0.2)' : 'rgba(255, 16, 240, 0.15)', 
+        text: '#FF10F0' 
+      }
     };
     
     const style = styles[status] || styles.open;
@@ -98,8 +125,8 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
         transition={{ duration: 0.4 }}
         className="w-full overflow-x-auto rounded-xl border"
         style={{
-          backgroundColor: 'rgba(18, 18, 18, 0.5)',
-          borderColor: 'rgba(255, 16, 240, 0.2)'
+          backgroundColor: isDark ? 'rgba(18, 18, 18, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+          borderColor: isDark ? 'rgba(255, 16, 240, 0.2)' : 'rgba(255, 16, 240, 0.15)'
         }}
       >
         <table className="min-w-full text-left">
@@ -108,17 +135,66 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
           <thead>
             <tr 
               className="border-b"
-              style={{ borderColor: 'rgba(255, 16, 240, 0.2)' }}
+              style={{ 
+                borderColor: isDark 
+                  ? 'rgba(255, 16, 240, 0.2)' 
+                  : 'rgba(255, 16, 240, 0.15)' 
+              }}
             >
-              <th className="p-4 text-sm font-semibold text-gray-300">Title</th>
-              <th className="p-4 text-sm font-semibold text-gray-300">Subject</th>
-              <th className="p-4 text-sm font-semibold text-gray-300">Grade</th>
-              <th className="p-4 text-sm font-semibold text-gray-300">Location</th>
-              <th className="p-4 text-sm font-semibold text-gray-300">Salary</th>
-              <th className="p-4 text-sm font-semibold text-gray-300">Type</th>
-              <th className="p-4 text-sm font-semibold text-gray-300">Status</th>
-              <th className="p-4 text-sm font-semibold text-gray-300">Approval</th>
-              <th className="p-4 text-center text-sm font-semibold text-gray-300">Actions</th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Title
+              </th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Subject
+              </th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Grade
+              </th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Location
+              </th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Salary
+              </th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Type
+              </th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Status
+              </th>
+              <th 
+                className="p-4 text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Approval
+              </th>
+              <th 
+                className="p-4 text-center text-sm font-semibold"
+                style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+              >
+                Actions
+              </th>
             </tr>
           </thead>
 
@@ -128,7 +204,8 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
               <tr>
                 <td 
                   colSpan="9"
-                  className="text-center text-gray-400 py-12"
+                  className="text-center py-12"
+                  style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
                 >
                   No tuitions found
                 </td>
@@ -141,14 +218,55 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
                   variants={rowVariants}
                   initial="hidden"
                   animate="visible"
-                  className="border-b border-gray-800 hover:bg-gray-900/50 transition-colors"
+                  className="transition-colors"
+                  style={{
+                    borderBottom: isDark ? '1px solid #1f2937' : '1px solid #e5e7eb'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isDark 
+                      ? 'rgba(17, 24, 39, 0.5)' 
+                      : 'rgba(249, 250, 251, 0.8)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
-                  <td className="p-4 text-gray-200">{t.title}</td>
-                  <td className="p-4 text-gray-200">{t.subject}</td>
-                  <td className="p-4 text-gray-200">{t.grade}</td>
-                  <td className="p-4 text-gray-200">{t.location}</td>
-                  <td className="p-4 text-gray-200">৳{t.salary}</td>
-                  <td className="p-4 text-gray-200">{t.tutoring_type}</td>
+                  <td 
+                    className="p-4"
+                    style={{ color: isDark ? '#e5e7eb' : '#1f2937' }}
+                  >
+                    {t.title}
+                  </td>
+                  <td 
+                    className="p-4"
+                    style={{ color: isDark ? '#e5e7eb' : '#1f2937' }}
+                  >
+                    {t.subject}
+                  </td>
+                  <td 
+                    className="p-4"
+                    style={{ color: isDark ? '#e5e7eb' : '#1f2937' }}
+                  >
+                    {t.grade}
+                  </td>
+                  <td 
+                    className="p-4"
+                    style={{ color: isDark ? '#e5e7eb' : '#1f2937' }}
+                  >
+                    {t.location}
+                  </td>
+                  <td 
+                    className="p-4"
+                    style={{ color: isDark ? '#e5e7eb' : '#1f2937' }}
+                  >
+                    ৳{t.salary}
+                  </td>
+                  <td 
+                    className="p-4"
+                    style={{ color: isDark ? '#e5e7eb' : '#1f2937' }}
+                  >
+                    {t.tutoring_type}
+                  </td>
                   <td className="p-4">{getStatusBadge(t.status)}</td>
                   <td className="p-4">{getApprovalStatusBadge(t.approvalStatus)}</td>
 
@@ -156,37 +274,64 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
                   <td className="p-4">
                     <div className="flex items-center justify-center gap-2">
                       
-                      {/* View Details Button - Always show */}
+                      {/* View Details Button */}
                       <motion.button
                         onClick={() => onViewDetails(t)}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
-                        className="p-2 rounded-lg hover:bg-blue-500/20 transition-colors"
+                        className="p-2 rounded-lg transition-colors"
+                        style={{ backgroundColor: 'transparent' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = isDark 
+                            ? 'rgba(0, 240, 255, 0.2)' 
+                            : 'rgba(0, 240, 255, 0.15)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
                         title="View Details"
                       >
                         <Eye className="w-4 h-4" style={{ color: '#00F0FF' }} />
                       </motion.button>
 
-                      {/* Approve Button - Show for pending, rejected, or undefined */}
+                      {/* Approve Button */}
                       {(!t.approvalStatus || t.approvalStatus === 'pending' || t.approvalStatus === 'rejected') && onApprove && (
                         <motion.button
                           onClick={() => onApprove(t._id)}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
-                          className="p-2 rounded-lg hover:bg-green-500/20 transition-colors"
+                          className="p-2 rounded-lg transition-colors"
+                          style={{ backgroundColor: 'transparent' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = isDark 
+                              ? 'rgba(57, 255, 20, 0.2)' 
+                              : 'rgba(57, 255, 20, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
                           title="Approve Tuition"
                         >
                           <CheckCircle className="w-4 h-4" style={{ color: '#39FF14' }} />
                         </motion.button>
                       )}
 
-                      {/* Reject Button - Show for pending, approved, or undefined */}
+                      {/* Reject Button */}
                       {(!t.approvalStatus || t.approvalStatus === 'pending' || t.approvalStatus === 'approved') && onReject && (
                         <motion.button
                           onClick={() => handleRejectClick(t._id)}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
-                          className="p-2 rounded-lg hover:bg-red-500/20 transition-colors"
+                          className="p-2 rounded-lg transition-colors"
+                          style={{ backgroundColor: 'transparent' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = isDark 
+                              ? 'rgba(255, 0, 0, 0.2)' 
+                              : 'rgba(255, 0, 0, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
                           title="Reject Tuition"
                         >
                           <XCircle className="w-4 h-4" style={{ color: '#FF0000' }} />
@@ -209,7 +354,10 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            style={{
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.6)'
+            }}
             onClick={handleRejectCancel}
           >
             <motion.div
@@ -217,17 +365,35 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-gradient-to-br from-gray-900 to-black border-2 border-red-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              className="border-2 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              style={{
+                background: isDark 
+                  ? 'linear-gradient(to bottom right, #1f2937, #000000)' 
+                  : 'linear-gradient(to bottom right, #ffffff, #f3f4f6)',
+                borderColor: 'rgba(239, 68, 68, 0.3)'
+              }}
             >
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <h3 
+                  className="text-xl font-bold flex items-center gap-2"
+                  style={{ color: isDark ? '#ffffff' : '#111827' }}
+                >
                   <XCircle className="w-6 h-6 text-red-500" />
                   Reject Tuition
                 </h3>
                 <button
                   onClick={handleRejectCancel}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="transition-colors"
+                  style={{ 
+                    color: isDark ? '#9ca3af' : '#6b7280' 
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = isDark ? '#ffffff' : '#111827';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = isDark ? '#9ca3af' : '#6b7280';
+                  }}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -235,7 +401,10 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
 
               {/* Body */}
               <div className="space-y-4">
-                <p className="text-gray-300 text-sm">
+                <p 
+                  className="text-sm"
+                  style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+                >
                   Please provide a reason for rejecting this tuition post:
                 </p>
 
@@ -243,7 +412,19 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   placeholder="Enter rejection reason..."
-                  className="w-full h-32 px-4 py-3 bg-black/50 border-2 border-red-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 resize-none"
+                  className="w-full h-32 px-4 py-3 border-2 rounded-lg resize-none focus:outline-none"
+                  style={{
+                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.9)',
+                    borderColor: 'rgba(239, 68, 68, 0.3)',
+                    color: isDark ? '#ffffff' : '#111827',
+                    '--placeholder-color': isDark ? '#6b7280' : '#9ca3af'
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#ef4444';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                  }}
                   autoFocus
                 />
 
@@ -251,7 +432,17 @@ const TuitionsTable = ({ tuitions = [], onViewDetails, onUpdateStatus, onApprove
                 <div className="flex gap-3">
                   <button
                     onClick={handleRejectCancel}
-                    className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                    className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition-colors"
+                    style={{
+                      backgroundColor: isDark ? '#1f2937' : '#e5e7eb',
+                      color: isDark ? '#ffffff' : '#111827'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = isDark ? '#374151' : '#d1d5db';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = isDark ? '#1f2937' : '#e5e7eb';
+                    }}
                   >
                     Cancel
                   </button>

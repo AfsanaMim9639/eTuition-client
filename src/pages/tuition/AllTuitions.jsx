@@ -4,10 +4,12 @@ import { FaMapMarkerAlt, FaDollarSign, FaBook, FaSearch, FaFilter, FaSortAmountD
 import TuitionCard from '../../components/tuition/TuitionCard';
 import { tuitionAPI, applicationAPI } from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import toast from 'react-hot-toast';
 
 function AllTuitions() {
   const { user, isAuthenticated } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -231,42 +233,57 @@ function AllTuitions() {
 
   if (loading && tuitions.length === 0) {
     return (
-      <div className="min-h-screen bg-dark-bg pt-16 sm:pt-20 md:pt-24 flex items-center justify-center px-4">
+      <div className={`min-h-screen pt-16 sm:pt-20 md:pt-24 flex items-center justify-center px-4 ${
+        isDark ? 'bg-[#0a0f0d]' : 'bg-gradient-to-b from-emerald-200 via-teal-100 to-emerald-200'
+      }`}>
         <div className="spinner-neon w-10 h-10 sm:w-12 sm:h-12"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-dark-bg pt-16 sm:pt-20 md:pt-10 pb-8 sm:pb-12 overflow-x-hidden">
+    <div className={`pt-16 sm:pt-20 md:pt-10 pb-8 sm:pb-12 overflow-x-hidden ${
+      isDark ? 'bg-[#0a0f0d]' : 'bg-gradient-to-b from-emerald-200 via-teal-100 to-emerald-200'
+    }`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
-        {/* Header - Responsive */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-3 sm:mb-4">
-          All <span className="gradient-text">Tuitions</span>
+        {/* Header */}
+        <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-3 sm:mb-4 ${
+          isDark ? '' : 'text-gray-900'
+        }`}>
+          All <span className={isDark ? 'gradient-text' : 'text-gradient-light'}>Tuitions</span>
         </h1>
-        <p className="text-center text-sm sm:text-base text-gray-400 mb-6 sm:mb-8">
+        <p className={`text-center text-sm sm:text-base mb-6 sm:mb-8 ${
+          isDark ? 'text-gray-400' : 'text-gray-800'
+        }`}>
           Explore {pagination.totalItems}+ tuition opportunities
         </p>
 
-        {/* Filters - Responsive */}
-        <div className="card-neon card-neon-pink p-3 sm:p-4 rounded-xl mb-6 sm:mb-8 w-full overflow-hidden">
+        {/* Filters */}
+        <div className={`p-3 sm:p-4 rounded-xl mb-6 sm:mb-8 w-full overflow-hidden ${
+          isDark 
+            ? 'card-neon card-neon-pink' 
+            : 'bg-white/80 border-2 border-emerald-300 shadow-lg'
+        }`}>
           <div className="flex flex-col lg:flex-row gap-2 sm:gap-3 items-stretch w-full">
             {/* Search Bar */}
             <div className="w-full lg:w-2/5 min-w-0">
               <div className="relative h-full">
-                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-pink text-xs sm:text-sm z-10" />
-                <input
-                  type="text"
-                  name="search"
-                  value={filters.search}
-                  onChange={handleFilterChange}
-                  
-                  className="input-neon w-full h-full pl-8 sm:pl-10 pr-3 py-2 text-xs sm:text-sm"
-                />
-              </div>
+              <FaSearch className={`absolute left-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm z-10 pointer-events-none ${
+                isDark ? 'text-neon-pink' : 'text-emerald-600'
+              }`} />
+              <input
+                type="text"
+                name="search"
+                value={filters.search}
+                onChange={handleFilterChange}
+                placeholder="Search tuitions..."
+                className="input-neon w-full h-full pr-3 py-2 text-xs sm:text-sm"
+                style={{ paddingLeft: '2.5rem' }}
+              />
+            </div>
             </div>
 
-            {/* Filters Grid - Responsive */}
+            {/* Filters Grid */}
             <div className="w-full lg:w-3/5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 min-w-0">
               <select
                 name="class"
@@ -357,7 +374,11 @@ function AllTuitions() {
             <button
               type="button"
               onClick={clearFilters}
-              className="text-neon-pink hover:text-neon-blue text-xs flex items-center gap-1 transition-colors"
+              className={`text-xs flex items-center gap-1 transition-colors ${
+                isDark 
+                  ? 'text-neon-pink hover:text-neon-blue' 
+                  : 'text-emerald-700 hover:text-cyan-700'
+              }`}
             >
               <FaFilter className="text-xs" />
               Clear All
@@ -365,13 +386,21 @@ function AllTuitions() {
           </div>
         </div>
 
-        {/* Error State - Responsive */}
+        {/* Error State */}
         {error && (
           <div className="text-center py-8 sm:py-12 px-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-500/10 border-2 border-red-500/30 mb-3 sm:mb-4">
+            <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 mb-3 sm:mb-4 ${
+              isDark 
+                ? 'bg-red-500/10 border-red-500/30' 
+                : 'bg-red-50 border-red-200'
+            }`}>
               <span className="text-xl sm:text-2xl">⚠️</span>
             </div>
-            <p className="text-sm sm:text-base text-red-400 mb-3 sm:mb-4">{error}</p>
+            <p className={`text-sm sm:text-base mb-3 sm:mb-4 ${
+              isDark ? 'text-red-400' : 'text-red-600'
+            }`}>
+              {error}
+            </p>
             <button
               onClick={fetchTuitions}
               className="btn-neon btn-neon-primary text-sm sm:text-base px-4 sm:px-6 py-2"
@@ -381,7 +410,7 @@ function AllTuitions() {
           </div>
         )}
 
-        {/* Tuitions Grid - Same as Desktop */}
+        {/* Tuitions Grid */}
         {!error && (
           <>
             {tuitions.length > 0 ? (
@@ -394,7 +423,11 @@ function AllTuitions() {
                       {isAuthenticated && user?.role === 'tutor' && (
                         <button
                           onClick={() => handleApplyClick(tuition)}
-                          className="absolute bottom-4 right-4 px-3 sm:px-4 py-2 text-xs sm:text-sm bg-gradient-to-r from-neon-pink to-neon-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-neon-pink/50 transition-all flex items-center gap-1 sm:gap-2"
+                          className={`absolute bottom-4 right-4 px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg font-semibold transition-all flex items-center gap-1 sm:gap-2 ${
+                            isDark
+                              ? 'bg-gradient-to-r from-neon-pink to-neon-blue text-white hover:shadow-lg hover:shadow-neon-pink/50'
+                              : 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white hover:shadow-lg hover:shadow-purple-400/50'
+                          }`}
                         >
                           <FaPaperPlane className="text-xs sm:text-sm" />
                           <span className="hidden sm:inline">Apply Now</span>
@@ -405,7 +438,7 @@ function AllTuitions() {
                   ))}
                 </div>
 
-                {/* Pagination - Responsive */}
+                {/* Pagination */}
                 {pagination.totalPages > 1 && (
                   <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-2">
                     <button
@@ -423,8 +456,12 @@ function AllTuitions() {
                           onClick={() => handlePageChange(i + 1)}
                           className={`px-3 sm:px-4 py-2 text-sm rounded-lg font-semibold transition-all ${
                             pagination.currentPage === i + 1
-                              ? 'bg-neon-pink text-dark-bg'
-                              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                              ? isDark
+                                ? 'bg-neon-pink text-dark-bg'
+                                : 'bg-emerald-600 text-white'
+                              : isDark
+                                ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                : 'bg-white text-gray-700 hover:bg-emerald-50 border border-emerald-200'
                           }`}
                         >
                           {i + 1}
@@ -444,15 +481,27 @@ function AllTuitions() {
               </>
             ) : (
               <div className="text-center py-12 sm:py-20 px-4">
-                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-neon-pink/10 border-2 border-neon-pink/30 mb-3 sm:mb-4">
-                  <FaBook className="text-neon-pink text-2xl sm:text-3xl" />
+                <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 mb-3 sm:mb-4 ${
+                  isDark 
+                    ? 'bg-neon-pink/10 border-neon-pink/30' 
+                    : 'bg-purple-50 border-purple-200'
+                }`}>
+                  <FaBook className={`text-2xl sm:text-3xl ${
+                    isDark ? 'text-neon-pink' : 'text-purple-600'
+                  }`} />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-300 mb-2">No tuitions found</h3>
-                <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6">
+                <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${
+                  isDark ? 'text-gray-300' : 'text-gray-900'
+                }`}>
+                  No tuitions found
+                </h3>
+                <p className={`text-sm sm:text-base mb-4 sm:mb-6 ${
+                  isDark ? 'text-gray-400' : 'text-gray-700'
+                }`}>
                   Try adjusting your search filters or{' '}
                   <button 
                     onClick={clearFilters}
-                    className="text-neon-pink hover:underline"
+                    className={isDark ? 'text-neon-pink hover:underline' : 'text-emerald-700 hover:underline'}
                   >
                     clear all filters
                   </button>
@@ -463,22 +512,42 @@ function AllTuitions() {
         )}
       </div>
 
-      {/* Apply Modal - Responsive */}
+      {/* Apply Modal */}
       {applyModal.show && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="card-neon card-neon-blue p-4 sm:p-6 md:p-8 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl sm:text-2xl font-bold neon-text-blue mb-4 sm:mb-6">Apply for Tuition</h2>
+          <div className={`p-4 sm:p-6 md:p-8 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${
+            isDark 
+              ? 'card-neon card-neon-blue' 
+              : 'bg-white border-2 border-cyan-300 shadow-2xl'
+          }`}>
+            <h2 className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-6 ${
+              isDark ? 'neon-text-blue' : 'text-cyan-700'
+            }`}>
+              Apply for Tuition
+            </h2>
             
             {/* Tuition Info */}
-            <div className="bg-gray-800/50 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
-              <h3 className="font-bold text-sm sm:text-base text-white mb-2">{applyModal.tuition?.title}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-gray-400">
+            <div className={`p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 ${
+              isDark ? 'bg-gray-800/50' : 'bg-emerald-50 border border-emerald-200'
+            }`}>
+              <h3 className={`font-bold text-sm sm:text-base mb-2 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
+                {applyModal.tuition?.title}
+              </h3>
+              <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm ${
+                isDark ? 'text-gray-400' : 'text-gray-700'
+              }`}>
                 <div className="flex items-center gap-2">
-                  <FaBook className="text-neon-blue flex-shrink-0" />
+                  <FaBook className={`flex-shrink-0 ${
+                    isDark ? 'text-neon-blue' : 'text-cyan-600'
+                  }`} />
                   <span className="truncate">{applyModal.tuition?.subject} • {applyModal.tuition?.grade}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <FaDollarSign className="text-neon-green flex-shrink-0" />
+                  <FaDollarSign className={`flex-shrink-0 ${
+                    isDark ? 'text-neon-green' : 'text-emerald-600'
+                  }`} />
                   {applyModal.tuition?.salary} BDT/month
                 </div>
               </div>
@@ -487,7 +556,9 @@ function AllTuitions() {
             <form onSubmit={handleApplySubmit} className="space-y-3 sm:space-y-4">
               {/* Qualifications */}
               <div>
-                <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-300">
+                <label className={`block text-xs sm:text-sm font-semibold mb-2 ${
+                  isDark ? 'text-gray-300' : 'text-gray-800'
+                }`}>
                   Qualifications <span className="text-red-400">*</span>
                 </label>
                 <textarea
@@ -498,14 +569,18 @@ function AllTuitions() {
                   className="input-neon w-full resize-none text-sm"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className={`text-xs mt-1 ${
+                  isDark ? 'text-gray-500' : 'text-gray-600'
+                }`}>
                   {applicationForm.qualifications.length} / 20 minimum
                 </p>
               </div>
 
               {/* Experience */}
               <div>
-                <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-300">
+                <label className={`block text-xs sm:text-sm font-semibold mb-2 ${
+                  isDark ? 'text-gray-300' : 'text-gray-800'
+                }`}>
                   Experience <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -520,7 +595,9 @@ function AllTuitions() {
 
               {/* Expected Salary */}
               <div>
-                <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-300">
+                <label className={`block text-xs sm:text-sm font-semibold mb-2 ${
+                  isDark ? 'text-gray-300' : 'text-gray-800'
+                }`}>
                   Expected Salary (BDT/month) <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -532,7 +609,9 @@ function AllTuitions() {
                   className="input-neon w-full text-sm"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className={`text-xs mt-1 ${
+                  isDark ? 'text-gray-500' : 'text-gray-600'
+                }`}>
                   Student's budget: ৳{applyModal.tuition?.salary}/month
                 </p>
               </div>
@@ -542,7 +621,11 @@ function AllTuitions() {
                 <button
                   type="button"
                   onClick={() => setApplyModal({ show: false, tuition: null })}
-                  className="order-2 sm:order-1 flex-1 btn border-2 border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all"
+                  className={`order-2 sm:order-1 flex-1 btn border-2 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all ${
+                    isDark
+                      ? 'border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500'
+                      : 'border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-600'
+                  }`}
                 >
                   Cancel
                 </button>

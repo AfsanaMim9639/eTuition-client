@@ -2,8 +2,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 const StatCard = ({ title, value, icon: Icon, color, subtext, index = 0 }) => {
+  const { isDark } = useTheme();
+
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
@@ -15,7 +18,9 @@ const StatCard = ({ title, value, icon: Icon, color, subtext, index = 0 }) => {
       }}
       className="p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl backdrop-blur-lg"
       style={{
-        background: 'linear-gradient(135deg, rgba(18, 18, 18, 0.95), rgba(26, 26, 26, 0.95))',
+        background: isDark 
+          ? 'linear-gradient(135deg, rgba(18, 18, 18, 0.95), rgba(26, 26, 26, 0.95))'
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.95))',
         border: `2px solid ${color}33`,
         boxShadow: `0 0 20px ${color}11`
       }}
@@ -33,7 +38,10 @@ const StatCard = ({ title, value, icon: Icon, color, subtext, index = 0 }) => {
         />
       </div>
       
-      <h3 className="text-gray-400 text-xs sm:text-sm mb-1.5 sm:mb-2">
+      <h3 
+        className="text-xs sm:text-sm mb-1.5 sm:mb-2"
+        style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+      >
         {title}
       </h3>
       
@@ -44,7 +52,10 @@ const StatCard = ({ title, value, icon: Icon, color, subtext, index = 0 }) => {
         {value}
       </p>
       
-      <p className="text-xs sm:text-xs text-gray-500">
+      <p 
+        className="text-xs sm:text-xs"
+        style={{ color: isDark ? '#6b7280' : '#9ca3af' }}
+      >
         {subtext}
       </p>
     </motion.div>

@@ -2,8 +2,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, X } from 'lucide-react';
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 const TuitionFilters = ({ filters, setFilters, onSearch }) => {
+  const { isDark } = useTheme();
+
   const handleInputChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }));
   };
@@ -45,9 +48,9 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
           onKeyDown={(e) => e.key === 'Enter' && onSearch && onSearch()}
           className="w-full pl-12 pr-4 py-3 rounded-lg border-2 transition-all focus:outline-none"
           style={{
-            backgroundColor: 'rgba(18, 18, 18, 0.8)',
+            backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)',
             borderColor: 'rgba(255, 16, 240, 0.3)',
-            color: 'white'
+            color: isDark ? 'white' : '#111827'
           }}
           onFocus={(e) => e.target.style.borderColor = '#FF10F0'}
           onBlur={(e) => e.target.style.borderColor = 'rgba(255, 16, 240, 0.3)'}
@@ -57,9 +60,12 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
       {/* Filter Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         
-        {/* ⭐ NEW: Approval Status Filter */}
+        {/* Approval Status Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-400 flex items-center gap-2">
+          <label 
+            className="text-sm font-semibold flex items-center gap-2"
+            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+          >
             <Filter className="w-4 h-4" />
             Approval
           </label>
@@ -68,9 +74,9 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
             onChange={(e) => handleInputChange('approvalStatus', e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border-2 transition-all focus:outline-none cursor-pointer"
             style={{
-              backgroundColor: 'rgba(18, 18, 18, 0.8)',
+              backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderColor: filters.approvalStatus ? '#FF10F0' : 'rgba(255, 16, 240, 0.2)',
-              color: filters.approvalStatus ? '#FF10F0' : '#888'
+              color: filters.approvalStatus ? '#FF10F0' : (isDark ? '#888' : '#6b7280')
             }}
           >
             <option value="">All Approvals</option>
@@ -82,7 +88,10 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
 
         {/* Status Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-400 flex items-center gap-2">
+          <label 
+            className="text-sm font-semibold flex items-center gap-2"
+            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+          >
             <Filter className="w-4 h-4" />
             Status
           </label>
@@ -91,9 +100,9 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
             onChange={(e) => handleInputChange('status', e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border-2 transition-all focus:outline-none cursor-pointer"
             style={{
-              backgroundColor: 'rgba(18, 18, 18, 0.8)',
+              backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderColor: filters.status ? '#39FF14' : 'rgba(255, 16, 240, 0.2)',
-              color: filters.status ? '#39FF14' : '#888'
+              color: filters.status ? '#39FF14' : (isDark ? '#888' : '#6b7280')
             }}
           >
             <option value="">All Status</option>
@@ -106,7 +115,10 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
 
         {/* Tutoring Type Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-400 flex items-center gap-2">
+          <label 
+            className="text-sm font-semibold flex items-center gap-2"
+            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+          >
             <Filter className="w-4 h-4" />
             Type
           </label>
@@ -115,9 +127,9 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
             onChange={(e) => handleInputChange('tutoring_type', e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border-2 transition-all focus:outline-none cursor-pointer"
             style={{
-              backgroundColor: 'rgba(18, 18, 18, 0.8)',
+              backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderColor: filters.tutoring_type ? '#00F0FF' : 'rgba(255, 16, 240, 0.2)',
-              color: filters.tutoring_type ? '#00F0FF' : '#888'
+              color: filters.tutoring_type ? '#00F0FF' : (isDark ? '#888' : '#6b7280')
             }}
           >
             <option value="">All Types</option>
@@ -129,7 +141,10 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
 
         {/* Subject Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-400 flex items-center gap-2">
+          <label 
+            className="text-sm font-semibold flex items-center gap-2"
+            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+          >
             <Filter className="w-4 h-4" />
             Subject
           </label>
@@ -138,9 +153,9 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
             onChange={(e) => handleInputChange('subject', e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border-2 transition-all focus:outline-none cursor-pointer"
             style={{
-              backgroundColor: 'rgba(18, 18, 18, 0.8)',
+              backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderColor: filters.subject ? '#FF10F0' : 'rgba(255, 16, 240, 0.2)',
-              color: filters.subject ? '#FF10F0' : '#888'
+              color: filters.subject ? '#FF10F0' : (isDark ? '#888' : '#6b7280')
             }}
           >
             <option value="">All Subjects</option>
@@ -159,7 +174,10 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
 
         {/* Grade Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-400 flex items-center gap-2">
+          <label 
+            className="text-sm font-semibold flex items-center gap-2"
+            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+          >
             <Filter className="w-4 h-4" />
             Grade/Class
           </label>
@@ -168,9 +186,9 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
             onChange={(e) => handleInputChange('grade', e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border-2 transition-all focus:outline-none cursor-pointer"
             style={{
-              backgroundColor: 'rgba(18, 18, 18, 0.8)',
+              backgroundColor: isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderColor: filters.grade ? '#FFA500' : 'rgba(255, 16, 240, 0.2)',
-              color: filters.grade ? '#FFA500' : '#888'
+              color: filters.grade ? '#FFA500' : (isDark ? '#888' : '#6b7280')
             }}
           >
             <option value="">All Grades</option>
@@ -220,7 +238,7 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
                 onClick={handleClearFilters}
                 className="px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center justify-center"
                 style={{
-                  backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                  backgroundColor: isDark ? 'rgba(255, 0, 0, 0.1)' : 'rgba(255, 0, 0, 0.08)',
                   border: '2px solid rgba(255, 0, 0, 0.5)',
                   color: '#FF0000'
                 }}
@@ -240,12 +258,21 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
           animate={{ opacity: 1, height: 'auto' }}
           className="flex flex-wrap gap-2 pt-2"
         >
-          <span className="text-sm text-gray-400">Active Filters:</span>
+          <span 
+            className="text-sm"
+            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+          >
+            Active Filters:
+          </span>
           
           {filters.approvalStatus && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
-              style={{ backgroundColor: '#FF10F022', color: '#FF10F0', border: '1px solid #FF10F0' }}
+              style={{ 
+                backgroundColor: isDark ? '#FF10F022' : '#FF10F015', 
+                color: '#FF10F0', 
+                border: '1px solid #FF10F0' 
+              }}
             >
               Approval: {filters.approvalStatus}
               <X 
@@ -258,7 +285,11 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
           {filters.status && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
-              style={{ backgroundColor: '#39FF1422', color: '#39FF14', border: '1px solid #39FF14' }}
+              style={{ 
+                backgroundColor: isDark ? '#39FF1422' : '#39FF1415', 
+                color: '#39FF14', 
+                border: '1px solid #39FF14' 
+              }}
             >
               Status: {filters.status}
               <X 
@@ -271,7 +302,11 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
           {filters.tutoring_type && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
-              style={{ backgroundColor: '#00F0FF22', color: '#00F0FF', border: '1px solid #00F0FF' }}
+              style={{ 
+                backgroundColor: isDark ? '#00F0FF22' : '#00F0FF15', 
+                color: '#00F0FF', 
+                border: '1px solid #00F0FF' 
+              }}
             >
               Type: {filters.tutoring_type}
               <X 
@@ -284,7 +319,11 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
           {filters.subject && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
-              style={{ backgroundColor: '#FF10F022', color: '#FF10F0', border: '1px solid #FF10F0' }}
+              style={{ 
+                backgroundColor: isDark ? '#FF10F022' : '#FF10F015', 
+                color: '#FF10F0', 
+                border: '1px solid #FF10F0' 
+              }}
             >
               Subject: {filters.subject}
               <X 
@@ -297,7 +336,11 @@ const TuitionFilters = ({ filters, setFilters, onSearch }) => {
           {filters.grade && (
             <span 
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
-              style={{ backgroundColor: '#FFA50022', color: '#FFA500', border: '1px solid #FFA500' }}
+              style={{ 
+                backgroundColor: isDark ? '#FFA50022' : '#FFA50015', 
+                color: '#FFA500', 
+                border: '1px solid #FFA500' 
+              }}
             >
               Grade: {filters.grade}
               <X 

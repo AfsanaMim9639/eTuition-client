@@ -1,12 +1,18 @@
 // src/components/dashboard/admin/tables/PaymentsTable.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Clock, XCircle, DollarSign, Calendar, User } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, DollarSign, Calendar } from 'lucide-react';
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 const PaymentsTable = ({ payments }) => {
+  const { isDark } = useTheme();
+
   if (!payments || payments.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400">
+      <div 
+        className="text-center py-12"
+        style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+      >
         <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50" />
         <p>No payment records found</p>
       </div>
@@ -21,14 +27,14 @@ const PaymentsTable = ({ payments }) => {
           color: '#39FF14',
           icon: CheckCircle,
           label: 'Completed',
-          bg: 'rgba(57, 255, 20, 0.1)'
+          bg: isDark ? 'rgba(57, 255, 20, 0.1)' : 'rgba(57, 255, 20, 0.08)'
         };
       case 'pending':
         return {
           color: '#FFA500',
           icon: Clock,
           label: 'Pending',
-          bg: 'rgba(255, 165, 0, 0.1)'
+          bg: isDark ? 'rgba(255, 165, 0, 0.1)' : 'rgba(255, 165, 0, 0.08)'
         };
       case 'failed':
       case 'cancelled':
@@ -36,14 +42,14 @@ const PaymentsTable = ({ payments }) => {
           color: '#FF0000',
           icon: XCircle,
           label: 'Failed',
-          bg: 'rgba(255, 0, 0, 0.1)'
+          bg: isDark ? 'rgba(255, 0, 0, 0.1)' : 'rgba(255, 0, 0, 0.08)'
         };
       default:
         return {
           color: '#888',
           icon: Clock,
           label: status,
-          bg: 'rgba(136, 136, 136, 0.1)'
+          bg: isDark ? 'rgba(136, 136, 136, 0.1)' : 'rgba(136, 136, 136, 0.08)'
         };
     }
   };
@@ -71,20 +77,59 @@ const PaymentsTable = ({ payments }) => {
     <div 
       className="overflow-x-auto rounded-xl border" 
       style={{ 
-        backgroundColor: 'rgba(18, 18, 18, 0.5)',
-        borderColor: 'rgba(255, 16, 240, 0.2)'
+        backgroundColor: isDark ? 'rgba(18, 18, 18, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+        borderColor: isDark ? 'rgba(255, 16, 240, 0.2)' : 'rgba(255, 16, 240, 0.15)'
       }}
     >
       <table className="w-full">
         <thead>
-          <tr style={{ borderBottom: '2px solid rgba(255, 16, 240, 0.2)' }}>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Transaction ID</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Student</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Tutor</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Amount</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Method</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Status</th>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Date</th>
+          <tr style={{ 
+            borderBottom: isDark 
+              ? '2px solid rgba(255, 16, 240, 0.2)' 
+              : '2px solid rgba(255, 16, 240, 0.15)' 
+          }}>
+            <th 
+              className="px-6 py-4 text-left text-sm font-semibold"
+              style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+            >
+              Transaction ID
+            </th>
+            <th 
+              className="px-6 py-4 text-left text-sm font-semibold"
+              style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+            >
+              Student
+            </th>
+            <th 
+              className="px-6 py-4 text-left text-sm font-semibold"
+              style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+            >
+              Tutor
+            </th>
+            <th 
+              className="px-6 py-4 text-left text-sm font-semibold"
+              style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+            >
+              Amount
+            </th>
+            <th 
+              className="px-6 py-4 text-left text-sm font-semibold"
+              style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+            >
+              Method
+            </th>
+            <th 
+              className="px-6 py-4 text-left text-sm font-semibold"
+              style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+            >
+              Status
+            </th>
+            <th 
+              className="px-6 py-4 text-left text-sm font-semibold"
+              style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+            >
+              Date
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -98,13 +143,27 @@ const PaymentsTable = ({ payments }) => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="border-b border-gray-800 hover:bg-gray-900/50 transition-colors"
+                className="transition-colors"
+                style={{
+                  borderBottom: isDark ? '1px solid #1f2937' : '1px solid #e5e7eb'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = isDark 
+                    ? 'rgba(17, 24, 39, 0.5)' 
+                    : 'rgba(249, 250, 251, 0.8)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 {/* Transaction ID */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-cyan-400" />
-                    <span className="text-gray-300 font-mono text-sm">
+                    <span 
+                      className="font-mono text-sm"
+                      style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+                    >
                       {payment.transactionId || payment._id?.slice(-8) || 'N/A'}
                     </span>
                   </div>
@@ -122,10 +181,16 @@ const PaymentsTable = ({ payments }) => {
                       {payment.studentName?.charAt(0).toUpperCase() || 'S'}
                     </div>
                     <div>
-                      <p className="text-white text-sm font-medium">
+                      <p 
+                        className="text-sm font-medium"
+                        style={{ color: isDark ? '#ffffff' : '#111827' }}
+                      >
                         {payment.studentName || 'Unknown Student'}
                       </p>
-                      <p className="text-gray-400 text-xs">
+                      <p 
+                        className="text-xs"
+                        style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                      >
                         {payment.studentEmail || ''}
                       </p>
                     </div>
@@ -144,10 +209,16 @@ const PaymentsTable = ({ payments }) => {
                       {payment.tutorName?.charAt(0).toUpperCase() || 'T'}
                     </div>
                     <div>
-                      <p className="text-white text-sm font-medium">
+                      <p 
+                        className="text-sm font-medium"
+                        style={{ color: isDark ? '#ffffff' : '#111827' }}
+                      >
                         {payment.tutorName || 'Unknown Tutor'}
                       </p>
-                      <p className="text-gray-400 text-xs">
+                      <p 
+                        className="text-xs"
+                        style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                      >
                         {payment.tutorEmail || ''}
                       </p>
                     </div>
@@ -166,7 +237,13 @@ const PaymentsTable = ({ payments }) => {
 
                 {/* Payment Method */}
                 <td className="px-6 py-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-800 text-gray-300">
+                  <span 
+                    className="px-3 py-1 rounded-full text-xs font-semibold"
+                    style={{
+                      backgroundColor: isDark ? 'rgba(31, 41, 55, 0.8)' : 'rgba(243, 244, 246, 0.8)',
+                      color: isDark ? '#d1d5db' : '#4b5563'
+                    }}
+                  >
                     {payment.paymentMethod || payment.method || 'N/A'}
                   </span>
                 </td>
@@ -188,8 +265,14 @@ const PaymentsTable = ({ payments }) => {
 
                 {/* Date */}
                 <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-gray-300 text-sm">
-                    <Calendar className="w-4 h-4 text-gray-400" />
+                  <div 
+                    className="flex items-center gap-2 text-sm"
+                    style={{ color: isDark ? '#d1d5db' : '#4b5563' }}
+                  >
+                    <Calendar 
+                      className="w-4 h-4"
+                      style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                    />
                     {formatDate(payment.createdAt || payment.paymentDate)}
                   </div>
                 </td>
@@ -202,13 +285,23 @@ const PaymentsTable = ({ payments }) => {
       {/* Summary Footer */}
       <div 
         className="px-6 py-4 border-t"
-        style={{ borderColor: 'rgba(255, 16, 240, 0.2)' }}
+        style={{ 
+          borderColor: isDark 
+            ? 'rgba(255, 16, 240, 0.2)' 
+            : 'rgba(255, 16, 240, 0.15)' 
+        }}
       >
         <div className="flex justify-between items-center">
-          <span className="text-gray-400 text-sm">
+          <span 
+            className="text-sm"
+            style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+          >
             Total Transactions: {payments.length}
           </span>
-          <span className="text-white text-sm font-semibold">
+          <span 
+            className="text-sm font-semibold"
+            style={{ color: isDark ? '#ffffff' : '#111827' }}
+          >
             Total Revenue: {' '}
             <span style={{ color: '#39FF14' }}>
               {formatAmount(

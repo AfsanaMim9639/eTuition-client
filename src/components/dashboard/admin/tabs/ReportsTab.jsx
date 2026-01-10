@@ -5,12 +5,15 @@ import { DollarSign, TrendingUp, CreditCard, Activity } from 'lucide-react';
 import PaymentsTable from '../tables/PaymentsTable';
 import StatCard from '../cards/StatCard';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 const ReportsTab = ({ reportsHook }) => {
+  const { isDark } = useTheme();
+
   // Handle case where hook is not passed
   if (!reportsHook) {
     return (
-      <div className="text-center py-12 text-gray-400">
+      <div className={`text-center py-12 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
         <p>Reports hook not initialized</p>
       </div>
     );
@@ -34,7 +37,7 @@ const ReportsTab = ({ reportsHook }) => {
 
   // Loading state
   if (loading && !report) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner isDark={isDark} />;
   }
 
   return (
@@ -48,8 +51,10 @@ const ReportsTab = ({ reportsHook }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Reports & Analytics</h2>
-          <p className="text-sm text-gray-400 mt-1">
+          <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            Reports & Analytics
+          </h2>
+          <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
             View platform earnings and transaction history
           </p>
         </div>
@@ -63,9 +68,10 @@ const ReportsTab = ({ reportsHook }) => {
             title="Platform Earnings"
             value={formatCurrency(report.summary?.totalEarnings || 0)}
             icon={DollarSign}
-            color="#39FF14"
+            color={isDark ? '#39FF14' : '#065f46'}
             subtext="Total platform fees collected"
             index={0}
+            isDark={isDark}
           />
 
           {/* Total Transaction Amount */}
@@ -73,9 +79,10 @@ const ReportsTab = ({ reportsHook }) => {
             title="Total Transactions"
             value={formatCurrency(report.summary?.totalTransactionAmount || 0)}
             icon={TrendingUp}
-            color="#00F0FF"
+            color={isDark ? '#00F0FF' : '#0891b2'}
             subtext="All successful payments"
             index={1}
+            isDark={isDark}
           />
 
           {/* Completed Transactions Count */}
@@ -83,9 +90,10 @@ const ReportsTab = ({ reportsHook }) => {
             title="Completed Orders"
             value={report.summary?.totalCompletedTransactions || 0}
             icon={CreditCard}
-            color="#FF10F0"
+            color={isDark ? '#FF10F0' : '#a855f7'}
             subtext="Successfully processed"
             index={2}
+            isDark={isDark}
           />
 
           {/* Average Transaction */}
@@ -93,9 +101,10 @@ const ReportsTab = ({ reportsHook }) => {
             title="Average Transaction"
             value={formatCurrency(report.summary?.averageTransactionAmount || 0)}
             icon={Activity}
-            color="#FFA500"
+            color={isDark ? '#FFA500' : '#f97316'}
             subtext="Per transaction"
             index={3}
+            isDark={isDark}
           />
         </div>
       )}
@@ -108,17 +117,30 @@ const ReportsTab = ({ reportsHook }) => {
           transition={{ delay: 0.2 }}
           className="p-6 rounded-xl border-2"
           style={{
-            background: 'linear-gradient(135deg, rgba(18, 18, 18, 0.95), rgba(26, 26, 26, 0.95))',
-            borderColor: 'rgba(255, 16, 240, 0.2)'
+            background: isDark 
+              ? 'linear-gradient(135deg, rgba(18, 18, 18, 0.95), rgba(26, 26, 26, 0.95))'
+              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.95))',
+            borderColor: isDark ? 'rgba(255, 16, 240, 0.2)' : 'rgba(168, 85, 247, 0.3)'
           }}
         >
-          <h3 className="text-lg font-bold text-white mb-4">Payment Methods Distribution</h3>
+          <h3 className={`text-lg font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            Payment Methods Distribution
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {report.paymentMethodStats.map((method, idx) => (
-              <div key={idx} className="text-center p-4 rounded-lg bg-gray-900/50">
-                <p className="text-gray-400 text-sm mb-1">{method._id?.toUpperCase() || 'Unknown'}</p>
-                <p className="text-2xl font-bold text-cyan-400">{method.count}</p>
-                <p className="text-xs text-gray-500 mt-1">
+              <div 
+                key={idx} 
+                className={`text-center p-4 rounded-lg ${
+                  isDark ? 'bg-gray-900/50' : 'bg-gray-50'
+                }`}
+              >
+                <p className={`text-sm mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {method._id?.toUpperCase() || 'Unknown'}
+                </p>
+                <p className={`text-2xl font-bold ${isDark ? 'text-cyan-400' : 'text-cyan-700'}`}>
+                  {method.count}
+                </p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                   {formatCurrency(method.totalAmount)}
                 </p>
               </div>
@@ -135,16 +157,18 @@ const ReportsTab = ({ reportsHook }) => {
         className="space-y-4"
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white">Recent Transactions</h3>
-          <span className="text-sm text-gray-400">
+          <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            Recent Transactions
+          </h3>
+          <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
             {payments.length} transactions
           </span>
         </div>
 
         {loading ? (
-          <LoadingSpinner />
+          <LoadingSpinner isDark={isDark} />
         ) : (
-          <PaymentsTable payments={payments} />
+          <PaymentsTable payments={payments} isDark={isDark} />
         )}
       </motion.div>
     </motion.div>

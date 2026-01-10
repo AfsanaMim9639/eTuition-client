@@ -3,9 +3,11 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import AdminHeader from '../../../components/dashboard/admin/layout/AdminHeader';
 import AdminTabNavigation from '../../../components/dashboard/admin/layout/AdminTabNavigation';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 const AdminDashboard = () => {
   const location = useLocation();
+  const { isDark } = useTheme();
   
   // Determine active tab from URL
   const getActiveTab = () => {
@@ -17,7 +19,13 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0a0f0d', color: 'white' }}>
+    <div className={`min-h-screen transition-colors duration-300 ${
+      isDark 
+        ? 'bg-[#0a0f0d] text-white' 
+        : 'bg-gradient-to-b from-emerald-100 via-teal-50 to-emerald-100 text-gray-900'
+    }`}
+    style={isDark ? {} : { color: '#111827' }}
+    >
       <AdminHeader />
       
       {/* Tab Navigation - No onTabChange needed */}

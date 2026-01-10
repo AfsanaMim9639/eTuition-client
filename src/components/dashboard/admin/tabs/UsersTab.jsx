@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { useTheme } from '../../../../contexts/ThemeContext';
 import UserFilters from '../filters/UserFilters';
 import UsersTable from '../tables/UsersTable';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -10,6 +11,7 @@ import UserViewModal from '../modals/UserViewModal';
 import UserEditModal from '../modals/UserEditModal';
 
 const UsersTab = ({ usersHook }) => {
+  const { isDark } = useTheme();
   const {
     users,
     loading,
@@ -75,8 +77,8 @@ const UsersTab = ({ usersHook }) => {
     ), {
       duration: Infinity,
       style: {
-        background: 'rgba(18, 18, 18, 0.95)',
-        border: '2px solid rgba(255, 16, 240, 0.3)',
+        background: isDark ? 'rgba(18, 18, 18, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        border: isDark ? '2px solid rgba(255, 16, 240, 0.3)' : '2px solid rgba(255, 16, 240, 0.2)',
         borderRadius: '12px',
         padding: '12px',
         maxWidth: '90vw',
@@ -95,10 +97,20 @@ const UsersTab = ({ usersHook }) => {
     >
       {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
-        <h2 className="text-xl sm:text-2xl font-bold text-white">User Management</h2>
+        <h2 
+          className="text-xl sm:text-2xl font-bold"
+          style={{ color: isDark ? '#ffffff' : '#111827' }}
+        >
+          User Management
+        </h2>
         <div className="text-xs sm:text-sm px-3 py-1 rounded-full bg-gradient-to-r from-[#FF10F0]/20 to-[#00F0FF]/20 border border-[#FF10F0]/30">
-          <span className="text-gray-400">Total:</span>
-          <span className="ml-1 font-semibold text-white">{users?.length || 0}</span>
+          <span style={{ color: isDark ? '#9ca3af' : '#4b5563' }}>Total:</span>
+          <span 
+            className="ml-1 font-semibold"
+            style={{ color: isDark ? '#ffffff' : '#111827' }}
+          >
+            {users?.length || 0}
+          </span>
         </div>
       </div>
 
