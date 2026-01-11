@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BarChart3, Users, BookOpen, FileText, MessageCircle, User } from 'lucide-react';
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 const TABS = [
   { id: 'dashboard', icon: BarChart3, label: 'Dashboard', color: '#FF10F0', path: '/dashboard/admin' },
@@ -13,6 +14,8 @@ const TABS = [
 ];
 
 const AdminTabNavigation = ({ activeTab }) => {
+  const { isDark } = useTheme();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
       <div className="flex gap-2 overflow-x-auto pb-2">
@@ -37,9 +40,9 @@ const AdminTabNavigation = ({ activeTab }) => {
                     style={{
                       background: active 
                         ? `linear-gradient(135deg, ${tab.color}22, ${tab.color}11)` 
-                        : 'rgba(18, 18, 18, 0.5)',
-                      border: `2px solid ${active ? tab.color : 'rgba(255, 16, 240, 0.2)'}`,
-                      color: active ? tab.color : '#888',
+                        : (isDark ? 'rgba(18, 18, 18, 0.5)' : 'rgba(255, 255, 255, 0.5)'),
+                      border: `2px solid ${active ? tab.color : (isDark ? 'rgba(255, 16, 240, 0.2)' : 'rgba(255, 16, 240, 0.15)')}`,
+                      color: active ? tab.color : (isDark ? '#888' : '#6b7280'),
                       boxShadow: active ? `0 0 20px ${tab.color}33` : 'none'
                     }}
                   >
